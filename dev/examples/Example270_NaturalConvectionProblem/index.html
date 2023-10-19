@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>270 : Natural convection · ExtendableFEM.jl</title><meta name="title" content="270 : Natural convection · ExtendableFEM.jl"/><meta property="og:title" content="270 : Natural convection · ExtendableFEM.jl"/><meta property="twitter:title" content="270 : Natural convection · ExtendableFEM.jl"/><meta name="description" content="Documentation for ExtendableFEM.jl."/><meta property="og:description" content="Documentation for ExtendableFEM.jl."/><meta property="twitter:description" content="Documentation for ExtendableFEM.jl."/><script data-outdated-warner src="../../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../search_index.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../../">ExtendableFEM.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../../">Home</a></li><li><a class="tocitem" href="../../package_index/">Index</a></li><li><span class="tocitem">Problem Description</span><ul><li><a class="tocitem" href="../../problemdescription/">Problem Description</a></li><li><a class="tocitem" href="../../nonlinearoperator/">NonlinearOperator</a></li><li><a class="tocitem" href="../../bilinearoperator/">BilinearOperator</a></li><li><a class="tocitem" href="../../linearoperator/">LinearOperator</a></li><li><a class="tocitem" href="../../interpolateboundarydata/">InterpolateBoundaryData</a></li><li><a class="tocitem" href="../../homogeneousdata/">HomogeneousData</a></li><li><a class="tocitem" href="../../fixdofs/">FixDofs</a></li><li><a class="tocitem" href="../../combinedofs/">CombineDofs</a></li><li><a class="tocitem" href="../../callbackoperator/">CallbackOperator</a></li></ul></li><li><span class="tocitem">Solving</span><ul><li><a class="tocitem" href="../../pdesolvers/">Stationary Solvers</a></li><li><a class="tocitem" href="../../pdesolvers_dt/">Time-dependent Solvers</a></li></ul></li><li><span class="tocitem">Postprocessing</span><ul><li><a class="tocitem" href="../../postprocessing/">Other packages</a></li><li><a class="tocitem" href="../../itemintegrators/">Item Integrators</a></li></ul></li><li><span class="tocitem">Examples</span><ul><li><a class="tocitem" href="../../examples_intro/">About the examples</a></li><li><a class="tocitem" href="../Example103_BurgersEquation/">103 : Burger&#39;s Equation</a></li><li><a class="tocitem" href="../Example105_NonlinearPoissonEquation/">105 : Nonlinear Poisson Equation</a></li><li><a class="tocitem" href="../Example106_NonlinearDiffusion/">106 : Nonlinear Diffusion</a></li><li><a class="tocitem" href="../Example108_RobinBoundaryCondition/">108 : Robin Boundary Condition</a></li><li><a class="tocitem" href="../Example201_PoissonProblem/">201 : Poisson-Problem</a></li><li><a class="tocitem" href="../Example202_MixedPoissonProblem/">202 : Poisson-Problem (Mixed)</a></li><li><a class="tocitem" href="../Example204_LaplaceEVProblem/">204 : Eigenvalue problem for the Laplacian</a></li><li><a class="tocitem" href="../Example205_HeatEquation/">205 : Heat equation</a></li><li><a class="tocitem" href="../Example210_LshapeAdaptivePoissonProblem/">210 : Poisson L-shape Adaptive Mesh Refinement</a></li><li><a class="tocitem" href="../Example211_LshapeAdaptiveEQPoissonProblem/">211 : Poisson L-shape Local Equilibrated Fluxes</a></li><li><a class="tocitem" href="../Example220_ReactionConvectionDiffusion/">220 : Reaction-Convection-Diffusion-Problem</a></li><li><a class="tocitem" href="../Example225_ObstacleProblem/">225 : Obstacle Problem</a></li><li><a class="tocitem" href="../Example230_NonlinearElasticity/">230 : Nonlinear Elasticity</a></li><li><a class="tocitem" href="../Example235_StokesIteratedPenalty/">235 : Stokes iterated penalty method</a></li><li><a class="tocitem" href="../Example240_SVRTEnrichment/">240 : Stokes <span>$RT$</span> enrichment</a></li><li><a class="tocitem" href="../Example245_NSEFlowAroundCylinder/">245 : Flow around a cylinder</a></li><li><a class="tocitem" href="../Example250_NSELidDrivenCavity/">250 : Navier–Stokes Lid-driven cavity</a></li><li><a class="tocitem" href="../Example252_NSEPlanarLatticeFlow/">252 : Navier–Stokes Planar Lattice Flow</a></li><li><a class="tocitem" href="../Example260_AxisymmetricNavierStokesProblem/">260 : Axisymmetric Stokes</a></li><li><a class="tocitem" href="../Example265_FlowTransport/">265 : Flow + Transport</a></li><li class="is-active"><a class="tocitem" href>270 : Natural convection</a></li><li><a class="tocitem" href="../Example275_OptimalControlStokes/">275 : Optimal Control Stokes</a></li><li><a class="tocitem" href="../Example280_CompressibleStokes/">280 : Compressible Stokes</a></li><li><a class="tocitem" href="../Example284_LevelSetMethod/">284 : Level Set Method</a></li><li><a class="tocitem" href="../Example285_CahnHilliard/">285 : Cahn-Hilliard Equations</a></li><li><a class="tocitem" href="../Example290_PoroElasticity/">290 : Poro-Elasticity</a></li><li><a class="tocitem" href="../Example301_PoissonProblem/">301 : Poisson-Problem</a></li><li><a class="tocitem" href="../Example310_DivFreeBasis/">310 : Div-free RT0 basis</a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Examples</a></li><li class="is-active"><a href>270 : Natural convection</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>270 : Natural convection</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="github.com/chmerdon/ExtendableFEM.jl" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id=":-Natural-convection"><a class="docs-heading-anchor" href="#:-Natural-convection">270 : Natural convection</a><a id=":-Natural-convection-1"></a><a class="docs-heading-anchor-permalink" href="#:-Natural-convection" title="Permalink"></a></h1><p>(<a href="https://github.com/chmerdon/ExtendableFEM.jl/raw/master/examples/Example270_NaturalConvectionProblem.jl">source code</a>)</p><p>Seek velocity <span>$\mathbf{u}$</span>, pressure <span>$p$</span> and temperature <span>$\theta$</span> such that</p><p class="math-container">\[\begin{aligned}
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>270 : Natural convection · ExtendableFEM.jl</title><meta name="title" content="270 : Natural convection · ExtendableFEM.jl"/><meta property="og:title" content="270 : Natural convection · ExtendableFEM.jl"/><meta property="twitter:title" content="270 : Natural convection · ExtendableFEM.jl"/><meta name="description" content="Documentation for ExtendableFEM.jl."/><meta property="og:description" content="Documentation for ExtendableFEM.jl."/><meta property="twitter:description" content="Documentation for ExtendableFEM.jl."/><script data-outdated-warner src="../../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../search_index.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../../">ExtendableFEM.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../../">Home</a></li><li><a class="tocitem" href="../../package_index/">Index</a></li><li><span class="tocitem">Problem Description</span><ul><li><a class="tocitem" href="../../problemdescription/">Problem Description</a></li><li><a class="tocitem" href="../../nonlinearoperator/">NonlinearOperator</a></li><li><a class="tocitem" href="../../bilinearoperator/">BilinearOperator</a></li><li><a class="tocitem" href="../../linearoperator/">LinearOperator</a></li><li><a class="tocitem" href="../../interpolateboundarydata/">InterpolateBoundaryData</a></li><li><a class="tocitem" href="../../homogeneousdata/">HomogeneousData</a></li><li><a class="tocitem" href="../../fixdofs/">FixDofs</a></li><li><a class="tocitem" href="../../combinedofs/">CombineDofs</a></li><li><a class="tocitem" href="../../callbackoperator/">CallbackOperator</a></li></ul></li><li><span class="tocitem">Solving</span><ul><li><a class="tocitem" href="../../pdesolvers/">Stationary Solvers</a></li><li><a class="tocitem" href="../../pdesolvers_dt/">Time-dependent Solvers</a></li></ul></li><li><span class="tocitem">Postprocessing</span><ul><li><a class="tocitem" href="../../postprocessing/">Other packages</a></li><li><a class="tocitem" href="../../itemintegrators/">Item Integrators</a></li></ul></li><li><span class="tocitem">Examples</span><ul><li><a class="tocitem" href="../../examples_intro/">About the examples</a></li><li><a class="tocitem" href="../Example103_BurgersEquation/">103 : Burger&#39;s Equation</a></li><li><a class="tocitem" href="../Example105_NonlinearPoissonEquation/">105 : Nonlinear Poisson Equation</a></li><li><a class="tocitem" href="../Example106_NonlinearDiffusion/">106 : Nonlinear Diffusion</a></li><li><a class="tocitem" href="../Example108_RobinBoundaryCondition/">108 : Robin Boundary Condition</a></li><li><a class="tocitem" href="../Example201_PoissonProblem/">201 : Poisson-Problem</a></li><li><a class="tocitem" href="../Example202_MixedPoissonProblem/">202 : Poisson-Problem (Mixed)</a></li><li><a class="tocitem" href="../Example204_LaplaceEVProblem/">204 : Eigenvalue problem for the Laplacian</a></li><li><a class="tocitem" href="../Example205_HeatEquation/">205 : Heat equation</a></li><li><a class="tocitem" href="../Example210_LshapeAdaptivePoissonProblem/">210 : Poisson L-shape Adaptive Mesh Refinement</a></li><li><a class="tocitem" href="../Example211_LshapeAdaptiveEQPoissonProblem/">211 : Poisson L-shape Local Equilibrated Fluxes</a></li><li><a class="tocitem" href="../Example220_ReactionConvectionDiffusion/">220 : Reaction-Convection-Diffusion-Problem</a></li><li><a class="tocitem" href="../Example225_ObstacleProblem/">225 : Obstacle Problem</a></li><li><a class="tocitem" href="../Example226_Thermoforming/">226 : Thermoforming</a></li><li><a class="tocitem" href="../Example230_NonlinearElasticity/">230 : Nonlinear Elasticity</a></li><li><a class="tocitem" href="../Example235_StokesIteratedPenalty/">235 : Stokes iterated penalty method</a></li><li><a class="tocitem" href="../Example240_SVRTEnrichment/">240 : Stokes <span>$RT$</span> enrichment</a></li><li><a class="tocitem" href="../Example245_NSEFlowAroundCylinder/">245 : Flow around a cylinder</a></li><li><a class="tocitem" href="../Example250_NSELidDrivenCavity/">250 : Navier–Stokes Lid-driven cavity</a></li><li><a class="tocitem" href="../Example252_NSEPlanarLatticeFlow/">252 : Navier–Stokes Planar Lattice Flow</a></li><li><a class="tocitem" href="../Example260_AxisymmetricNavierStokesProblem/">260 : Axisymmetric Stokes</a></li><li><a class="tocitem" href="../Example265_FlowTransport/">265 : Flow + Transport</a></li><li class="is-active"><a class="tocitem" href>270 : Natural convection</a></li><li><a class="tocitem" href="../Example275_OptimalControlStokes/">275 : Optimal Control Stokes</a></li><li><a class="tocitem" href="../Example280_CompressibleStokes/">280 : Compressible Stokes</a></li><li><a class="tocitem" href="../Example284_LevelSetMethod/">284 : Level Set Method</a></li><li><a class="tocitem" href="../Example285_CahnHilliard/">285 : Cahn-Hilliard Equations</a></li><li><a class="tocitem" href="../Example290_PoroElasticity/">290 : Poro-Elasticity</a></li><li><a class="tocitem" href="../Example301_PoissonProblem/">301 : Poisson-Problem</a></li><li><a class="tocitem" href="../Example310_DivFreeBasis/">310 : Div-free RT0 basis</a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Examples</a></li><li class="is-active"><a href>270 : Natural convection</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>270 : Natural convection</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="github.com/chmerdon/ExtendableFEM.jl" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id=":-Natural-convection"><a class="docs-heading-anchor" href="#:-Natural-convection">270 : Natural convection</a><a id=":-Natural-convection-1"></a><a class="docs-heading-anchor-permalink" href="#:-Natural-convection" title="Permalink"></a></h1><p>(<a href="https://github.com/chmerdon/ExtendableFEM.jl/raw/master/examples/Example270_NaturalConvectionProblem.jl">source code</a>)</p><p>Seek velocity <span>$\mathbf{u}$</span>, pressure <span>$p$</span> and temperature <span>$\theta$</span> such that</p><p class="math-container">\[\begin{aligned}
 	- \mu \Delta u + (\mathbf{u} \cdot \nabla) \mathbf{u} + \nabla p &amp; = Ra \, \theta \, g \\
        - \Delta \theta + \mathbf{u} \cdot \nabla \theta &amp; = 0
 \end{aligned}\]</p><p>on a given domain <span>$\Omega$</span> (here a triangle) and boundary conditions</p><p class="math-container">\[\begin{aligned}
@@ -112,81 +112,81 @@ end # module</code></pre><hr/><p><em>This page was generated using <a href="http
  #IT	------- RESIDUALS -------	---- DURATION (s) ----		---- ALLOCATIONS (MiB) ----
    	NONLINEAR	LINEAR		ASSEMB	SOLVE	TOTAL		ASSEMB	SOLVE	TOTAL
  INI							0.00				0.23
-   1	2.317e+01	3.077e-11	0.20	0.04	0.23		4.10	15.67	19.77
-   2	1.507e+01	8.579e-11	0.21	0.06	0.27		3.16	17.20	20.36
-   3	1.814e+00	3.405e-11	0.20	0.03	0.22		0.15	13.14	13.30
-   4	1.312e-01	2.541e-11	0.20	0.03	0.22		0.15	13.14	13.30
-   5	4.601e-04	2.326e-11	0.20	0.03	0.22		0.15	13.14	13.30
- END	2.207e-09			0.20		0.20		0.15		0.15
-	converged				SUM --&gt;	1.38			SUM --&gt;	80.42
+   1	2.317e+01	2.763e-11	0.27	0.05	0.32		4.11	15.67	19.77
+   2	1.507e+01	6.197e-11	0.27	0.09	0.36		3.16	17.20	20.36
+   3	1.814e+00	3.530e-11	0.26	0.04	0.30		0.15	13.14	13.30
+   4	1.312e-01	3.290e-11	0.27	0.04	0.31		0.15	13.14	13.30
+   5	4.601e-04	3.113e-11	0.26	0.04	0.30		0.15	13.14	13.30
+ END	2.208e-09			0.28		0.28		0.15		0.15
+	converged				SUM --&gt;	1.86			SUM --&gt;	80.42
 
  #IT	------- RESIDUALS -------	---- DURATION (s) ----		---- ALLOCATIONS (MiB) ----
    	NONLINEAR	LINEAR		ASSEMB	SOLVE	TOTAL		ASSEMB	SOLVE	TOTAL
  INI							0.00				0.00
-   1	3.965e+02	8.919e-10	0.20	0.05	0.25		0.16	13.14	13.30
-   2	4.226e+01	1.698e-10	0.20	0.03	0.23		0.16	13.14	13.30
-   3	4.205e+00	3.669e-09	0.20	0.03	0.23		0.16	13.14	13.30
-   4	6.763e-02	6.935e-09	0.20	0.03	0.23		0.16	13.14	13.30
-   5	2.126e-05	8.792e-09	0.20	0.04	0.24		0.16	13.14	13.30
- END	8.792e-09			0.20		0.20		0.16		0.16
-	converged				SUM --&gt;	1.37			SUM --&gt;	66.65
+   1	3.965e+02	6.684e-10	0.26	0.07	0.34		0.16	13.14	13.30
+   2	4.226e+01	3.398e-10	0.26	0.04	0.30		0.16	13.14	13.30
+   3	4.205e+00	4.364e-09	0.26	0.04	0.30		0.16	13.14	13.30
+   4	6.763e-02	4.684e-09	0.26	0.04	0.30		0.16	13.14	13.30
+   5	2.126e-05	3.133e-09	0.29	0.08	0.37		0.16	13.14	13.30
+ END	3.133e-09			0.29		0.30		0.16		0.16
+	converged				SUM --&gt;	1.90			SUM --&gt;	66.65
 
  #IT	------- RESIDUALS -------	---- DURATION (s) ----		---- ALLOCATIONS (MiB) ----
    	NONLINEAR	LINEAR		ASSEMB	SOLVE	TOTAL		ASSEMB	SOLVE	TOTAL
  INI							0.00				0.00
-   1	1.182e+03	2.625e-10	0.20	0.03	0.23		0.16	13.14	13.30
-   2	1.188e+02	7.779e-09	0.20	0.03	0.23		0.16	13.14	13.30
-   3	2.150e+01	1.135e-09	0.20	0.03	0.23		0.16	13.14	13.30
-   4	1.019e+00	1.697e-09	0.20	0.03	0.23		0.16	13.14	13.30
-   5	2.696e-03	2.896e-09	0.20	0.03	0.23		0.16	13.14	13.30
- END	1.149e-08			0.20		0.20		0.16		0.16
-	converged				SUM --&gt;	1.34			SUM --&gt;	66.65
+   1	1.182e+03	2.176e-10	0.26	0.04	0.30		0.16	13.14	13.30
+   2	1.188e+02	6.322e-09	0.27	0.04	0.31		0.16	13.14	13.30
+   3	2.150e+01	1.151e-09	0.27	0.04	0.32		0.16	13.14	13.30
+   4	1.019e+00	2.399e-09	0.27	0.05	0.32		0.16	13.14	13.30
+   5	2.696e-03	1.486e-09	0.26	0.04	0.30		0.16	13.14	13.30
+ END	1.119e-08			0.26		0.26		0.16		0.16
+	converged				SUM --&gt;	1.80			SUM --&gt;	66.65
 
  #IT	------- RESIDUALS -------	---- DURATION (s) ----		---- ALLOCATIONS (MiB) ----
    	NONLINEAR	LINEAR		ASSEMB	SOLVE	TOTAL		ASSEMB	SOLVE	TOTAL
  INI							0.00				0.00
-   1	3.431e+03	9.538e-09	0.20	0.03	0.23		0.16	13.14	13.30
-   2	4.403e+02	1.529e-09	0.20	0.03	0.23		0.16	13.14	13.30
-   3	1.091e+02	3.165e-09	0.20	0.03	0.23		0.16	13.14	13.30
-   4	1.104e+01	1.531e-08	0.20	0.03	0.23		0.16	13.14	13.30
-   5	1.319e-01	2.166e-08	0.20	0.03	0.23		0.16	13.14	13.30
-   6	1.327e-05	5.323e-09	0.20	0.03	0.23		0.16	13.14	13.30
- END	5.323e-09			0.20		0.20		0.16		0.16
-	converged				SUM --&gt;	1.57			SUM --&gt;	79.95
+   1	3.431e+03	7.933e-09	0.25	0.04	0.29		0.16	13.14	13.30
+   2	4.403e+02	1.482e-09	0.25	0.04	0.29		0.16	13.14	13.30
+   3	1.091e+02	2.636e-09	0.25	0.05	0.31		0.16	13.14	13.30
+   4	1.104e+01	1.063e-08	0.27	0.04	0.31		0.16	13.14	13.30
+   5	1.319e-01	9.326e-09	0.27	0.04	0.32		0.16	13.14	13.30
+   6	1.327e-05	1.119e-08	0.26	0.04	0.30		0.16	13.14	13.30
+ END	1.119e-08			0.26		0.26		0.16		0.16
+	converged				SUM --&gt;	2.07			SUM --&gt;	79.95
 
  #IT	------- RESIDUALS -------	---- DURATION (s) ----		---- ALLOCATIONS (MiB) ----
    	NONLINEAR	LINEAR		ASSEMB	SOLVE	TOTAL		ASSEMB	SOLVE	TOTAL
  INI							0.00				0.00
-   1	9.821e+03	8.066e-10	0.20	0.04	0.23		0.16	13.14	13.30
-   2	2.159e+03	1.763e-09	0.20	0.03	0.23		0.16	13.14	13.30
-   3	5.758e+02	5.365e-09	0.20	0.03	0.23		0.16	13.14	13.30
-   4	1.364e+02	5.969e-09	0.20	0.03	0.23		0.16	13.14	13.30
-   5	1.020e+01	1.694e-09	0.20	0.04	0.23		0.16	13.14	13.30
-   6	1.191e-02	2.227e-09	0.20	0.03	0.23		0.16	13.14	13.30
- END	2.944e-07			0.20		0.20		0.16		0.16
-	converged				SUM --&gt;	1.58			SUM --&gt;	79.95
+   1	9.821e+03	1.044e-09	0.26	0.05	0.31		0.16	13.14	13.30
+   2	2.159e+03	1.730e-09	0.26	0.04	0.30		0.16	13.14	13.30
+   3	5.758e+02	5.755e-09	0.26	0.04	0.30		0.16	13.14	13.30
+   4	1.364e+02	3.400e-09	0.26	0.04	0.30		0.16	13.14	13.30
+   5	1.020e+01	2.004e-09	0.26	0.05	0.31		0.16	13.14	13.30
+   6	1.191e-02	2.558e-09	0.29	0.05	0.35		0.16	13.14	13.30
+ END	2.944e-07			0.27		0.27		0.16		0.16
+	converged				SUM --&gt;	2.13			SUM --&gt;	79.95
 
  #IT	------- RESIDUALS -------	---- DURATION (s) ----		---- ALLOCATIONS (MiB) ----
    	NONLINEAR	LINEAR		ASSEMB	SOLVE	TOTAL		ASSEMB	SOLVE	TOTAL
  INI							0.00				0.00
-   1	2.761e+04	2.237e-09	0.20	0.03	0.23		0.16	15.49	15.65
-   2	1.388e+04	2.887e-09	0.20	0.04	0.24		0.16	15.58	15.73
-   3	4.992e+03	2.568e-09	0.20	0.03	0.23		0.16	15.54	15.69
-   4	2.276e+03	1.722e-08	0.20	0.03	0.23		0.16	15.60	15.75
-   5	8.979e+02	2.989e-09	0.20	0.04	0.23		0.16	15.49	15.64
-   6	1.208e+02	2.505e-09	0.20	0.03	0.23		0.16	15.59	15.74
-   7	1.574e+01	5.427e-09	0.20	0.03	0.23		0.16	15.61	15.77
-   8	6.250e-02	3.891e-09	0.20	0.04	0.24		0.16	15.61	15.77
-   9	7.218e-06	5.026e-09	0.20	0.03	0.23		0.16	15.61	15.77
- END	5.071e-09			0.20		0.20		0.16		0.16
-	converged				SUM --&gt;	2.29			SUM --&gt;	141.68
+   1	2.761e+04	2.735e-09	0.29	0.05	0.35		0.16	15.49	15.64
+   2	1.388e+04	3.253e-09	0.26	0.05	0.32		0.16	15.58	15.73
+   3	4.992e+03	2.461e-09	0.27	0.05	0.31		0.16	15.53	15.69
+   4	2.276e+03	1.212e-08	0.27	0.04	0.31		0.16	15.60	15.75
+   5	8.979e+02	3.366e-09	0.26	0.06	0.31		0.16	15.49	15.64
+   6	1.208e+02	3.039e-09	0.26	0.04	0.31		0.16	15.59	15.74
+   7	1.574e+01	4.383e-09	0.26	0.05	0.30		0.16	15.61	15.77
+   8	6.250e-02	4.625e-09	0.26	0.06	0.32		0.16	15.61	15.77
+   9	7.218e-06	4.199e-09	0.27	0.05	0.31		0.16	15.61	15.77
+ END	4.196e-09			0.27		0.27		0.16		0.16
+	converged				SUM --&gt;	3.10			SUM --&gt;	141.67
 
  #IT	------- RESIDUALS -------	---- DURATION (s) ----		---- ALLOCATIONS (MiB) ----
    	NONLINEAR	LINEAR		ASSEMB	SOLVE	TOTAL		ASSEMB	SOLVE	TOTAL
  INI							0.00				0.00
-   1	1.101e+03	3.819e-09	0.20	0.03	0.23		0.16	15.58	15.73
-   2	2.032e+00	3.302e-09	0.20	0.04	0.24		0.16	15.62	15.77
-   3	1.311e-03	5.047e-09	0.20	0.03	0.23		0.16	15.62	15.77
- END	5.059e-09			0.20		0.20		0.16		0.16
-	converged				SUM --&gt;	0.90			SUM --&gt;	47.44
-</code></pre><p><img src="../../images/Example270_NaturalConvectionProblem_1.png" alt/></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../Example265_FlowTransport/">« 265 : Flow + Transport</a><a class="docs-footer-nextpage" href="../Example275_OptimalControlStokes/">275 : Optimal Control Stokes »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="auto">Automatic (OS)</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.1.0 on <span class="colophon-date" title="Wednesday 11 October 2023 16:25">Wednesday 11 October 2023</span>. Using Julia version 1.9.3.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+   1	1.101e+03	3.655e-09	0.25	0.05	0.30		0.16	15.58	15.73
+   2	2.032e+00	4.746e-09	0.25	0.06	0.31		0.16	15.62	15.77
+   3	1.311e-03	3.194e-09	0.26	0.04	0.31		0.16	15.62	15.77
+ END	3.202e-09			0.26		0.26		0.16		0.16
+	converged				SUM --&gt;	1.18			SUM --&gt;	47.44
+</code></pre><p><img src="../../images/Example270_NaturalConvectionProblem_1.png" alt/></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../Example265_FlowTransport/">« 265 : Flow + Transport</a><a class="docs-footer-nextpage" href="../Example275_OptimalControlStokes/">275 : Optimal Control Stokes »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="auto">Automatic (OS)</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.1.1 on <span class="colophon-date" title="Thursday 19 October 2023 15:35">Thursday 19 October 2023</span>. Using Julia version 1.9.3.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>

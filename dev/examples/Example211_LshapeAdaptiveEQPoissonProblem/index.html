@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>211 : Poisson L-shape Local Equilibrated Fluxes · ExtendableFEM.jl</title><meta name="title" content="211 : Poisson L-shape Local Equilibrated Fluxes · ExtendableFEM.jl"/><meta property="og:title" content="211 : Poisson L-shape Local Equilibrated Fluxes · ExtendableFEM.jl"/><meta property="twitter:title" content="211 : Poisson L-shape Local Equilibrated Fluxes · ExtendableFEM.jl"/><meta name="description" content="Documentation for ExtendableFEM.jl."/><meta property="og:description" content="Documentation for ExtendableFEM.jl."/><meta property="twitter:description" content="Documentation for ExtendableFEM.jl."/><script data-outdated-warner src="../../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../search_index.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../../">ExtendableFEM.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../../">Home</a></li><li><a class="tocitem" href="../../package_index/">Index</a></li><li><span class="tocitem">Problem Description</span><ul><li><a class="tocitem" href="../../problemdescription/">Problem Description</a></li><li><a class="tocitem" href="../../nonlinearoperator/">NonlinearOperator</a></li><li><a class="tocitem" href="../../bilinearoperator/">BilinearOperator</a></li><li><a class="tocitem" href="../../linearoperator/">LinearOperator</a></li><li><a class="tocitem" href="../../interpolateboundarydata/">InterpolateBoundaryData</a></li><li><a class="tocitem" href="../../homogeneousdata/">HomogeneousData</a></li><li><a class="tocitem" href="../../fixdofs/">FixDofs</a></li><li><a class="tocitem" href="../../combinedofs/">CombineDofs</a></li><li><a class="tocitem" href="../../callbackoperator/">CallbackOperator</a></li></ul></li><li><span class="tocitem">Solving</span><ul><li><a class="tocitem" href="../../pdesolvers/">Stationary Solvers</a></li><li><a class="tocitem" href="../../pdesolvers_dt/">Time-dependent Solvers</a></li></ul></li><li><span class="tocitem">Postprocessing</span><ul><li><a class="tocitem" href="../../postprocessing/">Other packages</a></li><li><a class="tocitem" href="../../itemintegrators/">Item Integrators</a></li></ul></li><li><span class="tocitem">Examples</span><ul><li><a class="tocitem" href="../../examples_intro/">About the examples</a></li><li><a class="tocitem" href="../Example103_BurgersEquation/">103 : Burger&#39;s Equation</a></li><li><a class="tocitem" href="../Example105_NonlinearPoissonEquation/">105 : Nonlinear Poisson Equation</a></li><li><a class="tocitem" href="../Example106_NonlinearDiffusion/">106 : Nonlinear Diffusion</a></li><li><a class="tocitem" href="../Example108_RobinBoundaryCondition/">108 : Robin Boundary Condition</a></li><li><a class="tocitem" href="../Example201_PoissonProblem/">201 : Poisson-Problem</a></li><li><a class="tocitem" href="../Example202_MixedPoissonProblem/">202 : Poisson-Problem (Mixed)</a></li><li><a class="tocitem" href="../Example204_LaplaceEVProblem/">204 : Eigenvalue problem for the Laplacian</a></li><li><a class="tocitem" href="../Example205_HeatEquation/">205 : Heat equation</a></li><li><a class="tocitem" href="../Example210_LshapeAdaptivePoissonProblem/">210 : Poisson L-shape Adaptive Mesh Refinement</a></li><li class="is-active"><a class="tocitem" href>211 : Poisson L-shape Local Equilibrated Fluxes</a></li><li><a class="tocitem" href="../Example220_ReactionConvectionDiffusion/">220 : Reaction-Convection-Diffusion-Problem</a></li><li><a class="tocitem" href="../Example225_ObstacleProblem/">225 : Obstacle Problem</a></li><li><a class="tocitem" href="../Example230_NonlinearElasticity/">230 : Nonlinear Elasticity</a></li><li><a class="tocitem" href="../Example235_StokesIteratedPenalty/">235 : Stokes iterated penalty method</a></li><li><a class="tocitem" href="../Example240_SVRTEnrichment/">240 : Stokes <span>$RT$</span> enrichment</a></li><li><a class="tocitem" href="../Example245_NSEFlowAroundCylinder/">245 : Flow around a cylinder</a></li><li><a class="tocitem" href="../Example250_NSELidDrivenCavity/">250 : Navier–Stokes Lid-driven cavity</a></li><li><a class="tocitem" href="../Example252_NSEPlanarLatticeFlow/">252 : Navier–Stokes Planar Lattice Flow</a></li><li><a class="tocitem" href="../Example260_AxisymmetricNavierStokesProblem/">260 : Axisymmetric Stokes</a></li><li><a class="tocitem" href="../Example265_FlowTransport/">265 : Flow + Transport</a></li><li><a class="tocitem" href="../Example270_NaturalConvectionProblem/">270 : Natural convection</a></li><li><a class="tocitem" href="../Example275_OptimalControlStokes/">275 : Optimal Control Stokes</a></li><li><a class="tocitem" href="../Example280_CompressibleStokes/">280 : Compressible Stokes</a></li><li><a class="tocitem" href="../Example284_LevelSetMethod/">284 : Level Set Method</a></li><li><a class="tocitem" href="../Example285_CahnHilliard/">285 : Cahn-Hilliard Equations</a></li><li><a class="tocitem" href="../Example290_PoroElasticity/">290 : Poro-Elasticity</a></li><li><a class="tocitem" href="../Example301_PoissonProblem/">301 : Poisson-Problem</a></li><li><a class="tocitem" href="../Example310_DivFreeBasis/">310 : Div-free RT0 basis</a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Examples</a></li><li class="is-active"><a href>211 : Poisson L-shape Local Equilibrated Fluxes</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>211 : Poisson L-shape Local Equilibrated Fluxes</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="github.com/chmerdon/ExtendableFEM.jl" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id=":-Poisson-L-shape-Local-Equilibrated-Fluxes"><a class="docs-heading-anchor" href="#:-Poisson-L-shape-Local-Equilibrated-Fluxes">211 : Poisson L-shape Local Equilibrated Fluxes</a><a id=":-Poisson-L-shape-Local-Equilibrated-Fluxes-1"></a><a class="docs-heading-anchor-permalink" href="#:-Poisson-L-shape-Local-Equilibrated-Fluxes" title="Permalink"></a></h1><p>(<a href="https://github.com/chmerdon/ExtendableFEM.jl/raw/master/examples/Example211_LshapeAdaptiveEQPoissonProblem.jl">source code</a>)</p><p>This example computes a local equilibration error estimator for the <span>$H^1$</span> error of some <span>$H^1$</span>-conforming approximation <span>$u_h$</span> to the solution <span>$u$</span> of some Poisson problem <span>$-\Delta u = f$</span> on an L-shaped domain, i.e.</p><p class="math-container">\[\eta^2(\sigma_h) := \| \sigma_h - \nabla u_h \|^2_{L^2(T)}\]</p><p>where <span>$\sigma_h$</span> discretisates the exact <span>$\sigma$</span> in the dual mixed problem</p><p class="math-container">\[\sigma - \nabla u = 0
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>211 : Poisson L-shape Local Equilibrated Fluxes · ExtendableFEM.jl</title><meta name="title" content="211 : Poisson L-shape Local Equilibrated Fluxes · ExtendableFEM.jl"/><meta property="og:title" content="211 : Poisson L-shape Local Equilibrated Fluxes · ExtendableFEM.jl"/><meta property="twitter:title" content="211 : Poisson L-shape Local Equilibrated Fluxes · ExtendableFEM.jl"/><meta name="description" content="Documentation for ExtendableFEM.jl."/><meta property="og:description" content="Documentation for ExtendableFEM.jl."/><meta property="twitter:description" content="Documentation for ExtendableFEM.jl."/><script data-outdated-warner src="../../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../search_index.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../../">ExtendableFEM.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../../">Home</a></li><li><a class="tocitem" href="../../package_index/">Index</a></li><li><span class="tocitem">Problem Description</span><ul><li><a class="tocitem" href="../../problemdescription/">Problem Description</a></li><li><a class="tocitem" href="../../nonlinearoperator/">NonlinearOperator</a></li><li><a class="tocitem" href="../../bilinearoperator/">BilinearOperator</a></li><li><a class="tocitem" href="../../linearoperator/">LinearOperator</a></li><li><a class="tocitem" href="../../interpolateboundarydata/">InterpolateBoundaryData</a></li><li><a class="tocitem" href="../../homogeneousdata/">HomogeneousData</a></li><li><a class="tocitem" href="../../fixdofs/">FixDofs</a></li><li><a class="tocitem" href="../../combinedofs/">CombineDofs</a></li><li><a class="tocitem" href="../../callbackoperator/">CallbackOperator</a></li></ul></li><li><span class="tocitem">Solving</span><ul><li><a class="tocitem" href="../../pdesolvers/">Stationary Solvers</a></li><li><a class="tocitem" href="../../pdesolvers_dt/">Time-dependent Solvers</a></li></ul></li><li><span class="tocitem">Postprocessing</span><ul><li><a class="tocitem" href="../../postprocessing/">Other packages</a></li><li><a class="tocitem" href="../../itemintegrators/">Item Integrators</a></li></ul></li><li><span class="tocitem">Examples</span><ul><li><a class="tocitem" href="../../examples_intro/">About the examples</a></li><li><a class="tocitem" href="../Example103_BurgersEquation/">103 : Burger&#39;s Equation</a></li><li><a class="tocitem" href="../Example105_NonlinearPoissonEquation/">105 : Nonlinear Poisson Equation</a></li><li><a class="tocitem" href="../Example106_NonlinearDiffusion/">106 : Nonlinear Diffusion</a></li><li><a class="tocitem" href="../Example108_RobinBoundaryCondition/">108 : Robin Boundary Condition</a></li><li><a class="tocitem" href="../Example201_PoissonProblem/">201 : Poisson-Problem</a></li><li><a class="tocitem" href="../Example202_MixedPoissonProblem/">202 : Poisson-Problem (Mixed)</a></li><li><a class="tocitem" href="../Example204_LaplaceEVProblem/">204 : Eigenvalue problem for the Laplacian</a></li><li><a class="tocitem" href="../Example205_HeatEquation/">205 : Heat equation</a></li><li><a class="tocitem" href="../Example210_LshapeAdaptivePoissonProblem/">210 : Poisson L-shape Adaptive Mesh Refinement</a></li><li class="is-active"><a class="tocitem" href>211 : Poisson L-shape Local Equilibrated Fluxes</a></li><li><a class="tocitem" href="../Example220_ReactionConvectionDiffusion/">220 : Reaction-Convection-Diffusion-Problem</a></li><li><a class="tocitem" href="../Example225_ObstacleProblem/">225 : Obstacle Problem</a></li><li><a class="tocitem" href="../Example226_Thermoforming/">226 : Thermoforming</a></li><li><a class="tocitem" href="../Example230_NonlinearElasticity/">230 : Nonlinear Elasticity</a></li><li><a class="tocitem" href="../Example235_StokesIteratedPenalty/">235 : Stokes iterated penalty method</a></li><li><a class="tocitem" href="../Example240_SVRTEnrichment/">240 : Stokes <span>$RT$</span> enrichment</a></li><li><a class="tocitem" href="../Example245_NSEFlowAroundCylinder/">245 : Flow around a cylinder</a></li><li><a class="tocitem" href="../Example250_NSELidDrivenCavity/">250 : Navier–Stokes Lid-driven cavity</a></li><li><a class="tocitem" href="../Example252_NSEPlanarLatticeFlow/">252 : Navier–Stokes Planar Lattice Flow</a></li><li><a class="tocitem" href="../Example260_AxisymmetricNavierStokesProblem/">260 : Axisymmetric Stokes</a></li><li><a class="tocitem" href="../Example265_FlowTransport/">265 : Flow + Transport</a></li><li><a class="tocitem" href="../Example270_NaturalConvectionProblem/">270 : Natural convection</a></li><li><a class="tocitem" href="../Example275_OptimalControlStokes/">275 : Optimal Control Stokes</a></li><li><a class="tocitem" href="../Example280_CompressibleStokes/">280 : Compressible Stokes</a></li><li><a class="tocitem" href="../Example284_LevelSetMethod/">284 : Level Set Method</a></li><li><a class="tocitem" href="../Example285_CahnHilliard/">285 : Cahn-Hilliard Equations</a></li><li><a class="tocitem" href="../Example290_PoroElasticity/">290 : Poro-Elasticity</a></li><li><a class="tocitem" href="../Example301_PoissonProblem/">301 : Poisson-Problem</a></li><li><a class="tocitem" href="../Example310_DivFreeBasis/">310 : Div-free RT0 basis</a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Examples</a></li><li class="is-active"><a href>211 : Poisson L-shape Local Equilibrated Fluxes</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>211 : Poisson L-shape Local Equilibrated Fluxes</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="github.com/chmerdon/ExtendableFEM.jl" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id=":-Poisson-L-shape-Local-Equilibrated-Fluxes"><a class="docs-heading-anchor" href="#:-Poisson-L-shape-Local-Equilibrated-Fluxes">211 : Poisson L-shape Local Equilibrated Fluxes</a><a id=":-Poisson-L-shape-Local-Equilibrated-Fluxes-1"></a><a class="docs-heading-anchor-permalink" href="#:-Poisson-L-shape-Local-Equilibrated-Fluxes" title="Permalink"></a></h1><p>(<a href="https://github.com/chmerdon/ExtendableFEM.jl/raw/master/examples/Example211_LshapeAdaptiveEQPoissonProblem.jl">source code</a>)</p><p>This example computes a local equilibration error estimator for the <span>$H^1$</span> error of some <span>$H^1$</span>-conforming approximation <span>$u_h$</span> to the solution <span>$u$</span> of some Poisson problem <span>$-\Delta u = f$</span> on an L-shaped domain, i.e.</p><p class="math-container">\[\eta^2(\sigma_h) := \| \sigma_h - \nabla u_h \|^2_{L^2(T)}\]</p><p>where <span>$\sigma_h$</span> discretisates the exact <span>$\sigma$</span> in the dual mixed problem</p><p class="math-container">\[\sigma - \nabla u = 0
 \quad \text{and} \quad
 \mathrm{div}(\sigma) + f = 0\]</p><p>by some local equilibration strategy, see reference below for details.</p><p>This examples demonstrates the use of low-level structures to assemble individual problems and a strategy to solve several small problems in parallel by use of non-overlapping node patch groups.</p><div class="admonition is-category-reference"><header class="admonition-header">Reference</header><div class="admonition-body"><p>&#39;&#39;A posteriori error estimates for efficiency and error control in numerical simulations&#39;&#39; Lecture Notes by M. Vohralik <a href="https://who.rocq.inria.fr/Martin.Vohralik/Enseig/APost/a_posteriori.pdf">&gt;Link&lt;</a></p></div></div><pre><code class="language-julia hljs">module Example211_LshapeAdaptiveEQPoissonProblem
 
@@ -363,7 +363,7 @@ end</code></pre><hr/><p><em>This page was generated using <a href="https://githu
  #IT	------- RESIDUALS -------	---- DURATION (s) ----		---- ALLOCATIONS (MiB) ----
    	NONLINEAR	LINEAR		ASSEMB	SOLVE	TOTAL		ASSEMB	SOLVE	TOTAL
  INI							0.00				0.02
- END	---------	2.456e-15	0.00	0.00	0.00		0.10	0.11	0.21
+ END	---------	2.448e-15	0.00	0.00	0.00		0.10	0.11	0.21
 	finished				SUM --&gt;	0.00			SUM --&gt;	0.23
 
 
@@ -371,13 +371,13 @@ end</code></pre><hr/><p><em>This page was generated using <a href="https://githu
     ndofs = 66
   ESTIMATE
     ndofsDual = 219
-    estim H1 error = 0.11766692828553585
+    estim H1 error = 0.11766692828672214
     exact H1 error = 0.08725419470614605
-    exact L2 error = 0.006011386581472842
+    exact L2 error = 0.006011386581472843
  #IT	------- RESIDUALS -------	---- DURATION (s) ----		---- ALLOCATIONS (MiB) ----
    	NONLINEAR	LINEAR		ASSEMB	SOLVE	TOTAL		ASSEMB	SOLVE	TOTAL
  INI							0.00				0.02
- END	---------	2.376e-15	0.00	0.00	0.00		0.10	0.15	0.26
+ END	---------	2.549e-15	0.00	0.00	0.00		0.10	0.15	0.26
 	finished				SUM --&gt;	0.00			SUM --&gt;	0.28
 
 
@@ -385,13 +385,13 @@ end</code></pre><hr/><p><em>This page was generated using <a href="https://githu
     ndofs = 92
   ESTIMATE
     ndofsDual = 312
-    estim H1 error = 0.07655257050518746
-    exact H1 error = 0.058027681015557935
-    exact L2 error = 0.0026001182395898018
+    estim H1 error = 0.07655257050516995
+    exact H1 error = 0.05802768101555795
+    exact L2 error = 0.002600118239589796
  #IT	------- RESIDUALS -------	---- DURATION (s) ----		---- ALLOCATIONS (MiB) ----
    	NONLINEAR	LINEAR		ASSEMB	SOLVE	TOTAL		ASSEMB	SOLVE	TOTAL
  INI							0.00				0.02
- END	---------	2.417e-15	0.00	0.00	0.00		0.11	0.19	0.30
+ END	---------	2.449e-15	0.00	0.00	0.00		0.11	0.19	0.30
 	finished				SUM --&gt;	0.00			SUM --&gt;	0.32
 
 
@@ -399,13 +399,13 @@ end</code></pre><hr/><p><em>This page was generated using <a href="https://githu
     ndofs = 118
   ESTIMATE
     ndofsDual = 405
-    estim H1 error = 0.05171604216767797
+    estim H1 error = 0.05171604216791927
     exact H1 error = 0.041104122665456884
-    exact L2 error = 0.0016985012363043407
+    exact L2 error = 0.0016985012363043427
  #IT	------- RESIDUALS -------	---- DURATION (s) ----		---- ALLOCATIONS (MiB) ----
    	NONLINEAR	LINEAR		ASSEMB	SOLVE	TOTAL		ASSEMB	SOLVE	TOTAL
  INI							0.00				0.03
- END	---------	3.676e-15	0.00	0.00	0.00		0.15	0.25	0.39
+ END	---------	3.340e-15	0.00	0.00	0.00		0.15	0.25	0.39
 	finished				SUM --&gt;	0.00			SUM --&gt;	0.42
 
 
@@ -413,13 +413,13 @@ end</code></pre><hr/><p><em>This page was generated using <a href="https://githu
     ndofs = 144
   ESTIMATE
     ndofsDual = 498
-    estim H1 error = 0.03771183327008747
-    exact H1 error = 0.032018751151057
-    exact L2 error = 0.0015191068660504422
+    estim H1 error = 0.037711833275628694
+    exact H1 error = 0.03201875115105703
+    exact L2 error = 0.001519106866050451
  #IT	------- RESIDUALS -------	---- DURATION (s) ----		---- ALLOCATIONS (MiB) ----
    	NONLINEAR	LINEAR		ASSEMB	SOLVE	TOTAL		ASSEMB	SOLVE	TOTAL
  INI							0.00				0.03
- END	---------	2.685e-15	0.00	0.00	0.00		0.16	0.37	0.53
+ END	---------	2.858e-15	0.00	0.00	0.00		0.16	0.37	0.53
 	finished				SUM --&gt;	0.00			SUM --&gt;	0.56
 
 
@@ -427,13 +427,13 @@ end</code></pre><hr/><p><em>This page was generated using <a href="https://githu
     ndofs = 209
   ESTIMATE
     ndofsDual = 735
-    estim H1 error = 0.02874492191872704
-    exact H1 error = 0.025758113969179774
-    exact L2 error = 0.001268063724654
+    estim H1 error = 0.02874492191847574
+    exact H1 error = 0.02575811396917977
+    exact L2 error = 0.0012680637246539987
  #IT	------- RESIDUALS -------	---- DURATION (s) ----		---- ALLOCATIONS (MiB) ----
    	NONLINEAR	LINEAR		ASSEMB	SOLVE	TOTAL		ASSEMB	SOLVE	TOTAL
  INI							0.00				0.04
- END	---------	2.624e-15	0.00	0.00	0.00		0.29	0.52	0.81
+ END	---------	2.983e-15	0.00	0.00	0.00		0.29	0.52	0.81
 	finished				SUM --&gt;	0.00			SUM --&gt;	0.85
 
 
@@ -441,13 +441,13 @@ end</code></pre><hr/><p><em>This page was generated using <a href="https://githu
     ndofs = 307
   ESTIMATE
     ndofsDual = 1089
-    estim H1 error = 0.021507828339689106
-    exact H1 error = 0.019815349055081526
-    exact L2 error = 0.000774216125263324
+    estim H1 error = 0.02150782834219913
+    exact H1 error = 0.0198153490550815
+    exact L2 error = 0.0007742161252633227
  #IT	------- RESIDUALS -------	---- DURATION (s) ----		---- ALLOCATIONS (MiB) ----
    	NONLINEAR	LINEAR		ASSEMB	SOLVE	TOTAL		ASSEMB	SOLVE	TOTAL
  INI							0.00				0.04
- END	---------	4.530e-15	0.00	0.00	0.00		0.36	0.62	0.98
+ END	---------	4.067e-15	0.00	0.00	0.00		0.36	0.62	0.98
 	finished				SUM --&gt;	0.00			SUM --&gt;	1.02
 
 
@@ -455,27 +455,27 @@ end</code></pre><hr/><p><em>This page was generated using <a href="https://githu
     ndofs = 379
   ESTIMATE
     ndofsDual = 1350
-    estim H1 error = 0.014867738044438302
-    exact H1 error = 0.01373292419142422
-    exact L2 error = 0.0003691243673771289
+    estim H1 error = 0.014867738042780888
+    exact H1 error = 0.013732924191424228
+    exact L2 error = 0.00036912436737711926
  #IT	------- RESIDUALS -------	---- DURATION (s) ----		---- ALLOCATIONS (MiB) ----
    	NONLINEAR	LINEAR		ASSEMB	SOLVE	TOTAL		ASSEMB	SOLVE	TOTAL
  INI							0.00				0.05
- END	---------	4.244e-15	0.00	0.00	0.00		0.45	0.79	1.24
-	finished				SUM --&gt;	0.00			SUM --&gt;	1.29
+ END	---------	4.209e-15	0.00	0.00	0.00		0.45	0.79	1.24
+	finished				SUM --&gt;	0.01			SUM --&gt;	1.29
 
 
   SOLVE LEVEL 10
     ndofs = 495
   ESTIMATE
     ndofsDual = 1776
-    estim H1 error = 0.01090121012739892
-    exact H1 error = 0.010265785425198652
-    exact L2 error = 0.0003000647680662301
+    estim H1 error = 0.010901210137535216
+    exact H1 error = 0.01026578542519863
+    exact L2 error = 0.00030006476806621876
  #IT	------- RESIDUALS -------	---- DURATION (s) ----		---- ALLOCATIONS (MiB) ----
    	NONLINEAR	LINEAR		ASSEMB	SOLVE	TOTAL		ASSEMB	SOLVE	TOTAL
  INI							0.00				0.06
- END	---------	5.013e-15	0.00	0.00	0.01		0.57	1.15	1.72
+ END	---------	4.883e-15	0.00	0.00	0.01		0.57	1.15	1.72
 	finished				SUM --&gt;	0.01			SUM --&gt;	1.78
 
 
@@ -483,13 +483,13 @@ end</code></pre><hr/><p><em>This page was generated using <a href="https://githu
     ndofs = 706
   ESTIMATE
     ndofsDual = 2547
-    estim H1 error = 0.0077728677457493895
-    exact H1 error = 0.0074056288436767734
-    exact L2 error = 0.00018093425334914803
+    estim H1 error = 0.007772867746709233
+    exact H1 error = 0.007405628843676778
+    exact L2 error = 0.00018093425334914272
  #IT	------- RESIDUALS -------	---- DURATION (s) ----		---- ALLOCATIONS (MiB) ----
    	NONLINEAR	LINEAR		ASSEMB	SOLVE	TOTAL		ASSEMB	SOLVE	TOTAL
  INI							0.00				0.08
- END	---------	7.724e-15	0.00	0.00	0.01		0.85	1.50	2.35
+ END	---------	8.128e-15	0.01	0.00	0.01		0.85	1.50	2.35
 	finished				SUM --&gt;	0.01			SUM --&gt;	2.43
 
 
@@ -497,13 +497,13 @@ end</code></pre><hr/><p><em>This page was generated using <a href="https://githu
     ndofs = 984
   ESTIMATE
     ndofsDual = 3567
-    estim H1 error = 0.0052850819270909115
-    exact H1 error = 0.005059529165319206
-    exact L2 error = 8.388587702363404e-5
+    estim H1 error = 0.005285081922056483
+    exact H1 error = 0.005059529165319184
+    exact L2 error = 8.388587702362407e-5
  #IT	------- RESIDUALS -------	---- DURATION (s) ----		---- ALLOCATIONS (MiB) ----
    	NONLINEAR	LINEAR		ASSEMB	SOLVE	TOTAL		ASSEMB	SOLVE	TOTAL
  INI							0.00				0.11
- END	---------	9.475e-15	0.00	0.00	0.01		1.25	2.03	3.28
+ END	---------	9.218e-15	0.01	0.01	0.01		1.25	2.03	3.28
 	finished				SUM --&gt;	0.01			SUM --&gt;	3.39
 
 
@@ -511,51 +511,51 @@ end</code></pre><hr/><p><em>This page was generated using <a href="https://githu
     ndofs = 1420
   ESTIMATE
     ndofsDual = 5184
-    estim H1 error = 0.003560170587726078
-    exact H1 error = 0.0034168917227275965
-    exact L2 error = 4.480682965094028e-5
+    estim H1 error = 0.0035601705914390025
+    exact H1 error = 0.0034168917227275714
+    exact L2 error = 4.480682965095097e-5
  #IT	------- RESIDUALS -------	---- DURATION (s) ----		---- ALLOCATIONS (MiB) ----
    	NONLINEAR	LINEAR		ASSEMB	SOLVE	TOTAL		ASSEMB	SOLVE	TOTAL
  INI							0.00				0.15
- END	---------	1.069e-14	0.01	0.01	0.01		1.64	3.04	4.69
-	finished				SUM --&gt;	0.01			SUM --&gt;	4.84
+ END	---------	1.063e-14	0.01	0.01	0.02		1.64	3.04	4.69
+	finished				SUM --&gt;	0.02			SUM --&gt;	4.84
 
 
   SOLVE LEVEL 14
     ndofs = 2028
   ESTIMATE
     ndofsDual = 7437
-    estim H1 error = 0.002385771120878144
-    exact H1 error = 0.0023022451635062945
-    exact L2 error = 2.710181572969755e-5
+    estim H1 error = 0.00238577112453003
+    exact H1 error = 0.0023022451635062793
+    exact L2 error = 2.7101815729697518e-5
  #IT	------- RESIDUALS -------	---- DURATION (s) ----		---- ALLOCATIONS (MiB) ----
    	NONLINEAR	LINEAR		ASSEMB	SOLVE	TOTAL		ASSEMB	SOLVE	TOTAL
  INI							0.00				0.21
- END	---------	1.420e-14	0.01	0.01	0.02		1.86	4.59	6.46
-	finished				SUM --&gt;	0.02			SUM --&gt;	6.67
+ END	---------	1.348e-14	0.01	0.01	0.03		1.86	4.59	6.46
+	finished				SUM --&gt;	0.03			SUM --&gt;	6.67
 
 
   SOLVE LEVEL 15
     ndofs = 3030
   ESTIMATE
     ndofsDual = 11154
-    estim H1 error = 0.001571275954275814
-    exact H1 error = 0.001519399670443651
-    exact L2 error = 1.3670573319285668e-5
+    estim H1 error = 0.001571275963777004
+    exact H1 error = 0.0015193996704436729
+    exact L2 error = 1.367057331927684e-5
  #IT	------- RESIDUALS -------	---- DURATION (s) ----		---- ALLOCATIONS (MiB) ----
    	NONLINEAR	LINEAR		ASSEMB	SOLVE	TOTAL		ASSEMB	SOLVE	TOTAL
  INI							0.00				0.31
- END	---------	1.723e-14	0.01	0.01	0.03		2.57	6.40	8.97
-	finished				SUM --&gt;	0.03			SUM --&gt;	9.28
+ END	---------	1.834e-14	0.03	0.03	0.06		2.57	6.40	8.97
+	finished				SUM --&gt;	0.06			SUM --&gt;	9.28
 
 
   SOLVE LEVEL 16
     ndofs = 4583
   ESTIMATE
     ndofsDual = 16917
-    estim H1 error = 0.0010426891691066044
-    exact H1 error = 0.0010103037444213867
-    exact L2 error = 6.947072990565313e-6
+    estim H1 error = 0.0010426891700537674
+    exact H1 error = 0.0010103037444213704
+    exact L2 error = 6.947072990560695e-6
 
     ndofs   |   || u - u_h ||    order | || ∇(u - u_h) ||   order |         η          order |
 ============|==========================|==========================|==========================|
@@ -574,4 +574,4 @@ end</code></pre><hr/><p><em>This page was generated using <a href="https://githu
       1420  |     4.481e-05      3.42  |     3.417e-03      2.14  |     3.560e-03      2.15  |
       2028  |     2.710e-05      2.82  |     2.302e-03      2.22  |     2.386e-03      2.25  |
       3030  |     1.367e-05      3.41  |     1.519e-03      2.07  |     1.571e-03      2.08  |
-      4583  |     6.947e-06      3.27  |     1.010e-03      1.97  |     1.043e-03      1.98  |</code></pre><p><img src="../../images/Example211_LshapeAdaptiveEQPoissonProblem_1.png" alt/></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../Example210_LshapeAdaptivePoissonProblem/">« 210 : Poisson L-shape Adaptive Mesh Refinement</a><a class="docs-footer-nextpage" href="../Example220_ReactionConvectionDiffusion/">220 : Reaction-Convection-Diffusion-Problem »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="auto">Automatic (OS)</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.1.0 on <span class="colophon-date" title="Wednesday 11 October 2023 16:25">Wednesday 11 October 2023</span>. Using Julia version 1.9.3.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+      4583  |     6.947e-06      3.27  |     1.010e-03      1.97  |     1.043e-03      1.98  |</code></pre><p><img src="../../images/Example211_LshapeAdaptiveEQPoissonProblem_1.png" alt/></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../Example210_LshapeAdaptivePoissonProblem/">« 210 : Poisson L-shape Adaptive Mesh Refinement</a><a class="docs-footer-nextpage" href="../Example220_ReactionConvectionDiffusion/">220 : Reaction-Convection-Diffusion-Problem »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="auto">Automatic (OS)</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.1.1 on <span class="colophon-date" title="Thursday 19 October 2023 15:35">Thursday 19 October 2023</span>. Using Julia version 1.9.3.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
