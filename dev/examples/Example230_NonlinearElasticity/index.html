@@ -81,7 +81,7 @@ function main(;
 	PD = ProblemDescription()
 	u = Unknown(&quot;u&quot;; name = &quot;displacement&quot;)
 	assign_unknown!(PD, u)
-	assign_operator!(PD, ExtendableFEM.NonlinearOperator(op, [grad(u)]; kwargs...))
+	assign_operator!(PD, NonlinearOperator(op, [grad(u)]; kwargs...))
 	if periodic
 		# periodic boundary conditions
 		# 1) couple dofs left (bregion 1) and right (bregion 3) in y-direction
@@ -148,18 +148,18 @@ end</code></pre><hr/><p><em>This page was generated using <a href="https://githu
  #IT	------- RESIDUALS -------	---- DURATION (s) ----		---- ALLOCATIONS (MiB) ----
    	NONLINEAR	LINEAR		ASSEMB	SOLVE	TOTAL		ASSEMB	SOLVE	TOTAL
  INI							0.00				0.15
-   1	1.225e+01	1.181e-11	0.02	0.01	0.04		3.29	5.92	9.21
-   2	8.096e+02	2.177e-09	0.02	0.01	0.04		1.71	7.22	8.94
-   3	3.652e+02	1.871e-10	0.02	0.05	0.08		0.98	7.23	8.21
-   4	1.886e+02	1.649e-10	0.02	0.01	0.03		0.00	4.65	4.65
-   5	7.393e+01	2.039e-11	0.02	0.01	0.03		0.00	4.65	4.65
-   6	1.996e+01	1.136e-10	0.02	0.01	0.03		0.00	4.65	4.65
-   7	2.545e+00	9.587e-11	0.02	0.01	0.03		0.00	4.65	4.65
-   8	6.653e-02	1.121e-10	0.02	0.01	0.03		0.00	4.65	4.65
-   9	6.471e-05	2.168e-10	0.02	0.01	0.03		0.00	4.65	4.65
-  10	2.317e-10	9.189e-11	0.02	0.01	0.03		0.00	4.65	4.65
- END	9.191e-11			0.02		0.02		0.00		0.00
-	converged				SUM --&gt;	0.38			SUM --&gt;	59.07
+   1	1.225e+01	1.101e-11	0.02	0.01	0.03		3.29	5.92	9.22
+   2	8.096e+02	1.531e-09	0.02	0.01	0.03		1.71	7.23	8.94
+   3	3.652e+02	7.749e-11	0.02	0.01	0.02		0.00	4.65	4.65
+   4	1.886e+02	4.695e-10	0.02	0.01	0.02		0.00	4.65	4.65
+   5	7.393e+01	6.922e-11	0.02	0.01	0.02		0.00	4.65	4.65
+   6	1.996e+01	2.373e-11	0.02	0.01	0.02		0.00	4.65	4.65
+   7	2.545e+00	9.693e-11	0.02	0.03	0.05		0.00	4.65	4.65
+   8	6.653e-02	5.943e-11	0.02	0.01	0.02		0.00	4.65	4.65
+   9	6.471e-05	1.007e-10	0.02	0.01	0.02		0.00	4.65	4.65
+  10	1.334e-10	2.795e-10	0.02	0.01	0.02		0.00	4.65	4.65
+ END			2.795e-10			0.02		0.02		0.00		0.00
+	maxiterations reached			SUM --&gt;	0.27			SUM --&gt;	55.51
 
     ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀gridplot⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀ 
     ┌───────────────────────────────────────────┐ 
@@ -183,4 +183,4 @@ end</code></pre><hr/><p><em>This page was generated using <a href="https://githu
     │⠀⠀⠀⠀⠙⠽⣿⣿⣿⣯⣷⣦⣤⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⣠⣤⣖⣯⣿⣿⣿⣿⠟⠉⠀⠀⠀⠀⠀⠀│ 
     │⠀⠀⠀⠀⠀⠀⠈⠙⠽⢿⣻⣿⣿⣿⣿⣿⣷⣶⣶⣶⣶⣶⣶⣶⣿⣿⣿⣿⣿⢿⣿⠿⠛⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀│ 
     │⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠑⠛⠻⠿⣻⣿⣿⣿⣿⣿⣿⣿⣿⣿⠿⠿⠟⠛⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│ 
-    └───────────────────────────────────────────┘ </code></pre><p><img src="../../images/Example230_NonlinearElasticity_1.png" alt/></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../Example226_Thermoforming/">« 226 : Thermoforming</a><a class="docs-footer-nextpage" href="../Example235_StokesIteratedPenalty/">235 : Stokes iterated penalty method »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="auto">Automatic (OS)</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.1.1 on <span class="colophon-date" title="Thursday 19 October 2023 15:35">Thursday 19 October 2023</span>. Using Julia version 1.9.3.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+    └───────────────────────────────────────────┘ </code></pre><p><img src="../../images/Example230_NonlinearElasticity_1.png" alt/></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../Example226_Thermoforming/">« 226 : Thermoforming</a><a class="docs-footer-nextpage" href="../Example235_StokesIteratedPenalty/">235 : Stokes iterated penalty method »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="auto">Automatic (OS)</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.1.1 on <span class="colophon-date" title="Friday 20 October 2023 13:04">Friday 20 October 2023</span>. Using Julia version 1.9.3.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>

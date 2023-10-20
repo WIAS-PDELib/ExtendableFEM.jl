@@ -36,14 +36,23 @@ function g(r,κ,s)
 	else
 		return 0.0
 	end
-end</code></pre><p>The smooth bump function in [0,1]</p><pre><code class="language-julia hljs">bump(x) = (0.0 &lt;= x &lt;= 1.0) ? exp(-0.25 / (x - x^2)) : 0.0</code></pre><p>Bump in [0,1]^2</p><pre><code class="language-julia hljs">bumpInUnitSquare(x) = begin
+end
+
+
+# The smooth bump function in [0,1]
+bump(x) = (0.0 &lt;= x &lt;= 1.0) ? exp(-0.25 / (x - x^2)) : 0.0
+
+# Bump in [0,1]^2
+bumpInUnitSquare(x) = begin
 	r = sqrt((x[1] - 0.5)^2 + (x[2] - 0.5)^2)
 	return bump(0.5 + r)
 end
 
 
 # nonlinear kernel
-function nonlinear_kernel!(result, input, qpinfo )</code></pre><p>results and input contain 7 variables (u,∇u,T,∇T,y)</p><pre><code class="language-julia hljs">	u  = view(input, 1)
+function nonlinear_kernel!(result, input, qpinfo )
+	# results and input contain 7 variables (u,∇u,T,∇T,y)
+	u  = view(input, 1)
 	∇u = view(input, 2:3)
 	T  = view(input, 4)
 	∇T = view(input, 5:6)
@@ -61,7 +70,11 @@ function nonlinear_kernel!(result, input, qpinfo )</code></pre><p>results and in
 	result[4]   = k*T[1] - g(y[1]-u[1],κ,s)                                               # pattern: 1 4 7
 	result[5:6] = ∇T                                                                      # pattern: 5 / 6
 	result[7]   = y[1] - Φ0(qpinfo.x) - β * bumpInUnitSquare( qpinfo.x ) * T[1]           # pattern: 4 7
-end</code></pre><p>custom sparsity pattern for the jacobians of the nonlinear_kernel (Symbolcs cannot handle conditional jumps) note: jacobians are defined row-wise</p><pre><code class="language-julia hljs">rows = [1, 1, 2, 3, 4, 4, 4, 5, 6, 7, 7]
+end
+
+# custom sparsity pattern for the jacobians of the nonlinear_kernel (Symbolcs cannot handle conditional jumps)
+# note: jacobians are defined row-wise
+rows = [1, 1, 2, 3, 4, 4, 4, 5, 6, 7, 7]
 cols = [1 ,7, 2, 3, 1, 4, 7, 5, 6, 4, 7]
 vals = ones(Bool, length(cols))
 sparsity_pattern = sparse(rows,cols,vals)
@@ -118,22 +131,22 @@ end # module</code></pre><hr/><p><em>This page was generated using <a href="http
  #IT	------- RESIDUALS -------	---- DURATION (s) ----		---- ALLOCATIONS (MiB) ----
    	NONLINEAR	LINEAR		ASSEMB	SOLVE	TOTAL		ASSEMB	SOLVE	TOTAL
  INI							0.00				0.26
-   1	3.268e+00	7.370e-14	0.14	0.06	0.20		1.96	5.65	7.61
-   2	1.095e+07	3.247e-10	0.14	0.03	0.16		1.02	8.72	9.73
-   3	6.830e-01	3.094e-10	0.14	0.03	0.16		0.85	9.78	10.62
-   4	2.502e+00	2.724e-10	0.14	0.03	0.16		0.86	9.98	10.84
-   5	2.557e+00	2.229e-10	0.14	0.05	0.19		0.88	10.17	11.05
-   6	5.643e+00	2.056e-10	0.14	0.03	0.17		0.89	10.02	10.91
-   7	7.219e+01	2.868e-10	0.14	0.03	0.16		0.89	10.22	11.11
-   8	3.849e+00	2.856e-10	0.14	0.03	0.17		0.89	10.33	11.22
-   9	2.011e+00	2.846e-10	0.14	0.05	0.19		0.89	10.19	11.08
-  10	7.095e-01	2.922e-10	0.14	0.02	0.16		0.02	7.89	7.91
-  11	7.891e-01	2.728e-10	0.14	0.03	0.17		0.89	9.87	10.76
-  12	8.151e-01	2.809e-10	0.14	0.03	0.17		0.79	9.53	10.32
-  13	6.131e-01	2.984e-10	0.14	0.02	0.17		0.02	7.24	7.26
-  14	6.103e-02	2.944e-10	0.14	0.04	0.17		0.02	7.24	7.26
-  15	1.152e-01	2.989e-10	0.14	0.02	0.16		0.02	7.24	7.26
-  16	1.566e-04	2.518e-10	0.14	0.02	0.16		0.02	7.24	7.26
- END	2.532e-10			0.14		0.14		0.02		0.02
-	converged				SUM --&gt;	2.87			SUM --&gt;	152.48
-</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../Example225_ObstacleProblem/">« 225 : Obstacle Problem</a><a class="docs-footer-nextpage" href="../Example230_NonlinearElasticity/">230 : Nonlinear Elasticity »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="auto">Automatic (OS)</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.1.1 on <span class="colophon-date" title="Thursday 19 October 2023 15:35">Thursday 19 October 2023</span>. Using Julia version 1.9.3.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+   1	3.268e+00	7.424e-14	0.11	0.01	0.12		1.96	5.65	7.61
+   2	1.095e+07	3.149e-10	0.10	0.02	0.12		1.02	8.72	9.73
+   3	6.830e-01	2.956e-10	0.10	0.04	0.15		0.85	9.78	10.62
+   4	2.502e+00	2.764e-10	0.10	0.02	0.12		0.86	9.98	10.84
+   5	2.557e+00	2.401e-10	0.10	0.02	0.12		0.88	10.17	11.05
+   6	5.643e+00	1.980e-10	0.10	0.02	0.12		0.89	10.02	10.91
+   7	7.219e+01	2.883e-10	0.10	0.03	0.14		0.89	10.22	11.11
+   8	3.849e+00	2.903e-10	0.10	0.02	0.12		0.89	10.33	11.22
+   9	2.011e+00	2.987e-10	0.10	0.02	0.13		0.89	10.19	11.08
+  10	7.095e-01	3.099e-10	0.10	0.02	0.12		0.02	7.89	7.91
+  11	7.891e-01	2.851e-10	0.10	0.02	0.13		0.89	9.87	10.76
+  12	8.151e-01	2.820e-10	0.10	0.03	0.14		0.79	9.53	10.32
+  13	6.131e-01	2.849e-10	0.10	0.02	0.12		0.02	7.24	7.26
+  14	6.103e-02	2.822e-10	0.10	0.02	0.12		0.02	7.24	7.26
+  15	1.152e-01	2.934e-10	0.10	0.02	0.12		0.02	7.24	7.26
+  16	1.566e-04	2.576e-10	0.10	0.02	0.12		0.02	7.24	7.26
+ END	2.584e-10			0.10		0.10		0.02		0.02
+	converged				SUM --&gt;	2.12			SUM --&gt;	152.48
+</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../Example225_ObstacleProblem/">« 225 : Obstacle Problem</a><a class="docs-footer-nextpage" href="../Example230_NonlinearElasticity/">230 : Nonlinear Elasticity »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="auto">Automatic (OS)</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.1.1 on <span class="colophon-date" title="Friday 20 October 2023 13:04">Friday 20 October 2023</span>. Using Julia version 1.9.3.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
