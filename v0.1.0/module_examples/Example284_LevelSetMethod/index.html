@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Example284_LevelSetMethod · ExtendableFEM.jl</title><meta name="title" content="Example284_LevelSetMethod · ExtendableFEM.jl"/><meta property="og:title" content="Example284_LevelSetMethod · ExtendableFEM.jl"/><meta property="twitter:title" content="Example284_LevelSetMethod · ExtendableFEM.jl"/><meta name="description" content="Documentation for ExtendableFEM.jl."/><meta property="og:description" content="Documentation for ExtendableFEM.jl."/><meta property="twitter:description" content="Documentation for ExtendableFEM.jl."/><script data-outdated-warner src="../../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../search_index.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../../">ExtendableFEM.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../../">Home</a></li><li><a class="tocitem" href="../../package_index/">Index</a></li><li><span class="tocitem">Problem Description</span><ul><li><a class="tocitem" href="../../problemdescription/">Problem Description</a></li><li><a class="tocitem" href="../../nonlinearoperator/">NonlinearOperator</a></li><li><a class="tocitem" href="../../bilinearoperator/">BilinearOperator</a></li><li><a class="tocitem" href="../../linearoperator/">LinearOperator</a></li><li><a class="tocitem" href="../../interpolateboundarydata/">InterpolateBoundaryData</a></li><li><a class="tocitem" href="../../homogeneousdata/">HomogeneousData</a></li><li><a class="tocitem" href="../../fixdofs/">FixDofs</a></li><li><a class="tocitem" href="../../combinedofs/">CombineDofs</a></li><li><a class="tocitem" href="../../callbackoperator/">CallbackOperator</a></li></ul></li><li><span class="tocitem">Solving</span><ul><li><a class="tocitem" href="../../pdesolvers/">Stationary Solvers</a></li><li><a class="tocitem" href="../../pdesolvers_dt/">Time-dependent Solvers</a></li></ul></li><li><span class="tocitem">Postprocessing</span><ul><li><a class="tocitem" href="../../postprocessing/">Other packages</a></li><li><a class="tocitem" href="../../itemintegrators/">Item Integrators</a></li></ul></li><li><span class="tocitem">Examples</span><ul><li><a class="tocitem" href="../Example103_BurgersEquation/">Example103_BurgersEquation</a></li><li><a class="tocitem" href="../Example105_NonlinearPoissonEquation/">Example105_NonlinearPoissonEquation</a></li><li><a class="tocitem" href="../Example106_NonlinearDiffusion/">Example106_NonlinearDiffusion</a></li><li><a class="tocitem" href="../Example108_RobinBoundaryCondition/">Example108_RobinBoundaryCondition</a></li><li><a class="tocitem" href="../Example201_PoissonProblem/">Example201_PoissonProblem</a></li><li><a class="tocitem" href="../Example202_MixedPoissonProblem/">Example202_MixedPoissonProblem</a></li><li><a class="tocitem" href="../Example203_PoissonProblemDG/">Example203_PoissonProblemDG</a></li><li><a class="tocitem" href="../Example204_LaplaceEVProblem/">Example204_LaplaceEVProblem</a></li><li><a class="tocitem" href="../Example205_HeatEquation/">Example205_HeatEquation</a></li><li><a class="tocitem" href="../Example210_LshapeAdaptivePoissonProblem/">Example210_LshapeAdaptivePoissonProblem</a></li><li><a class="tocitem" href="../Example211_LshapeAdaptiveEQPoissonProblem/">Example211_LshapeAdaptiveEQPoissonProblem</a></li><li><a class="tocitem" href="../Example220_ReactionConvectionDiffusion/">Example220_ReactionConvectionDiffusion</a></li><li><a class="tocitem" href="../Example225_ObstacleProblem/">Example225_ObstacleProblem</a></li><li><a class="tocitem" href="../Example226_Thermoforming/">Example226_Thermoforming</a></li><li><a class="tocitem" href="../Example230_NonlinearElasticity/">Example230_NonlinearElasticity</a></li><li><a class="tocitem" href="../Example235_StokesIteratedPenalty/">Example235_StokesIteratedPenalty</a></li><li><a class="tocitem" href="../Example240_SVRTEnrichment/">Example240_SVRTEnrichment</a></li><li><a class="tocitem" href="../Example245_NSEFlowAroundCylinder/">Example245_NSEFlowAroundCylinder</a></li><li><a class="tocitem" href="../Example250_NSELidDrivenCavity/">Example250_NSELidDrivenCavity</a></li><li><a class="tocitem" href="../Example252_NSEPlanarLatticeFlow/">Example252_NSEPlanarLatticeFlow</a></li><li><a class="tocitem" href="../Example260_AxisymmetricNavierStokesProblem/">Example260_AxisymmetricNavierStokesProblem</a></li><li><a class="tocitem" href="../Example265_FlowTransport/">Example265_FlowTransport</a></li><li><a class="tocitem" href="../Example270_NaturalConvectionProblem/">Example270_NaturalConvectionProblem</a></li><li><a class="tocitem" href="../Example275_OptimalControlStokes/">Example275_OptimalControlStokes</a></li><li><a class="tocitem" href="../Example280_CompressibleStokes/">Example280_CompressibleStokes</a></li><li><a class="tocitem" href="../Example282_IncompressibleMHD/">Example282_IncompressibleMHD</a></li><li class="is-active"><a class="tocitem" href>Example284_LevelSetMethod</a></li><li><a class="tocitem" href="../Example285_CahnHilliard/">Example285_CahnHilliard</a></li><li><a class="tocitem" href="../Example290_PoroElasticity/">Example290_PoroElasticity</a></li><li><a class="tocitem" href="../Example301_PoissonProblem/">Example301_PoissonProblem</a></li><li><a class="tocitem" href="../Example310_DivFreeBasis/">Example310_DivFreeBasis</a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Examples</a></li><li class="is-active"><a href>Example284_LevelSetMethod</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Example284_LevelSetMethod</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="github.com/chmerdon/ExtendableFEM.jl" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="284-:-Level-Set-Method"><a class="docs-heading-anchor" href="#284-:-Level-Set-Method">284 : Level Set Method</a><a id="284-:-Level-Set-Method-1"></a><a class="docs-heading-anchor-permalink" href="#284-:-Level-Set-Method" title="Permalink"></a></h1><p>(<a href="../Example284_LevelSetMethod.jl">source code</a>)</p><p>This example studies the level-set method of some level function <span>$\mathbf{\phi}$</span> convected in time via the equation</p><p class="math-container">\[\begin{aligned}
+\phi_t + \mathbf{u} \cdot \nabla \phi &amp; = 0.
+\end{aligned}\]</p><p>Here this is tested with the (conservative) initial level set function <span>$\phi(x) = 0.5 \tanh((\lvert x - (0.25,0.25) \rvert - 0.1)/(2ϵ) + 1)$</span> such that the level <span>$\phi \equiv 0.5$</span> forms a circle which is then convected by the velocity <span>$\mathbf{u} = (0.5,1)^T$</span>. No reinitialisation step is performed.</p><p>The initial condition and the final solution for the default parameters looks like this:</p><p><img src="../example284.svg" alt/></p><pre><code class="language-julia hljs">module Example284_LevelSetMethod
+
+using ExtendableFEM
+using ExtendableGrids
+using GridVisualize
+using DifferentialEquations
+
+function ϕ_init!(result, qpinfo)
+	x = qpinfo.x
+	ϵ = qpinfo.params[1]
+	result[1] = 1 / 2 * (tanh((sqrt((x[1] - 0.25)^2 + (x[2] - 0.25)^2) - 0.1) / (2 * ϵ)) + 1)
+end
+
+function kernel_convection!(result, input, qpinfo)
+	result[1] = 0.5 * input[1] + input[2]
+end
+
+# everything is wrapped in a main function
+function main(; Plotter = nothing, ϵ = 0.05, τ = 1e-2, T = 0.4, order = 2, nref = 5, use_diffeq = true,
+	solver = Rosenbrock23(autodiff = false), kwargs...)
+
+	# initial grid and final time
+	xgrid = uniform_refine(grid_unitsquare(Triangle2D), nref)
+
+	# define main level set problem
+	PD = ProblemDescription(&quot;level set problem&quot;)
+	ϕ = Unknown(&quot;ϕ&quot;; name = &quot;level set function&quot;)
+	assign_unknown!(PD, ϕ)
+	assign_operator!(PD, BilinearOperator(kernel_convection!, [id(ϕ)], [grad(ϕ)]; kwargs...))
+	assign_operator!(PD, HomogeneousBoundaryData(ϕ; value = 1, regions = 1:4, kwargs...))
+
+	# generate FESpace and solution vector and interpolate initial state
+	FES = FESpace{H1Pk{1, 2, order}}(xgrid)
+	sol = FEVector(FES; tags = PD.unknowns)
+	interpolate!(sol[ϕ], ϕ_init!; params = [ϵ])
+
+	# prepare plot and plot init solution
+	plt = GridVisualizer(; Plotter = Plotter, layout = (1, 2), clear = true, resolution = (800, 400))
+	scalarplot!(plt[1, 1], id(ϕ), sol; levels = [0.5], flimits = [-0.05, 1.05], colorbarticks = [0, 0.25, 0.5, 0.75, 1], title = &quot;ϕ (t = 0)&quot;)
+
+	if (use_diffeq)
+		# generate DifferentialEquations.ODEProblem
+		prob = generate_ODEProblem(PD, FES, (0.0, T); init = sol, constant_matrix = true)
+
+		# solve ODE problem
+		de_sol = DifferentialEquations.solve(prob, solver, abstol = 1e-4, reltol = 1e-2, dt = τ, dtmin = 1e-8, adaptive = true)
+		@info &quot;#tsteps = $(length(de_sol))&quot;
+
+		# get final solution
+		sol.entries .= de_sol[end]
+	else
+		# add backward Euler time derivative
+		M = FEMatrix(FES)
+		assemble!(M, BilinearOperator([id(1)]))
+		assign_operator!(PD, BilinearOperator(M, [ϕ]; factor = 1 / τ, kwargs...))
+		assign_operator!(PD, LinearOperator(M, [ϕ], [ϕ]; factor = 1 / τ, kwargs...))
+
+		# generate solver configuration
+		SC = SolverConfiguration(PD, FES; init = sol, maxiterations = 1, constant_matrix = true, kwargs...)
+
+		# iterate tspan
+		t = 0
+		for it ∈ 1:Int(floor(T / τ))
+			t += τ
+			ExtendableFEM.solve(PD, FES, SC; time = t)
+		end
+	end
+
+	# plot final state
+	scalarplot!(plt[1, 2], id(ϕ), sol; levels = [0.5], flimits = [-0.05, 1.05], colorbarticks = [0, 0.25, 0.5, 0.75, 1], title = &quot;ϕ (t = $T)&quot;)
+
+	return sol, plt
+end
+
+end</code></pre><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../Example282_IncompressibleMHD/">« Example282_IncompressibleMHD</a><a class="docs-footer-nextpage" href="../Example285_CahnHilliard/">Example285_CahnHilliard »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="auto">Automatic (OS)</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.2.1 on <span class="colophon-date" title="Sunday 21 January 2024 12:26">Sunday 21 January 2024</span>. Using Julia version 1.10.0.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
