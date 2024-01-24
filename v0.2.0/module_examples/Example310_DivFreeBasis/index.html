@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Example310_DivFreeBasis · ExtendableFEM.jl</title><meta name="title" content="Example310_DivFreeBasis · ExtendableFEM.jl"/><meta property="og:title" content="Example310_DivFreeBasis · ExtendableFEM.jl"/><meta property="twitter:title" content="Example310_DivFreeBasis · ExtendableFEM.jl"/><meta name="description" content="Documentation for ExtendableFEM.jl."/><meta property="og:description" content="Documentation for ExtendableFEM.jl."/><meta property="twitter:description" content="Documentation for ExtendableFEM.jl."/><script data-outdated-warner src="../../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../search_index.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../../">ExtendableFEM.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../../">Home</a></li><li><a class="tocitem" href="../../package_index/">Index</a></li><li><span class="tocitem">Problem Description</span><ul><li><a class="tocitem" href="../../problemdescription/">Problem Description</a></li><li><a class="tocitem" href="../../nonlinearoperator/">NonlinearOperator</a></li><li><a class="tocitem" href="../../bilinearoperator/">BilinearOperator</a></li><li><a class="tocitem" href="../../linearoperator/">LinearOperator</a></li><li><a class="tocitem" href="../../interpolateboundarydata/">InterpolateBoundaryData</a></li><li><a class="tocitem" href="../../homogeneousdata/">HomogeneousData</a></li><li><a class="tocitem" href="../../fixdofs/">FixDofs</a></li><li><a class="tocitem" href="../../combinedofs/">CombineDofs</a></li><li><a class="tocitem" href="../../callbackoperator/">CallbackOperator</a></li></ul></li><li><span class="tocitem">Solving</span><ul><li><a class="tocitem" href="../../pdesolvers/">Stationary Solvers</a></li><li><a class="tocitem" href="../../pdesolvers_dt/">Time-dependent Solvers</a></li></ul></li><li><span class="tocitem">Postprocessing</span><ul><li><a class="tocitem" href="../../postprocessing/">Other packages</a></li><li><a class="tocitem" href="../../itemintegrators/">Item Integrators</a></li></ul></li><li><span class="tocitem">Examples</span><ul><li><a class="tocitem" href="../Example103_BurgersEquation/">Example103_BurgersEquation</a></li><li><a class="tocitem" href="../Example105_NonlinearPoissonEquation/">Example105_NonlinearPoissonEquation</a></li><li><a class="tocitem" href="../Example106_NonlinearDiffusion/">Example106_NonlinearDiffusion</a></li><li><a class="tocitem" href="../Example108_RobinBoundaryCondition/">Example108_RobinBoundaryCondition</a></li><li><a class="tocitem" href="../Example201_PoissonProblem/">Example201_PoissonProblem</a></li><li><a class="tocitem" href="../Example202_MixedPoissonProblem/">Example202_MixedPoissonProblem</a></li><li><a class="tocitem" href="../Example203_PoissonProblemDG/">Example203_PoissonProblemDG</a></li><li><a class="tocitem" href="../Example204_LaplaceEVProblem/">Example204_LaplaceEVProblem</a></li><li><a class="tocitem" href="../Example205_HeatEquation/">Example205_HeatEquation</a></li><li><a class="tocitem" href="../Example210_LshapeAdaptivePoissonProblem/">Example210_LshapeAdaptivePoissonProblem</a></li><li><a class="tocitem" href="../Example211_LshapeAdaptiveEQPoissonProblem/">Example211_LshapeAdaptiveEQPoissonProblem</a></li><li><a class="tocitem" href="../Example220_ReactionConvectionDiffusion/">Example220_ReactionConvectionDiffusion</a></li><li><a class="tocitem" href="../Example225_ObstacleProblem/">Example225_ObstacleProblem</a></li><li><a class="tocitem" href="../Example226_Thermoforming/">Example226_Thermoforming</a></li><li><a class="tocitem" href="../Example230_NonlinearElasticity/">Example230_NonlinearElasticity</a></li><li><a class="tocitem" href="../Example235_StokesIteratedPenalty/">Example235_StokesIteratedPenalty</a></li><li><a class="tocitem" href="../Example240_SVRTEnrichment/">Example240_SVRTEnrichment</a></li><li><a class="tocitem" href="../Example245_NSEFlowAroundCylinder/">Example245_NSEFlowAroundCylinder</a></li><li><a class="tocitem" href="../Example250_NSELidDrivenCavity/">Example250_NSELidDrivenCavity</a></li><li><a class="tocitem" href="../Example252_NSEPlanarLatticeFlow/">Example252_NSEPlanarLatticeFlow</a></li><li><a class="tocitem" href="../Example260_AxisymmetricNavierStokesProblem/">Example260_AxisymmetricNavierStokesProblem</a></li><li><a class="tocitem" href="../Example265_FlowTransport/">Example265_FlowTransport</a></li><li><a class="tocitem" href="../Example270_NaturalConvectionProblem/">Example270_NaturalConvectionProblem</a></li><li><a class="tocitem" href="../Example275_OptimalControlStokes/">Example275_OptimalControlStokes</a></li><li><a class="tocitem" href="../Example280_CompressibleStokes/">Example280_CompressibleStokes</a></li><li><a class="tocitem" href="../Example282_IncompressibleMHD/">Example282_IncompressibleMHD</a></li><li><a class="tocitem" href="../Example284_LevelSetMethod/">Example284_LevelSetMethod</a></li><li><a class="tocitem" href="../Example285_CahnHilliard/">Example285_CahnHilliard</a></li><li><a class="tocitem" href="../Example290_PoroElasticity/">Example290_PoroElasticity</a></li><li><a class="tocitem" href="../Example301_PoissonProblem/">Example301_PoissonProblem</a></li><li class="is-active"><a class="tocitem" href>Example310_DivFreeBasis</a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Examples</a></li><li class="is-active"><a href>Example310_DivFreeBasis</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Example310_DivFreeBasis</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="github.com/chmerdon/ExtendableFEM.jl" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="310-:-Div-free-RT0-basis"><a class="docs-heading-anchor" href="#310-:-Div-free-RT0-basis">310 : Div-free RT0 basis</a><a id="310-:-Div-free-RT0-basis-1"></a><a class="docs-heading-anchor-permalink" href="#310-:-Div-free-RT0-basis" title="Permalink"></a></h1><p>(<a href="../Example310_DivFreeBasis.jl">source code</a>)</p><p>This example computes the best-approximation <span>$\mathbf{\psi}_h$</span> of a divergence-free velocity <span>$\mathbf{u} = \mathrm{curl} \mathbf{\psi}$</span> by solving for a curl-potential <span>$\mathbf{\phi}_h \in N_0$</span> with</p><p class="math-container">\[\begin{aligned}
+(\mathrm{curl} \mathbf{\phi}_h, \mathrm{curl} \mathbf{\theta}_h) &amp; = (\mathbf{u}, \mathrm{curl} \mathbf{\theta}_h) \quad \text{for all } \mathbf{\theta} \in N_0
+\end{aligned}\]</p><p>Here, <span>$N_0$</span> denotes the lowest-order Nedelec space which renders the problem ill-posed unless one selects a linear independent basis. This is done with the algorithm suggested in the reference below.</p><div class="admonition is-category-reference"><header class="admonition-header">Reference</header><div class="admonition-body"><p>&quot;Decoupling three-dimensional mixed problems using divergence-free finite elements&quot;,<br/>R. Scheichl,<br/>SIAM J. Sci. Comput. 23(5) (2002),<br/><a href="http://www.siam.org/journals/sisc/23-5/37588.html">&gt;Journal-Link&lt;</a></p></div></div><p>The computed solution for the default parameters looks like this:</p><p><img src="../example310.svg" alt/></p><pre><code class="language-julia hljs">module Example310_DivFreeBasis
+
+using ExtendableFEM
+using GridVisualize
+using ExtendableGrids
+using ExtendableSparse
+using LinearAlgebra
+using Symbolics
+
+# exact data for problem generated by symbolics
+function prepare_data()
+
+	@variables x y z
+
+	# stream function ξ
+	ξ = [x*y*z,x*y*z,x*y*z]
+
+	# velocity u = curl ξ
+	∇ξ = Symbolics.jacobian(ξ, [x, y, z])
+	u = [∇ξ[3,2] - ∇ξ[2,3], ∇ξ[1,3] - ∇ξ[3,1], ∇ξ[2,1] - ∇ξ[1,2]]
+
+	# build function
+	u_eval = build_function(u, x, y, z, expression = Val{false})
+
+	return u_eval[2]
+end
+
+function main(;
+	nrefs = 4,                      ## number of refinement levels
+	bonus_quadorder = 2,            ## additional quadrature order for data evaluations
+	divfree_basis = true,			## if true uses curl(N0), if false uses mixed FEM RT0xP0
+	Plotter = nothing,              ## Plotter (e.g. PyPlot)
+	kwargs...)
+
+	# prepare problem data
+	u_eval = prepare_data()
+	exact_u!(result, qpinfo) = (u_eval(result, qpinfo.x[1], qpinfo.x[2], qpinfo.x[3]))
+
+	# prepare plots
+	plt = GridVisualizer(; Plotter = Plotter, layout = (2, 2), clear = true, size = (800, 800))
+
+	# prepare error calculation
+	function exact_error!(result, u, qpinfo)
+		exact_u!(view(result, 1:3), qpinfo)
+		result .-= u
+		result .= result .^ 2
+	end
+	ErrorIntegratorExact = ItemIntegrator(exact_error!, [divfree_basis ? curl3(1) : id(1)]; bonus_quadorder = 2 + bonus_quadorder, kwargs...)
+	NDofs = zeros(Int, nrefs)
+	L2error = zeros(Float64, nrefs)
+
+	sol = nothing
+	for lvl ∈ 1:nrefs
+		# grid
+		xgrid = uniform_refine(grid_unitcube(Tetrahedron3D), lvl)
+
+		if divfree_basis
+
+			# use Nedelec FESpace and determine linear independent basis
+			FES = FESpace{HCURLN0{3}}(xgrid)
+
+			@time begin
+				# get subset of edges, spanning the node graph
+				spanning_tree = get_spanning_edge_subset(xgrid)
+
+				# get all other edges = linear independent degrees of freedom
+				subset = setdiff(1:num_edges(xgrid), spanning_tree)
+			end
+			NDofs[lvl] = length(subset)
+
+			# assemble full Nedelec curl-curl problem...
+			u = Unknown(&quot;u&quot;; name = &quot;curl potential of velocity&quot;)
+			PD = ProblemDescription(&quot;curl-curl formulation&quot;)
+			assign_unknown!(PD, u)
+			assign_operator!(PD, BilinearOperator([curl3(u)]))
+			assign_operator!(PD, LinearOperator(exact_u!, [curl3(u)]; bonus_quadorder = bonus_quadorder))
+
+			# ...and solve with subset
+			sol = solve(PD, FES; restrict_dofs = [subset[:]])
+		else
+			# use RT0 functions + side constraint for divergence
+			FES = [FESpace{HDIVRT0{3}}(xgrid), FESpace{L2P0{1}}(xgrid)]
+			NDofs[lvl] = FES[1].ndofs + FES[2].ndofs
+
+			u = Unknown(&quot;u&quot;; name = &quot;velocity&quot;)
+			p = Unknown(&quot;u&quot;; name = &quot;pressure&quot;)
+			PD = ProblemDescription(&quot;mixed formulation&quot;)
+			assign_unknown!(PD, u)
+			assign_unknown!(PD, p)
+			assign_operator!(PD, BilinearOperator([id(u)]))
+			assign_operator!(PD, BilinearOperator([div(u)], [id(p)]; transposed_copy = 1))
+			assign_operator!(PD, LinearOperator(exact_u!, [id(u)]; bonus_quadorder = bonus_quadorder))
+			sol = solve(PD, FES)
+		end
+
+		# evalute error
+		error = evaluate(ErrorIntegratorExact, sol)
+		L2error[lvl] = sqrt(sum(view(error, 1, :)) + sum(view(error, 2, :)))
+		if divfree_basis
+			@info &quot;|| u - curl(ϕ_h) || = $(L2error[lvl])&quot;
+		else
+			@info &quot;|| u - u_h || = $(L2error[lvl])&quot;
+		end
+	end
+
+	# plot
+	if divfree_basis
+		scalarplot!(plt[1, 1], curl3(1), sol; abs = true)
+	else
+		scalarplot!(plt[1, 1], id(1), sol; abs = true)
+	end
+
+	# print convergence history as table
+	print_convergencehistory(NDofs, L2error; X_to_h = X -&gt; X .^ (-1 / 3), ylabels = [&quot;|| u - u_h ||&quot;], xlabel = &quot;ndof&quot;)
+
+	return L2error, plt
+end
+
+
+# finds a minimal subset (of dimension #nodes - 1) of edges, such that all nodes are connected
+function get_spanning_edge_subset(xgrid)
+	nnodes = num_nodes(xgrid)
+	edgenodes = xgrid[EdgeNodes]
+	bedgenodes = xgrid[BEdgeNodes]
+	bedgeedges = xgrid[BEdgeEdges]
+
+	# boolean arrays to memorize which nodes are visited
+	# and which edges belong to the spanning tree
+	visited = zeros(Bool, nnodes)
+	markededges = zeros(Bool, num_edges(xgrid))
+
+	function find_spanning_tree(edgenodes, remap)
+		nodeedges = atranspose(edgenodes)
+		function recursive(node)
+			visited[node] = true
+			nneighbors = num_targets(nodeedges, node)
+			for e = 1 : nneighbors
+				edge = nodeedges[e, node]
+				for k = 1 : 2
+					node2 = edgenodes[k, edge]
+					if !visited[node2]
+						# mark edge
+						markededges[remap[edge]] = true
+						recursive(node2)
+					end
+				end
+			end
+			return nothing
+		end
+		recursive(edgenodes[1])
+	end
+
+	# find spanning tree for Neumann boundary
+	# local bedges &gt;&gt; global edge numbers
+	find_spanning_tree(bedgenodes, bedgeedges)
+
+	# find spanning tree for remaining part
+	other_nodes = setdiff(1:nnodes, unique(view(bedgenodes,:)))
+	if length(other_nodes) &gt; 0
+		find_spanning_tree(edgenodes, 1 : num_edges(xgrid))
+	end
+
+	# return all marked edges
+	return findall(==(true), markededges)
+end
+
+end # module</code></pre><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../Example301_PoissonProblem/">« Example301_PoissonProblem</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="auto">Automatic (OS)</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.2.1 on <span class="colophon-date" title="Wednesday 24 January 2024 17:49">Wednesday 24 January 2024</span>. Using Julia version 1.10.0.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
