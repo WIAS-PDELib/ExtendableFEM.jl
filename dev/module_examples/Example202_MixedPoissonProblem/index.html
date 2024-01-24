@@ -10,7 +10,6 @@ using ExtendableGrids
 # define unknowns
 σ = Unknown(&quot;σ&quot;; name = &quot;pseudostress&quot;)
 u = Unknown(&quot;u&quot;; name = &quot;potential&quot;)
-p = Unknown(&quot;p&quot;; name = &quot;LM hdiv continuity&quot;) # only_used if hdivdg == true
 
 # bilinearform kernel for mixed Poisson problem
 function blf!(result, u_ops, qpinfo)
@@ -33,17 +32,12 @@ function boundarydata!(result, qpinfo)
 	return nothing
 end
 
-function main(; nrefs = 5, μ = 0.25, hdivdg = false, Plotter = nothing, kwargs...)
+function main(; nrefs = 5, μ = 0.25, order = 0, Plotter = nothing, kwargs...)
 
 	# problem description
 	PD = ProblemDescription()
 	assign_unknown!(PD, u)
 	assign_unknown!(PD, σ)
-	if hdivdg
-		assign_unknown!(PD, p)
-		assign_operator!(PD, BilinearOperator([jump(normalflux(σ))], [id(p)]; transposed_copy = 1, entities = ON_IFACES, kwargs...))
-		assign_operator!(PD, HomogeneousData(p; regions = 1:4))
-	end
 	assign_operator!(PD, BilinearOperator(blf!, [id(σ), div(σ), id(u)]; params = [μ], kwargs...))
 	assign_operator!(PD, LinearOperator(boundarydata!, [normalflux(σ)]; entities = ON_BFACES, regions = 1:4, kwargs...))
 	assign_operator!(PD, LinearOperator(f!, [id(u)]; kwargs...))
@@ -51,9 +45,8 @@ function main(; nrefs = 5, μ = 0.25, hdivdg = false, Plotter = nothing, kwargs.
 
 	# discretize
 	xgrid = uniform_refine(grid_unitsquare(Triangle2D), nrefs)
-	FES = Dict(u =&gt; FESpace{L2P0{1}}(xgrid),
-		σ =&gt; FESpace{HDIVRT0{2}}(xgrid; broken = hdivdg),
-		p =&gt; hdivdg ? FESpace{L2P0{1}, ON_FACES}(xgrid) : nothing)
+	FES = Dict(u =&gt; FESpace{order == 0 ? L2P0{1} : H1Pk{1,2,order}}(xgrid; broken = true),
+		σ =&gt; FESpace{HDIVRTk{2, order}}(xgrid))
 
 	# solve
 	sol = ExtendableFEM.solve(PD, FES; kwargs...)
@@ -64,4 +57,4 @@ function main(; nrefs = 5, μ = 0.25, hdivdg = false, Plotter = nothing, kwargs.
 	return sol, plt
 end
 
-end # module</code></pre><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../Example201_PoissonProblem/">« Example201_PoissonProblem</a><a class="docs-footer-nextpage" href="../Example203_PoissonProblemDG/">Example203_PoissonProblemDG »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="auto">Automatic (OS)</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.2.1 on <span class="colophon-date" title="Saturday 20 January 2024 10:29">Saturday 20 January 2024</span>. Using Julia version 1.10.0.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+end # module</code></pre><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../Example201_PoissonProblem/">« Example201_PoissonProblem</a><a class="docs-footer-nextpage" href="../Example203_PoissonProblemDG/">Example203_PoissonProblemDG »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="auto">Automatic (OS)</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.2.1 on <span class="colophon-date" title="Wednesday 24 January 2024 16:58">Wednesday 24 January 2024</span>. Using Julia version 1.10.0.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
