@@ -32,7 +32,7 @@ function prepare_data(; μ = 1)
 	return f_eval, u_eval, ∇u_eval[2]
 end
 
-function main(; dg = true, μ = 1.0, τ = 4.0, nrefs = 4, order = 2, bonus_quadorder = 2, Plotter = nothing, kwargs...)
+function main(; dg = true, μ = 1.0, τ = 10.0, nrefs = 4, order = 2, bonus_quadorder = 2, Plotter = nothing, kwargs...)
 
 	# prepare problem data
 	f_eval, u_eval, ∇u_eval = prepare_data(; μ = μ)
@@ -48,15 +48,6 @@ function main(; dg = true, μ = 1.0, τ = 4.0, nrefs = 4, order = 2, bonus_quado
 	assign_operator!(PD, LinearOperator(rhs!, [id(u)]; bonus_quadorder = bonus_quadorder, kwargs...))
 	assign_operator!(PD, InterpolateBoundaryData(u, exact_u!; bonus_quadorder = bonus_quadorder, regions = 1:4))
 
-	# prepare error calculation
-	function exact_error!(result, u, qpinfo)
-		exact_u!(result, qpinfo)
-		exact_∇u!(view(result, 2:3), qpinfo)
-		result .-= u
-		result .= result .^ 2
-	end
-	ErrorIntegratorExact = ItemIntegrator(exact_error!, [id(u), grad(u)]; quadorder = 2 * order, params = [μ], kwargs...)
-
 	# discretize
 	xgrid = uniform_refine(grid_unitsquare(Triangle2D), nrefs)
 	FES = FESpace{H1Pk{1, 2, order}}(xgrid; broken = dg)
@@ -71,12 +62,27 @@ function main(; dg = true, μ = 1.0, τ = 4.0, nrefs = 4, order = 2, bonus_quado
 	# solve
 	sol = solve(PD, FES; kwargs...)
 
+	# prepare error calculation
+	function exact_error!(result, u, qpinfo)
+		exact_u!(result, qpinfo)
+		exact_∇u!(view(result, 2:3), qpinfo)
+		result .-= u
+		result .= result .^ 2
+	end
+	function dgjumps!(result, u, qpinfo)
+		result .= u[1]^2/qpinfo.volume
+	end
+	ErrorIntegratorExact = ItemIntegrator(exact_error!, [id(u), grad(u)]; quadorder = 2 * order, params = [μ], kwargs...)
+	DGJumpsIntegrator = ItemIntegratorDG(dgjumps!, [jump(id(u))]; entities = ON_IFACES, kwargs...)
+
 	# calculate error
 	error = evaluate(ErrorIntegratorExact, sol)
+	dgjumps = sqrt(sum(evaluate(DGJumpsIntegrator, sol)))
 	L2error = sqrt(sum(view(error, 1, :)))
 	H1error = sqrt(sum(view(error, 2, :)) + sum(view(error, 3, :)))
 	@info &quot;L2 error = $L2error&quot;
 	@info &quot;H1 error = $H1error&quot;
+	@info &quot;dgjumps = $dgjumps&quot;
 
 	# plot
 	plt = plot([id(u), grad(u)], sol; Plotter = Plotter)
@@ -123,4 +129,4 @@ function dg_kernel2_bnd(xgrid, uDb! = nothing)
 	end
 end
 
-end # module</code></pre><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../Example202_MixedPoissonProblem/">« Example202_MixedPoissonProblem</a><a class="docs-footer-nextpage" href="../Example204_LaplaceEVProblem/">Example204_LaplaceEVProblem »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="auto">Automatic (OS)</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.2.1 on <span class="colophon-date" title="Monday 12 February 2024 15:48">Monday 12 February 2024</span>. Using Julia version 1.10.0.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+end # module</code></pre><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../Example202_MixedPoissonProblem/">« Example202_MixedPoissonProblem</a><a class="docs-footer-nextpage" href="../Example204_LaplaceEVProblem/">Example204_LaplaceEVProblem »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.4.1 on <span class="colophon-date" title="Monday 6 May 2024 15:36">Monday 6 May 2024</span>. Using Julia version 1.10.3.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>

@@ -13,15 +13,20 @@ function boundary_conditions!(result, qpinfo)
 end
 
 function interface_condition!(result, u, qpinfo)
-    result[1] = -(u[2] - u[1])
+    result[1] = u[1] - u[2]
     result[2] = -result[1]
 end
 
+function interface_condition_LM!(result, u, qpinfo)
+    result[1] = (u[1] - u[2])
+end
 
-function main(; μ = [1.0,1.0], f = [10,-10], τ = 1, nref = 4, order = 2, Plotter = nothing, kwargs...)
+
+function main(; μ = [1.0,1.0], f = [10,-10], τ = 1, use_LM = true, nref = 4, order = 2, Plotter = nothing, kwargs...)
 
 	# Finite element type
 	FEType = H1Pk{1, 2, order}
+    FETypeLM = H1Pk{1, 1, order}
 
 	# generate mesh
 	xgrid = grid_unitsquare(Triangle2D)
@@ -41,10 +46,15 @@ function main(; μ = [1.0,1.0], f = [10,-10], τ = 1, nref = 4, order = 2, Plott
     # define an FESpace just on region 1 and one just on region 2
     FES1 = FESpace{FEType}(xgrid; regions = [1])
     FES2 = FESpace{FEType}(xgrid; regions = [2])
+    if use_LM
+        FES3 = FESpace{FETypeLM, ON_BFACES}(xgrid; regions = [5])
+        @show FES3.xgrid FES3.dofgrid
+    end
 
     # define variables
     u1 = Unknown(&quot;u1&quot;; name = &quot;potential in region 1&quot;)
     u2 = Unknown(&quot;u2&quot;; name = &quot;potential in region 2&quot;)
+    p = Unknown(&quot;p&quot;; name = &quot;LM for interface condition&quot;)
 
     # problem description
 	PD = ProblemDescription()
@@ -54,11 +64,16 @@ function main(; μ = [1.0,1.0], f = [10,-10], τ = 1, nref = 4, order = 2, Plott
 	assign_operator!(PD, BilinearOperator([grad(u2)]; regions = [2], factor = μ[2], kwargs...))
     assign_operator!(PD, LinearOperator([id(u1)]; regions = [1], factor = f[1]))
     assign_operator!(PD, LinearOperator([id(u2)]; regions = [2], factor = f[2]))
-	assign_operator!(PD, BilinearOperator(interface_condition!, [id(u1), id(u2)]; regions = [5], factor = τ, entities = ON_FACES, kwargs...))
+    if use_LM
+        assign_unknown!(PD, p)
+        assign_operator!(PD, BilinearOperator(interface_condition_LM!, [id(p)], [id(u1), id(u2)]; regions = [5], transposed_copy = 1, entities = ON_BFACES, kwargs...))
+    else
+	    assign_operator!(PD, BilinearOperator(interface_condition!, [id(u1), id(u2)]; regions = [5], factor = τ, entities = ON_BFACES, kwargs...))
+    end
 	assign_operator!(PD, InterpolateBoundaryData(u1, boundary_conditions!; regions = 1:4))
 	assign_operator!(PD, InterpolateBoundaryData(u2, boundary_conditions!; regions = 1:4))
 
-    sol = solve(PD, [FES1, FES2])
+    sol = solve(PD, use_LM ? [FES1, FES2, FES3] : [FES1, FES2])
 
     plt = plot([id(u1), id(u2), dofgrid(u1), dofgrid(u2), grid(u1)], sol; Plotter = Plotter)
 
@@ -66,4 +81,4 @@ function main(; μ = [1.0,1.0], f = [10,-10], τ = 1, nref = 4, order = 2, Plott
 end
 
 
-end #module</code></pre><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../Example205_HeatEquation/">« Example205_HeatEquation</a><a class="docs-footer-nextpage" href="../Example207_AdvectionUpwindDG/">Example207_AdvectionUpwindDG »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="auto">Automatic (OS)</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.2.1 on <span class="colophon-date" title="Monday 12 February 2024 15:48">Monday 12 February 2024</span>. Using Julia version 1.10.0.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+end #module</code></pre><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../Example205_HeatEquation/">« Example205_HeatEquation</a><a class="docs-footer-nextpage" href="../Example207_AdvectionUpwindDG/">Example207_AdvectionUpwindDG »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.4.1 on <span class="colophon-date" title="Monday 6 May 2024 15:36">Monday 6 May 2024</span>. Using Julia version 1.10.3.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
