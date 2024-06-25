@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Example211_LshapeAdaptiveEQPoissonProblem · ExtendableFEM.jl</title><meta name="title" content="Example211_LshapeAdaptiveEQPoissonProblem · ExtendableFEM.jl"/><meta property="og:title" content="Example211_LshapeAdaptiveEQPoissonProblem · ExtendableFEM.jl"/><meta property="twitter:title" content="Example211_LshapeAdaptiveEQPoissonProblem · ExtendableFEM.jl"/><meta name="description" content="Documentation for ExtendableFEM.jl."/><meta property="og:description" content="Documentation for ExtendableFEM.jl."/><meta property="twitter:description" content="Documentation for ExtendableFEM.jl."/><script data-outdated-warner src="../../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../search_index.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../../">ExtendableFEM.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../../">Home</a></li><li><a class="tocitem" href="../../package_index/">Index</a></li><li><span class="tocitem">Problem Description</span><ul><li><a class="tocitem" href="../../problemdescription/">Problem Description</a></li><li><a class="tocitem" href="../../nonlinearoperator/">NonlinearOperator</a></li><li><a class="tocitem" href="../../bilinearoperator/">BilinearOperator</a></li><li><a class="tocitem" href="../../linearoperator/">LinearOperator</a></li><li><a class="tocitem" href="../../interpolateboundarydata/">InterpolateBoundaryData</a></li><li><a class="tocitem" href="../../homogeneousdata/">HomogeneousData</a></li><li><a class="tocitem" href="../../fixdofs/">FixDofs</a></li><li><a class="tocitem" href="../../combinedofs/">CombineDofs</a></li><li><a class="tocitem" href="../../callbackoperator/">CallbackOperator</a></li></ul></li><li><span class="tocitem">Solving</span><ul><li><a class="tocitem" href="../../pdesolvers/">Stationary Solvers</a></li><li><a class="tocitem" href="../../pdesolvers_dt/">Time-dependent Solvers</a></li></ul></li><li><span class="tocitem">Postprocessing</span><ul><li><a class="tocitem" href="../../postprocessing/">Other packages</a></li><li><a class="tocitem" href="../../itemintegrators/">Item Integrators</a></li></ul></li><li><span class="tocitem">Examples</span><ul><li><a class="tocitem" href="../Example103_BurgersEquation/">Example103_BurgersEquation</a></li><li><a class="tocitem" href="../Example105_NonlinearPoissonEquation/">Example105_NonlinearPoissonEquation</a></li><li><a class="tocitem" href="../Example106_NonlinearDiffusion/">Example106_NonlinearDiffusion</a></li><li><a class="tocitem" href="../Example108_RobinBoundaryCondition/">Example108_RobinBoundaryCondition</a></li><li><a class="tocitem" href="../Example201_PoissonProblem/">Example201_PoissonProblem</a></li><li><a class="tocitem" href="../Example202_MixedPoissonProblem/">Example202_MixedPoissonProblem</a></li><li><a class="tocitem" href="../Example203_PoissonProblemDG/">Example203_PoissonProblemDG</a></li><li><a class="tocitem" href="../Example204_LaplaceEVProblem/">Example204_LaplaceEVProblem</a></li><li><a class="tocitem" href="../Example205_HeatEquation/">Example205_HeatEquation</a></li><li><a class="tocitem" href="../Example206_CoupledSubGridProblems/">Example206_CoupledSubGridProblems</a></li><li><a class="tocitem" href="../Example207_AdvectionUpwindDG/">Example207_AdvectionUpwindDG</a></li><li><a class="tocitem" href="../Example210_LshapeAdaptivePoissonProblem/">Example210_LshapeAdaptivePoissonProblem</a></li><li class="is-active"><a class="tocitem" href>Example211_LshapeAdaptiveEQPoissonProblem</a></li><li><a class="tocitem" href="../Example220_ReactionConvectionDiffusion/">Example220_ReactionConvectionDiffusion</a></li><li><a class="tocitem" href="../Example225_ObstacleProblem/">Example225_ObstacleProblem</a></li><li><a class="tocitem" href="../Example226_Thermoforming/">Example226_Thermoforming</a></li><li><a class="tocitem" href="../Example230_NonlinearElasticity/">Example230_NonlinearElasticity</a></li><li><a class="tocitem" href="../Example235_StokesIteratedPenalty/">Example235_StokesIteratedPenalty</a></li><li><a class="tocitem" href="../Example240_SVRTEnrichment/">Example240_SVRTEnrichment</a></li><li><a class="tocitem" href="../Example245_NSEFlowAroundCylinder/">Example245_NSEFlowAroundCylinder</a></li><li><a class="tocitem" href="../Example250_NSELidDrivenCavity/">Example250_NSELidDrivenCavity</a></li><li><a class="tocitem" href="../Example252_NSEPlanarLatticeFlow/">Example252_NSEPlanarLatticeFlow</a></li><li><a class="tocitem" href="../Example260_AxisymmetricNavierStokesProblem/">Example260_AxisymmetricNavierStokesProblem</a></li><li><a class="tocitem" href="../Example265_FlowTransport/">Example265_FlowTransport</a></li><li><a class="tocitem" href="../Example270_NaturalConvectionProblem/">Example270_NaturalConvectionProblem</a></li><li><a class="tocitem" href="../Example275_OptimalControlStokes/">Example275_OptimalControlStokes</a></li><li><a class="tocitem" href="../Example280_CompressibleStokes/">Example280_CompressibleStokes</a></li><li><a class="tocitem" href="../Example282_IncompressibleMHD/">Example282_IncompressibleMHD</a></li><li><a class="tocitem" href="../Example284_LevelSetMethod/">Example284_LevelSetMethod</a></li><li><a class="tocitem" href="../Example285_CahnHilliard/">Example285_CahnHilliard</a></li><li><a class="tocitem" href="../Example290_PoroElasticity/">Example290_PoroElasticity</a></li><li><a class="tocitem" href="../Example301_PoissonProblem/">Example301_PoissonProblem</a></li><li><a class="tocitem" href="../Example310_DivFreeBasis/">Example310_DivFreeBasis</a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Examples</a></li><li class="is-active"><a href>Example211_LshapeAdaptiveEQPoissonProblem</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Example211_LshapeAdaptiveEQPoissonProblem</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="github.com/chmerdon/ExtendableFEM.jl" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="211-:-Poisson-L-shape-Local-Equilibrated-Fluxes"><a class="docs-heading-anchor" href="#211-:-Poisson-L-shape-Local-Equilibrated-Fluxes">211 : Poisson L-shape Local Equilibrated Fluxes</a><a id="211-:-Poisson-L-shape-Local-Equilibrated-Fluxes-1"></a><a class="docs-heading-anchor-permalink" href="#211-:-Poisson-L-shape-Local-Equilibrated-Fluxes" title="Permalink"></a></h1><p>(<a href="../Example211_LshapeAdaptiveEQPoissonProblem.jl">source code</a>)</p><p>This example computes a local equilibration error estimator for the <span>$H^1$</span> error of some <span>$H^1$</span>-conforming approximation <span>$u_h$</span> to the solution <span>$u$</span> of some Poisson problem <span>$-\Delta u = f$</span> on an L-shaped domain, i.e.</p><p class="math-container">\[\eta^2(\sigma_h) := \| \sigma_h - \nabla u_h \|^2_{L^2(T)}\]</p><p>where <span>$\sigma_h$</span> discretisates the exact <span>$\sigma$</span> in the dual mixed problem</p><p class="math-container">\[\sigma - \nabla u = 0
 \quad \text{and} \quad
-\mathrm{div}(\sigma) + f = 0\]</p><p>by some local equilibration strategy, see reference below for details.</p><p>This examples demonstrates the use of low-level structures to assemble individual problems and a strategy to solve several small problems in parallel by use of non-overlapping node patch groups.</p><div class="admonition is-category-reference"><header class="admonition-header">Reference</header><div class="admonition-body"><p>&#39;&#39;A posteriori error estimates for efficiency and error control in numerical simulations&#39;&#39; Lecture Notes by M. Vohralik <a href="https://who.rocq.inria.fr/Martin.Vohralik/Enseig/APost/a_posteriori.pdf">&gt;Link&lt;</a></p></div></div><p>The resulting mesh and error convergence history for the default parameters looks like:</p><p><img src="../example211.svg" alt/></p><pre><code class="language-julia hljs">module Example211_LshapeAdaptiveEQPoissonProblem
+\mathrm{div}(\sigma) + f = 0\]</p><p>by some local equilibration strategy, see reference below for details.</p><p>This examples demonstrates the use of low-level structures to assemble individual problems and a strategy to solve several small problems in parallel by use of non-overlapping node patch groups.</p><div class="admonition is-category-reference"><header class="admonition-header">Reference</header><div class="admonition-body"><p>&#39;&#39;A posteriori error estimates for efficiency and error control in numerical simulations&#39;&#39; Lecture Notes by M. Vohralik <a href="https://who.rocq.inria.fr/Martin.Vohralik/Enseig/APost/a_posteriori.pdf">&gt;Link&lt;</a></p></div></div><p>The resulting mesh and error convergence history for the default parameters looks like:</p><p><img src="../example211.png" alt/></p><pre><code class="language-julia hljs">module Example211_LshapeAdaptiveEQPoissonProblem
 
 using ExtendableFEM
 using ExtendableFEMBase
@@ -60,14 +60,8 @@ function main(; maxdofs = 4000, μ = 1, order = 2, nlevels = 16, θ = 0.5, Plott
 	xgrid = grid_lshape(Triangle2D)
 
 	# choose some finite elements for primal and dual problem (= for equilibrated fluxes)
-	# (local equilibration for Pk needs at least BDMk)
-	if order == 1
-		FEType, FETypeDual = H1P1{1}, HDIVBDM1{2}
-	elseif order == 2
-		FEType, FETypeDual = H1P2{1, 2}, HDIVBDM2{2}
-	else
-		@error &quot;order must be 1 or 2&quot;
-	end
+	FEType = H1Pk{1,2,order}
+	FETypeDual = HDIVRTk{2, order}
 
 	# setup Poisson problem
 	PD = ProblemDescription(&quot;Poisson problem&quot;)
@@ -172,6 +166,7 @@ function local_equilibration_estimator!(sol, FETypeDual)
 	weights::Array{Float64, 1} = qf.w
 
 	# some constants
+	offset::Int = sol[u].offset
 	div_penalty::Float64 = 1e5      # divergence constraint is realized by penalisation
 	bnd_penalty::Float64 = 1e60     # penalty for non-involved dofs of a group
 	maxdofs::Int = max_num_targets_per_source(xItemDofs)
@@ -187,150 +182,147 @@ function local_equilibration_estimator!(sol, FETypeDual)
 	end
 	X = Array{Array{Float64, 1}, 1}(undef, maxgroups)
 
+	function solve_patchgroup!(group)
+		# temporary variables
+		graduh = zeros(Float64, 2)
+		coeffs_uh = zeros(Float64, maxdofs_uh)
+		Alocal = zeros(Float64, maxdofs, maxdofs)
+		blocal = zeros(Float64, maxdofs)
+
+		# init system
+		A = ExtendableSparseMatrix{Float64, Int64}(FESDual.ndofs, FESDual.ndofs)
+		b = zeros(Float64, FESDual.ndofs)
+
+		# init FEBasiEvaluators
+		FEE_∇φ = FEEvaluator(POUFES, Gradient, POUqf)
+		FEE_xref = FEEvaluator(POUFES, Identity, qf)
+		FEE_∇u = FEEvaluator(sol[u].FES, Gradient, qf)
+		FEE_div = FEEvaluator(FESDual, Divergence, qf)
+		FEE_id = FEEvaluator(FESDual, Identity, qf)
+		idvals = FEE_id.cvals
+		divvals = FEE_div.cvals
+		xref_vals = FEE_xref.cvals
+		∇φvals = FEE_∇φ.cvals
+
+		# find dofs at boundary of current node patches
+		# and in interior of cells outside of current node patch group
+		is_noninvolveddof = zeros(Bool, FESDual.ndofs)
+		outside_cell::Bool = false
+		for cell ∈ 1:num_cells(xgrid)
+			outside_cell = true
+			for k ∈ 1:3
+				if group4node[xCellNodes[k, cell]] == group
+					outside_cell = false
+					break
+				end
+			end
+			if (outside_cell) # mark interior dofs of outside cell
+				for j ∈ 1:maxdofs
+					is_noninvolveddof[xItemDofs[j, cell]] = true
+				end
+			end
+		end
+
+		for node ∈ 1:nnodes
+			if group4node[node] == group
+				for c ∈ 1:num_targets(xNodeCells, node)
+					cell = xNodeCells[c, node]
+
+					# find local node number of global node z
+					# and evaluate (constant) gradient of nodal basis function phi_z
+					localnode = 1
+					while xCellNodes[localnode, cell] != node
+						localnode += 1
+					end
+					FEE_∇φ.citem[] = cell
+					update_basis!(FEE_∇φ)
+
+					# read coefficients for discrete flux
+					for j ∈ 1:maxdofs_uh
+						coeffs_uh[j] = sol.entries[offset + xItemDofs_uh[j, cell]]
+					end
+
+					# update other FE evaluators
+					FEE_∇u.citem[] = cell
+					FEE_div.citem[] = cell
+					FEE_id.citem[] = cell
+					update_basis!(FEE_∇u)
+					update_basis!(FEE_div)
+					update_basis!(FEE_id)
+
+					# assembly on this cell
+					for i in eachindex(weights)
+						weight = weights[i] * xCellVolumes[cell]
+
+						# evaluate grad(u_h) and nodal basis function at quadrature point
+						fill!(graduh, 0)
+						eval_febe!(graduh, FEE_∇u, coeffs_uh, i)
+
+						# compute residual -f*phi_z + grad(u_h) * grad(phi_z) at quadrature point i ( f = 0 in this example !!! )
+						temp2 = div_penalty * sqrt(xCellVolumes[cell]) * weight
+						temp = temp2 * dot(graduh, view(∇φvals,:,localnode,1))
+						for dof_i ∈ 1:maxdofs
+							# right-hand side for best-approximation (grad(u_h)*phi)
+							blocal[dof_i] += dot(graduh, view(idvals,:,dof_i, i)) * xref_vals[1, localnode, i] * weight
+							# mass matrix Hdiv
+							for dof_j ∈ dof_i:maxdofs
+								Alocal[dof_i, dof_j] += dot(view(idvals,:,dof_i, i), view(idvals,:,dof_j, i)) * weight
+							end
+							# div-div matrix Hdiv * penalty (quick and dirty to avoid Lagrange multiplier)
+							blocal[dof_i] += temp * divvals[1,dof_i,i]
+							temp3 = temp2 * divvals[1,dof_i,i]
+							for dof_j ∈ dof_i:maxdofs
+								Alocal[dof_i, dof_j] += temp3 * divvals[1,dof_j,i]
+							end
+						end
+					end
+
+					# write into global A and b
+					for dof_i ∈ 1:maxdofs
+						dofi = xItemDofs[dof_i, cell]
+						b[dofi] += blocal[dof_i]
+						for dof_j ∈ 1:maxdofs
+							dofj = xItemDofs[dof_j, cell]
+							if dof_j &lt; dof_i # use that Alocal is symmetric
+								_addnz(A, dofi, dofj, Alocal[dof_j, dof_i], 1)
+							else
+								_addnz(A, dofi, dofj, Alocal[dof_i, dof_j], 1)
+							end
+						end
+					end
+
+					# reset local A and b
+					fill!(Alocal, 0)
+					fill!(blocal, 0)
+				end
+			end
+		end
+
+		# penalize dofs that are not involved
+		for j ∈ 1:FESDual.ndofs
+			if is_noninvolveddof[j]
+				A[j, j] = bnd_penalty
+				b[j] = 0
+			end
+		end
+
+		# solve local problem
+		return A \ b
+	end
+
+	# solve equilibration problems on vertex patches (in parallel)
 	Threads.@threads for group in groups
 		grouptime = @elapsed begin
 			@info &quot;  Starting equilibrating patch group $group on thread $(Threads.threadid())... &quot;
-			# temporary variables
-			graduh = zeros(Float64, 2)
-			gradphi = zeros(Float64, 2)
-			coeffs_uh = zeros(Float64, maxdofs_uh)
-			eval_i = zeros(Float64, 2)
-			eval_j = zeros(Float64, 2)
-			eval_phi = zeros(Float64, 1)
-			Alocal = zeros(Float64, maxdofs, maxdofs)
-			blocal = zeros(Float64, maxdofs)
-
-			# init FEBasiEvaluators
-			FEE_∇φ = FEEvaluator(POUFES, Gradient, POUqf)
-			FEE_xref = FEEvaluator(POUFES, Identity, qf)
-			FEE_∇u = FEEvaluator(sol[u].FES, Gradient, qf)
-			FEE_div = FEEvaluator(FESDual, Divergence, qf)
-			FEE_id = FEEvaluator(FESDual, Identity, qf)
-
-			# init system
-			A = ExtendableSparseMatrix{Float64, Int64}(FESDual.ndofs, FESDual.ndofs)
-			b = zeros(Float64, FESDual.ndofs)
-
-			# find dofs at boundary of current node patches
-			# and in interior of cells outside of current node patch group
-			is_noninvolveddof = zeros(Bool, FESDual.ndofs)
-			outside_cell::Bool = false
-			for cell ∈ 1:num_cells(xgrid)
-				outside_cell = true
-				for k ∈ 1:3
-					if group4node[xCellNodes[k, cell]] == group
-						outside_cell = false
-						break
-					end
-				end
-				if (outside_cell) # mark interior dofs of outside cell
-					for j ∈ 1:maxdofs
-						is_noninvolveddof[xItemDofs[j, cell]] = true
-					end
-				end
-			end
-
-			for node ∈ 1:nnodes
-				if group4node[node] == group
-					for c ∈ 1:num_targets(xNodeCells, node)
-						cell = xNodeCells[c, node]
-
-						# find local node number of global node z
-						# and evaluate (constant) gradient of nodal basis function phi_z
-						localnode = 1
-						while xCellNodes[localnode, cell] != node
-							localnode += 1
-						end
-						FEE_∇φ.citem[] = cell
-						update_basis!(FEE_∇φ)
-						eval_febe!(gradphi, FEE_∇φ, localnode, 1)
-
-						# read coefficients for discrete flux
-						for j ∈ 1:maxdofs_uh
-							coeffs_uh[j] = sol[u][xItemDofs_uh[j, cell]]
-						end
-
-						# update other FE evaluators
-						FEE_∇u.citem[] = cell
-						FEE_div.citem[] = cell
-						FEE_id.citem[] = cell
-						update_basis!(FEE_∇u)
-						update_basis!(FEE_div)
-						update_basis!(FEE_id)
-
-						# assembly on this cell
-						for i in eachindex(weights)
-							weight = weights[i] * xCellVolumes[cell]
-
-							# evaluate grad(u_h) and nodal basis function at quadrature point
-							fill!(graduh, 0)
-							eval_febe!(graduh, FEE_∇u, coeffs_uh, i)
-							eval_febe!(eval_phi, FEE_xref, localnode, i)
-
-							# compute residual -f*phi_z + grad(u_h) * grad(phi_z) at quadrature point i ( f = 0 in this example !!! )
-							temp2 = div_penalty * sqrt(xCellVolumes[cell]) * weight
-							temp = temp2 * (graduh[1] * gradphi[1] + graduh[2] * gradphi[2])
-							for dof_i ∈ 1:maxdofs
-								eval_febe!(eval_i, FEE_id, dof_i, i)
-								eval_i .*= weight
-								# right-hand side for best-approximation (grad(u_h)*phi)
-								blocal[dof_i] += (graduh[1] * eval_i[1] + graduh[2] * eval_i[2]) * eval_phi[1]
-								# mass matrix Hdiv
-								for dof_j ∈ dof_i:maxdofs
-									eval_febe!(eval_j, FEE_id, dof_j, i)
-									Alocal[dof_i, dof_j] += (eval_i[1] * eval_j[1] + eval_i[2] * eval_j[2])
-								end
-								# div-div matrix Hdiv * penalty (quick and dirty to avoid Lagrange multiplier)
-								eval_febe!(eval_i, FEE_div, dof_i, i)
-								blocal[dof_i] += temp * eval_i[1]
-								temp3 = temp2 * eval_i[1]
-								for dof_j ∈ dof_i:maxdofs
-									eval_febe!(eval_j, FEE_div, dof_j, i)
-									Alocal[dof_i, dof_j] += temp3 * eval_j[1]
-								end
-							end
-						end
-
-						# write into global A and b
-						for dof_i ∈ 1:maxdofs
-							dofi = xItemDofs[dof_i, cell]
-							b[dofi] += blocal[dof_i]
-							for dof_j ∈ 1:maxdofs
-								dofj = xItemDofs[dof_j, cell]
-								if dof_j &lt; dof_i # use that Alocal is symmetric
-									_addnz(A, dofi, dofj, Alocal[dof_j, dof_i], 1)
-								else
-									_addnz(A, dofi, dofj, Alocal[dof_i, dof_j], 1)
-								end
-							end
-						end
-
-						# reset local A and b
-						fill!(Alocal, 0)
-						fill!(blocal, 0)
-					end
-				end
-			end
-
-			# penalize dofs that are not involved
-			for j ∈ 1:FESDual.ndofs
-				if is_noninvolveddof[j]
-					A[j, j] = bnd_penalty
-					b[j] = 0
-				end
-			end
-
-			# solve local problem
-			X[group] = A \ b
+			X[group] = solve_patchgroup!(group)
 		end
-
 		@info &quot;Finished equilibration patch group $group on thread $(Threads.threadid()) in $(grouptime)s &quot;
 	end
 
-	# write local solutions to global vector
+	# write local solutions to global vector (sequentially)
 	for group ∈ 1:maxgroups
 		view(sol[σ]) .+= X[group]
 	end
 end
 
-end</code></pre><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../Example210_LshapeAdaptivePoissonProblem/">« Example210_LshapeAdaptivePoissonProblem</a><a class="docs-footer-nextpage" href="../Example220_ReactionConvectionDiffusion/">Example220_ReactionConvectionDiffusion »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.4.1 on <span class="colophon-date" title="Friday 7 June 2024 10:00">Friday 7 June 2024</span>. Using Julia version 1.10.4.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+end</code></pre><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../Example210_LshapeAdaptivePoissonProblem/">« Example210_LshapeAdaptivePoissonProblem</a><a class="docs-footer-nextpage" href="../Example220_ReactionConvectionDiffusion/">Example220_ReactionConvectionDiffusion »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.4.1 on <span class="colophon-date" title="Tuesday 25 June 2024 20:17">Tuesday 25 June 2024</span>. Using Julia version 1.10.4.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
