@@ -6,6 +6,7 @@
 using ExtendableFEM
 using ExtendableGrids
 using LinearAlgebra
+using Metis
 using Symbolics
 
 # exact data for problem by Symbolics
@@ -28,7 +29,7 @@ function prepare_data(; μ = 1)
 	return f_eval, u_eval, ∇u_eval[2]
 end
 
-function main(; dg = true, μ = 1.0, τ = 10.0, nrefs = 4, order = 2, bonus_quadorder = 2, Plotter = nothing, kwargs...)
+function main(; dg = true, μ = 1.0, τ = 10.0, nrefs = 4, order = 2, bonus_quadorder = 2, parallel = false, npart = parallel ? 8 : 1, Plotter = nothing, kwargs...)
 
 	# prepare problem data
 	f_eval, u_eval, ∇u_eval = prepare_data(; μ = μ)
@@ -40,19 +41,23 @@ function main(; dg = true, μ = 1.0, τ = 10.0, nrefs = 4, order = 2, bonus_quad
 	PD = ProblemDescription(&quot;Poisson problem&quot;)
 	u = Unknown(&quot;u&quot;; name = &quot;potential&quot;)
 	assign_unknown!(PD, u)
-	assign_operator!(PD, BilinearOperator([grad(u)]; factor = μ, kwargs...))
-	assign_operator!(PD, LinearOperator(rhs!, [id(u)]; bonus_quadorder = bonus_quadorder, kwargs...))
+	assign_operator!(PD, BilinearOperator([grad(u)]; factor = μ, parallel = parallel, kwargs...))
+	assign_operator!(PD, LinearOperator(rhs!, [id(u)]; bonus_quadorder = bonus_quadorder, parallel = parallel, kwargs...))
 	assign_operator!(PD, InterpolateBoundaryData(u, exact_u!; bonus_quadorder = bonus_quadorder, regions = 1:4))
 
 	# discretize
 	xgrid = uniform_refine(grid_unitsquare(Triangle2D), nrefs)
+	if npart &gt; 1
+		xgrid = partition(xgrid, PlainMetisPartitioning(npart=npart); edges = true)
+	end
 	FES = FESpace{order == 0 ? L2P0{1} : H1Pk{1, 2, order}}(xgrid; broken = dg)
 
 	# add DG terms
-	assign_operator!(PD, BilinearOperatorDG(dg_kernel, [jump(id(u))], [average(grad(u))]; entities = ON_FACES, factor = -μ, transposed_copy = 1, kwargs...))
-	assign_operator!(PD, LinearOperatorDG(dg_kernel_bnd(exact_u!), [average(grad(u))]; entities = ON_BFACES, factor = -μ, bonus_quadorder = bonus_quadorder, kwargs...))
-	assign_operator!(PD, BilinearOperatorDG(dg_kernel2, [jump(id(u))]; entities = ON_FACES, factor = μ*τ, kwargs...))
-	assign_operator!(PD, LinearOperatorDG(dg_kernel2_bnd(exact_u!), [id(u)]; entities = ON_BFACES, regions = 1:4, factor = μ*τ, bonus_quadorder = bonus_quadorder, kwargs...))
+	assign_operator!(PD, BilinearOperatorDG(dg_kernel, [jump(id(u))], [average(grad(u))]; entities = ON_FACES, factor = -μ, transposed_copy = 1, parallel = parallel, kwargs...))
+	assign_operator!(PD, LinearOperatorDG(dg_kernel_bnd(exact_u!), [average(grad(u))]; entities = ON_BFACES, factor = -μ, bonus_quadorder = bonus_quadorder, parallel = parallel, kwargs...))
+	assign_operator!(PD, BilinearOperatorDG(dg_kernel2, [jump(id(u))]; entities = ON_FACES, factor = μ*τ, parallel = parallel, kwargs...))
+	assign_operator!(PD, LinearOperatorDG(dg_kernel2_bnd(exact_u!), [id(u)]; entities = ON_BFACES, regions = 1:4, factor = μ*τ, bonus_quadorder = bonus_quadorder, parallel = parallel, kwargs...))
+
 
 	# solve
 	sol = solve(PD, FES; kwargs...)
@@ -104,4 +109,4 @@ function dg_kernel2_bnd(uDb! = nothing)
 	end
 end
 
-end # module</code></pre><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../Example202_MixedPoissonProblem/">« Example202_MixedPoissonProblem</a><a class="docs-footer-nextpage" href="../Example204_LaplaceEVProblem/">Example204_LaplaceEVProblem »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.7.0 on <span class="colophon-date" title="Friday 13 September 2024 10:33">Friday 13 September 2024</span>. Using Julia version 1.10.5.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+end # module</code></pre><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../Example202_MixedPoissonProblem/">« Example202_MixedPoissonProblem</a><a class="docs-footer-nextpage" href="../Example204_LaplaceEVProblem/">Example204_LaplaceEVProblem »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.7.0 on <span class="colophon-date" title="Friday 13 September 2024 17:30">Friday 13 September 2024</span>. Using Julia version 1.10.5.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
