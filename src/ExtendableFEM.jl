@@ -132,6 +132,7 @@ export replace_operator!
 
 include("helper_functions.jl")
 export get_periodic_coupling_info
+export get_periodic_coupling_matrix
 export tmul!
 
 include("tensors.jl")
