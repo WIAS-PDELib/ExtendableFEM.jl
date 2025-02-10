@@ -196,7 +196,7 @@ function get_periodic_coupling_matrix(
             source,
             give_opposite,
             boundary_faces,
-            start_cell = boundary_faces[begin],
+            start_cell = 1, # TODO we interpolate on the "b_from"" side: a proper start cell should be given
             eps = 1.0e-13,
             kwargs...
         ) where {T1, Tv, Ti}
