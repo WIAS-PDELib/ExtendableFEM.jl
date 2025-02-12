@@ -43,20 +43,20 @@ function test_matrix(matrix; structured_grid = true)
             return false
         end
 
-        # at most one entry in each row
-        for i in 1:size(matrix, 1)
-            if sum(matrix[i, :]) > 1.0 + 1.0e-8
-                @show sum(matrix[i, :]) i
+        # at most one entry in each col
+        for i in 1:size(matrix, 2)
+            if sum(matrix[:, i]) > 1.0 + 1.0e-8
+                @show sum(matrix[:, i]) i
                 return false
             end
         end
     end
 
-    # col sum is 0.0 or 1.0
+    # row sum is 0.0 or 1.0
     for i in 1:size(matrix, 1)
-        col_sum = sum(matrix[:, i])
-        if !(col_sum == 0.0 || col_sum ≈ 1.0)
-            @show col_sum i
+        row_sum = sum(matrix[i, :])
+        if !(row_sum == 0.0 || row_sum ≈ 1.0)
+            @show row_sum i
             return false
         end
     end
@@ -74,7 +74,7 @@ end
     end
 
     let # 3D P1
-        xgrid = simplexgrid(0:0.05:1.0, 0:0.05:1.0, 0:0.05:1.0)
+        xgrid = simplexgrid(0:0.1:1.0, 0:0.1:1.0, 0:0.1:1.0)
         FES = FESpace{H1P1{1}}(xgrid)
         A = get_periodic_coupling_matrix(FES, xgrid, 4, 2, give_opposite!, sparsity_tol = 1.0e-8)
         @test test_matrix(A)

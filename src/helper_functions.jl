@@ -159,22 +159,37 @@ end
 
 
 """
+    get_periodic_coupling_matrix(
+        FES::FESpace,
+        xgrid::ExtendableGrid,
+        b_from,
+        b_to,
+        give_opposite!::Function;
+        mask = :auto,
+        sparsity_tol = 1.0e-12
+    )
+
 Compute a coupling information for each dof on one boundary as a linear combination of dofs on another boundary
 
-The function foo(p) takes a global point on b_from and is expected to return a global point on the opposite boundary.
+Input:
+ - FES: FE space to be coupled
+ - xgrid: the grid
+ - b_from: boundary region of the grid which dofs should be replaced in terms of dofs on b_to
+ - b_to: boundary region of the grid with dofs to replace the dofs in b_from
+ - give_opposite! Function in (y,x)
+ - mask: (optional) vector of masking components
+ . sparsity_tol: threshold for treating an interpolated value as zero
 
-give_opposite!(y,x) has to be defined in a way that for each x ∈ b_from the resulting y is in the oppistite boundary.
+give_opposite!(y,x) has to be defined in a way that for each x ∈ b_from the resulting y is in the opposite boundary.
 For each x in the grid, the resulting y has to be in the grid, too: incorporate some mirroring of the coordinates.
 Example: If b_from is at x[1] = 0 and the opposite boundary is at y[1] = 1, then give_opposite!(y,x) = y .= [ 1-x[1], x[2] ]
 
 The return value is a (𝑛 × 𝑛) sparse matrix 𝐴 (𝑛 is the total number of dofs) containing the periodic coupling information.
-The relation ship between the degrees of freedome is  dofᵢ = ∑ⱼ Aᵢⱼ ⋅ dofⱼ.
+The relation ship between the degrees of freedome is  dofᵢ = ∑ⱼ Aⱼᵢ ⋅ dofⱼ.
 It is guaranteed that
-    i)  Aᵢⱼ=0 if dofᵢ is 𝑛𝑜𝑡 on the boundary b_from.
-    ii) Aᵢⱼ=0 if the opposite of dofᵢ is not in the same grid cell as dofⱼ.
-
-TODO For vector-valued FETypes the user can provide factor_vectordofs to incorporate a sign change if needed.
-TODO This is automatically done for all Hdiv-conforming elements and (for the normal-weighted face bubbles of) the Bernardi-Raugel element H1BR.
+    i)  Aⱼᵢ=0 if dofᵢ is 𝑛𝑜𝑡 on the boundary b_from.
+    ii) Aⱼᵢ=0 if the opposite of dofᵢ is not in the same grid cell as dofⱼ.
+Note that A is transposed for efficient col-wise storage.
 
 """
 function get_periodic_coupling_matrix(
@@ -183,8 +198,7 @@ function get_periodic_coupling_matrix(
         b_from,
         b_to,
         give_opposite!::Function;
-        factor_vectordofs = :auto, # TODO
-        factor_components = :auto, # TODO
+        mask = :auto,
         sparsity_tol = 1.0e-12
     )
 
@@ -196,7 +210,7 @@ function get_periodic_coupling_matrix(
             source,
             give_opposite,
             boundary_faces,
-            start_cell = 1, # TODO we interpolate on the "b_from"" side: a proper start cell should be given
+            start_cell = 1, # TODO we interpolate on the "b_from" side: a proper start cell should be given
             eps = 1.0e-13,
             kwargs...
         ) where {T1, Tv, Ti}
@@ -260,6 +274,17 @@ function get_periodic_coupling_matrix(
         end
     end
 
+    # offset of the individual components of the FES
+    ncomponents = get_ncomponents(get_FEType(FES))
+    coffset = FES.coffset
+
+    # fill component mask if not done before
+    if mask == :auto
+        mask = ones(ncomponents)
+    else
+        @assert length(mask) == ncomponents "component mask has to match number of components"
+    end
+
     for i_boundary_face in 1:n_boundary_faces
 
         # for each boundary face: check if in b_from
@@ -267,6 +292,11 @@ function get_periodic_coupling_matrix(
 
             local_dofs = @views dofs_on_boundary[:, i_boundary_face]
             for local_dof in local_dofs
+                # compute number of component
+                if mask[1 + ((local_dof - 1) ÷ coffset)] == 0.0
+                    continue
+                end
+
                 # reset
                 fill!(fe_vector_target.entries, 0.0)
 
@@ -275,8 +305,8 @@ function get_periodic_coupling_matrix(
 
                 # interpolate on the opposite boundary using x_trafo = give_opposite
                 interpolate_on_boundaryfaces(
-                    fe_vector_target[1], # TODO we have to define a FEVectorBlock
-                    fe_vector,           # TODO no FEVectorBlock here?
+                    fe_vector_target[1],
+                    fe_vector,
                     give_opposite!,
                     faces_in_b_to
                 )
@@ -287,15 +317,23 @@ function get_periodic_coupling_matrix(
                 # set entries
                 for (i, target_entry) in enumerate(fe_vector_target.entries)
                     if abs(target_entry) > sparsity_tol
-                        result[local_dof, i] = target_entry
+                        result[i, local_dof] = target_entry
                     end
                 end
             end
         end
     end
 
+    sp_result = sparse(result)
+
+    # strange if nothing is coupled
+    if nnz(sp_result) == 0
+        @warn "no coupling found. Are the grid boundary regions and the give_opposite! method correct?"
+    end
+
     return sparse(result)
 end
+
 
 ## determines a common assembly grid for the given arrays of finite element spaces
 function determine_assembly_grid(FES_test, FES_ansatz = [], FES_args = [])
