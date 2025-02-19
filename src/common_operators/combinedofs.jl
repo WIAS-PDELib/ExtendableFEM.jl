@@ -6,9 +6,6 @@ mutable struct CombineDofs{UT, CT} <: AbstractOperator
     uX::UT                  # component nr for dofsX
     uY::UT                  # component nr for dofsY
     coupling_info::CT
-    #dofsX::XT
-    #dofsY::YT
-    #factors::FT
     FESX::Any
     FESY::Any
     assembler::Any
@@ -25,11 +22,6 @@ function dependencies_when_linearized(O::CombineDofs)
     return [O.uX, O.uY]
 end
 
-function fixed_dofs(O::CombineDofs{UT, CT}) where {UT, CT <: Tuple}
-    ## assembles operator to full matrix A and b
-    return O.coupling_info[2]
-end
-
 
 """
 ````
@@ -44,12 +36,13 @@ Keyword arguments:
 $(_myprint(default_combop_kwargs()))
 
 """
-function CombineDofs(uX, uY, dofsX, dofsY, factors = ones(Int, length(X)); kwargs...)
-    parameters = Dict{Symbol, Any}(k => v[1] for (k, v) in default_combop_kwargs())
-    _update_params!(parameters, kwargs)
-    @assert length(dofsX) == length(dofsY)
-    coupling_info = (dofsX, dofsY, factors)
-    return CombineDofs(uX, uY, coupling_info, nothing, nothing, nothing, parameters)
+function CombineDofs(uX, uY, dofsX, dofsY, factors = ones(Int, length(dofsX)); kwargs...)
+    # build a sparse matrix from dofsX, dofsY, factors
+    # we have to set the size (maximum of indices: matrix may be smaller than the system matrix, this is ok)
+    # for sparse matrices, define a `combine` function for duplicates: pick the latest entry
+    # convention: dofsX acts as column indices!
+    coupling_matrix = sparse(dofsY, dofsX, factors, maximum(dofsY), maximum(dofsX), (a, b) -> b)
+    return CombineDofs(uX, uY, coupling_matrix; kwargs...)
 end
 
 """
@@ -67,7 +60,6 @@ $(_myprint(default_combop_kwargs()))
 function CombineDofs(uX, uY, coupling_matrix::AbstractMatrix; kwargs...)
     parameters = Dict{Symbol, Any}(k => v[1] for (k, v) in default_combop_kwargs())
     _update_params!(parameters, kwargs)
-    @assert size(coupling_matrix, 1) == size(coupling_matrix, 2)
     return CombineDofs(uX, uY, coupling_matrix, nothing, nothing, nothing, parameters)
 end
 
@@ -81,65 +73,8 @@ function apply_penalties!(A, b, sol, CD::CombineDofs{UT, CT}, SC::SolverConfigur
     return CD.assembler(A.entries, b.entries, assemble_matrix, assemble_rhs)
 end
 
-function build_assembler!(CD::CombineDofs{UT, TupleType}, FE::Array{<:FEVectorBlock, 1}; time = 0.0) where {UT, TupleType <: Tuple}
-    ## check if FES is the same as last time
-    FESX, FESY = FE[1].FES, FE[2].FES
-    if (CD.FESX != FESX) || (CD.FESY != FESY)
-        dofsX = CD.coupling_info[1]
-        dofsY = CD.coupling_info[2]
-        factors = CD.coupling_info[3]
-        offsetX = FE[1].offset
-        offsetY = FE[2].offset
-        if CD.parameters[:verbosity] > 0
-            @info ".... combining $(length(dofsX)) dofs"
-        end
-        function assemble(A::AbstractSparseArray{T}, b::AbstractVector{T}, assemble_matrix::Bool, assemble_rhs::Bool, kwargs...) where {T}
-            if assemble_matrix
-                targetrow::Int = 0
-                sourcerow::Int = 0
-                targetcol::Int = 0
-                sourcecol::Int = 0
-                val::Float64 = 0
-                ncols::Int = size(A, 2)
-                for gdof in eachindex(dofsX)
-                    # copy source row (for dofY) to target row (for dofX)
-                    targetrow = dofsX[gdof] + offsetX
-                    sourcerow = offsetY + dofsY[gdof]
-                    for sourcecol in 1:ncols
-                        targetcol = sourcecol - offsetY + offsetX
-                        val = A[sourcerow, sourcecol]
-                        _addnz(A, targetrow, targetcol, factors[gdof] * val, 1)
-                        A[sourcerow, sourcecol] = 0
-                    end
 
-                    # replace source row (of dofY) with equation for coupling the two dofs
-                    sourcecol = dofsY[gdof] + offsetY
-                    targetcol = dofsX[gdof] + offsetX
-                    sourcerow = offsetY + dofsY[gdof]
-                    _addnz(A, sourcerow, targetcol, 1, 1)
-                    _addnz(A, sourcerow, sourcecol, -factors[gdof], 1)
-                end
-                flush!(A)
-            end
-            return if assemble_rhs
-                for gdof in 1:length(dofsX)
-                    sourcerow = offsetY + dofsY[gdof]
-                    targetrow = offsetX + dofsX[gdof]
-                    b[targetrow] += b[sourcerow]
-                    b[sourcerow] = 0
-                end
-            end
-        end
-        CD.assembler = assemble
-        CD.FESX = FESX
-        CD.FESY = FESY
-    end
-
-    return nothing
-end
-
-
-function build_assembler!(CD::CombineDofs{UT, MatrixType}, FE::Array{<:FEVectorBlock, 1}; time = 0.0) where {UT, MatrixType <: AbstractMatrix}
+function build_assembler!(CD::CombineDofs{UT, CT}, FE::Array{<:FEVectorBlock, 1}; time = 0.0) where {UT, CT <: AbstractMatrix}
     ## check if FES is the same as last time
     FESX, FESY = FE[1].FES, FE[2].FES
     if (CD.FESX != FESX) || (CD.FESY != FESY)
@@ -189,7 +124,7 @@ function build_assembler!(CD::CombineDofs{UT, MatrixType}, FE::Array{<:FEVectorB
             end
 
             if assemble_rhs
-                for dof_i in 1:length(b)
+                for dof_i in 1:size(coupling_matrix, 2)
                     # this col-view is efficient
                     coupling_i = @views coupling_matrix[:, dof_i]
                     # do nothing if no coupling for dof_i
