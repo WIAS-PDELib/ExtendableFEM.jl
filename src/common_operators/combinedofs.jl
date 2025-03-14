@@ -115,7 +115,7 @@ function build_assembler!(CD::CombineDofs{UT, CT}, FE::Array{<:FEVectorBlock, 1}
                     # replace sourcerow with coupling linear combination
                     _addnz(A, sourcerow, sourcerow, -1.0, 1)
                     for (dof_j, weight) in zip(coupled_dofs, weights)
-                        # set negative weight for dofᵢ - ∑ⱼ wⱼdofⱼ = 0
+                        # weights for ∑ⱼ wⱼdofⱼ - dofᵢ = 0
                         _addnz(A, sourcerow, dof_j + offsetY, weight, 1)
                     end
 
