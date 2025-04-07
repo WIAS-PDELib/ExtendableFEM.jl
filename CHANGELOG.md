@@ -2,6 +2,12 @@
 
 ## next version
 
+## v1.0.0 April 7, 2025
+
+### Changed
+
+  - `solve` uses now the residual equation for the linear systems.
+
 ## v0.9.0 March 22, 2025
 
 ### Added
