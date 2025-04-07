@@ -208,8 +208,8 @@ function build_assembler!(A::AbstractMatrix, b::AbstractVector, O::NonlinearOper
             push!(O.QF, QuadratureRule{Tv, EG}(quadorder))
 
             ## FE basis evaluator for EG
-            push!(O.BE_test, [FEEvaluator(FES_test[j], O.ops_test[j], O.QF[end]) for j in 1:ntest])
-            push!(O.BE_args, [FEEvaluator(FES_args[j], O.ops_args[j], O.QF[end]) for j in 1:nargs])
+            push!(O.BE_test, [FEEvaluator(FES_test[j], O.ops_test[j], O.QF[end], xgrid) for j in 1:ntest])
+            push!(O.BE_args, [FEEvaluator(FES_args[j], O.ops_args[j], O.QF[end], xgrid) for j in 1:nargs])
             push!(O.BE_test_vals, [BE.cvals for BE in O.BE_test[end]])
             push!(O.BE_args_vals, [BE.cvals for BE in O.BE_args[end]])
 

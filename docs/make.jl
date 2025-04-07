@@ -38,6 +38,7 @@ function make_all(; with_examples::Bool = true, modules = :all, run_examples::Bo
                 "Example250_NSELidDrivenCavity.jl",
                 "Example252_NSEPlanarLatticeFlow.jl",
                 "Example260_AxisymmetricNavierStokesProblem.jl",
+                "Example264_StokesDarcy.jl",
                 "Example265_FlowTransport.jl",
                 "Example270_NaturalConvectionProblem.jl",
                 "Example275_OptimalControlStokes.jl",
