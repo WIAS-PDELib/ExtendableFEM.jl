@@ -656,7 +656,15 @@ function iterate_until_stationarity(
                         ## solve
                         Δx = LinearSolve.solve!(linsolve)
 
-                        x = sol.entries - Δx.u
+                        # x = sol.entries - Δx.u ... in the entry ranges of the present unknowns
+                        x = zero(Δx.u)
+                        offset = 0
+                        for u in unknowns[p]
+                            ndofs_u = length(view(sol[u]))
+                            x_range = (offset + 1):(offset + ndofs_u)
+                            x[x_range] .= view(sol[u]) .- view(Δx.u, x_range)
+                            offset += ndofs_u
+                        end
 
                         fill!(residual.entries, 0)
                         mul!(residual.entries, A.entries.cscmatrix, x)
