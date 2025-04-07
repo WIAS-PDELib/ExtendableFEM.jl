@@ -142,7 +142,7 @@ function build_assembler!(O::FaceInterpolator{Tv}, FE_args::Array{<:FEVectorBloc
             push!(O.QF, qf_cellboundary)
 
             ## FE basis evaluator for EG
-            push!(O.BE_args, [FEEvaluator(FES_args[j], StandardFunctionOperator(O.ops_args[j]), O.QF[end]; AT = AT) for j in 1:nargs])
+            push!(O.BE_args, [FEEvaluator(FES_args[j], StandardFunctionOperator(O.ops_args[j]), O.QF[end], xgrid; AT = AT) for j in 1:nargs])
 
             ## L2G map for EG
             push!(O.L2G, L2GTransformer(EG, xgrid, ON_CELLS))

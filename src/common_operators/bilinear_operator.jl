@@ -365,9 +365,9 @@ function build_assembler!(A::AbstractMatrix, O::BilinearOperator{Tv}, FE_test, F
             push!(O.L2G, L2GTransformer(EG, xgrid, gridAT))
 
             ## FE basis evaluator for EG
-            push!(O.BE_test, [FEEvaluator(FES_test[j], O.ops_test[j], O.QF[end]; AT = AT, L2G = O.L2G[end]) for j in 1:ntest])
-            push!(O.BE_ansatz, [FEEvaluator(FES_ansatz[j], O.ops_ansatz[j], O.QF[end]; AT = AT, L2G = O.L2G[end]) for j in 1:nansatz])
-            push!(O.BE_args, [FEEvaluator(FES_args[j], O.ops_args[j], O.QF[end]; AT = AT, L2G = O.L2G[end]) for j in 1:nargs])
+            push!(O.BE_test, [FEEvaluator(FES_test[j], O.ops_test[j], O.QF[end], xgrid; AT = AT, L2G = O.L2G[end]) for j in 1:ntest])
+            push!(O.BE_ansatz, [FEEvaluator(FES_ansatz[j], O.ops_ansatz[j], O.QF[end], xgrid; AT = AT, L2G = O.L2G[end]) for j in 1:nansatz])
+            push!(O.BE_args, [FEEvaluator(FES_args[j], O.ops_args[j], O.QF[end], xgrid; AT = AT, L2G = O.L2G[end]) for j in 1:nargs])
             push!(O.BE_test_vals, [BE.cvals for BE in O.BE_test[end]])
             push!(O.BE_ansatz_vals, [BE.cvals for BE in O.BE_ansatz[end]])
             push!(O.BE_args_vals, [BE.cvals for BE in O.BE_args[end]])
@@ -682,6 +682,11 @@ function build_assembler!(A, O::BilinearOperator{Tv}, FE_test, FE_ansatz; time =
         else
             gridAT = AT
         end
+        if O.parameters[:verbosity] > 1
+            @info "......     AT : $(AT)"
+            @info "...... gridAT : $(gridAT)"
+        end
+
 
         itemgeometries = xgrid[GridComponentGeometries4AssemblyType(gridAT)]
         itemvolumes = xgrid[GridComponentVolumes4AssemblyType(gridAT)]
@@ -734,8 +739,8 @@ function build_assembler!(A, O::BilinearOperator{Tv}, FE_test, FE_ansatz; time =
             push!(O.L2G, L2GTransformer(EG, xgrid, gridAT))
 
             ## FE basis evaluator for EG
-            push!(O.BE_test, [FEEvaluator(FES_test[j], O.ops_test[j], O.QF[end]; AT = AT, L2G = O.L2G[end]) for j in 1:ntest])
-            push!(O.BE_ansatz, [FEEvaluator(FES_ansatz[j], O.ops_ansatz[j], O.QF[end]; AT = AT, L2G = O.L2G[end]) for j in 1:nansatz])
+            push!(O.BE_test, [FEEvaluator(FES_test[j], O.ops_test[j], O.QF[end], xgrid; AT = AT, L2G = O.L2G[end]) for j in 1:ntest])
+            push!(O.BE_ansatz, [FEEvaluator(FES_ansatz[j], O.ops_ansatz[j], O.QF[end], xgrid; AT = AT, L2G = O.L2G[end]) for j in 1:nansatz])
             push!(O.BE_test_vals, [BE.cvals for BE in O.BE_test[end]])
             push!(O.BE_ansatz_vals, [BE.cvals for BE in O.BE_ansatz[end]])
 

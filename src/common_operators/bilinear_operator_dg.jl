@@ -317,9 +317,9 @@ function build_assembler!(A, O::BilinearOperatorDG{Tv}, FE_test, FE_ansatz, FE_a
             end
 
             ## generate DG operator
-            push!(O.BE_test, [generate_DG_operators(StandardFunctionOperator(O.ops_test[j]), FES_test[j], quadorder, EG) for j in 1:ntest])
-            push!(O.BE_ansatz, [generate_DG_operators(StandardFunctionOperator(O.ops_ansatz[j]), FES_ansatz[j], quadorder, EG) for j in 1:nansatz])
-            push!(O.BE_args, [generate_DG_operators(StandardFunctionOperator(O.ops_args[j]), FES_args[j], quadorder, EG) for j in 1:nargs])
+            push!(O.BE_test, [generate_DG_operators(StandardFunctionOperator(O.ops_test[j]), FES_test[j], quadorder, EG, xgrid) for j in 1:ntest])
+            push!(O.BE_ansatz, [generate_DG_operators(StandardFunctionOperator(O.ops_ansatz[j]), FES_ansatz[j], quadorder, EG, xgrid) for j in 1:nansatz])
+            push!(O.BE_args, [generate_DG_operators(StandardFunctionOperator(O.ops_args[j]), FES_args[j], quadorder, EG, xgrid) for j in 1:nargs])
             push!(O.QF, generate_DG_master_quadrule(quadorder, EG))
 
             ## L2G map for EG
@@ -738,8 +738,8 @@ function build_assembler!(A, O::BilinearOperatorDG{Tv}, FE_test, FE_ansatz; time
             end
 
             ## generate DG operator
-            push!(O.BE_test, [generate_DG_operators(StandardFunctionOperator(O.ops_test[j]), FES_test[j], quadorder, EG) for j in 1:ntest])
-            push!(O.BE_ansatz, [generate_DG_operators(StandardFunctionOperator(O.ops_ansatz[j]), FES_ansatz[j], quadorder, EG) for j in 1:nansatz])
+            push!(O.BE_test, [generate_DG_operators(StandardFunctionOperator(O.ops_test[j]), FES_test[j], quadorder, EG, xgrid) for j in 1:ntest])
+            push!(O.BE_ansatz, [generate_DG_operators(StandardFunctionOperator(O.ops_ansatz[j]), FES_ansatz[j], quadorder, EG, xgrid) for j in 1:nansatz])
             push!(O.QF, generate_DG_master_quadrule(quadorder, EG))
 
             ## L2G map for EG
