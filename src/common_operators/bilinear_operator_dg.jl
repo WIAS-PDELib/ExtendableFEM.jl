@@ -243,25 +243,39 @@ function build_assembler!(A, O::BilinearOperatorDG{Tv}, FE_test, FE_ansatz, FE_a
         AT = O.parameters[:entities]
         @assert AT <: ON_FACES "only works for entities <: ON_FACES"
         Ti = typeof(xgrid).parameters[2]
+        if AT <: ON_BFACES
+            AT = ON_FACES
+            on_bfaces = true
+        else
+            on_bfaces = false
+        end
         gridAT = ExtendableFEMBase.EffAT4AssemblyType(get_AT(FES_test[1]), AT)
 
         itemgeometries = xgrid[GridComponentGeometries4AssemblyType(gridAT)]
         itemvolumes = xgrid[GridComponentVolumes4AssemblyType(gridAT)]
         itemregions = xgrid[GridComponentRegions4AssemblyType(gridAT)]
-        if num_pcolors(xgrid) > 1
-            maxnpartitions = maximum(num_partitions_per_color(xgrid))
-            pe = xgrid[PartitionEdges]
-            itemassemblygroups = [pe[j]:(pe[j + 1] - 1) for j in 1:num_partitions(xgrid)]
+        if on_bfaces
+            itemassemblygroups = [xgrid[BFaceFaces]]
+            EGs = [xgrid[UniqueCellGeometries][1]]
+            if O.parameters[:parallel]
+                @warn "parallel assembly on boundary faces not supported yet"
+                O.parameters[:parallel] = false
+            end
         else
-            itemassemblygroups = xgrid[GridComponentAssemblyGroups4AssemblyType(gridAT)]
-            itemassemblygroups = [view(itemassemblygroups, :, j) for j in 1:num_sources(itemassemblygroups)]
+            if num_pcolors(xgrid) > 1
+                maxnpartitions = maximum(num_partitions_per_color(xgrid))
+                pe = xgrid[PartitionEdges]
+                itemassemblygroups = [pe[j]:(pe[j + 1] - 1) for j in 1:num_partitions(xgrid)]
+            else
+                itemassemblygroups = xgrid[GridComponentAssemblyGroups4AssemblyType(gridAT)]
+                itemassemblygroups = [view(itemassemblygroups, :, j) for j in 1:num_sources(itemassemblygroups)]
+            end
+            EGs = num_pcolors(xgrid) > 1 ? [xgrid[UniqueCellGeometries][1] for j in 1:num_partitions(xgrid)] : xgrid[UniqueCellGeometries]
         end
 
         FETypes_test = [eltype(F) for F in FES_test]
         FETypes_ansatz = [eltype(F) for F in FES_ansatz]
         FETypes_args = [eltype(F) for F in FES_args]
-
-        EGs = num_pcolors(xgrid) > 1 ? [xgrid[UniqueCellGeometries][1] for j in 1:num_partitions(xgrid)] : xgrid[UniqueCellGeometries]
 
         coeffs_ops_test = Array{Array{Float64, 1}, 1}([])
         coeffs_ops_ansatz = Array{Array{Float64, 1}, 1}([])
@@ -436,6 +450,16 @@ function build_assembler!(A, O::BilinearOperatorDG{Tv}, FE_test, FE_ansatz, FE_a
             input_args = [zeros(T, op_offsets_args[end]) for j in 1:nweights]
 
             for item::Int in items
+                if itemregions[item] > 0
+                    if !(visit_region[itemregions[item]]) || AT == ON_IFACES
+                        continue
+                    end
+                else
+                    if length(regions) > 0
+                        continue
+                    end
+                end
+
                 QPinfos.region = itemregions[item]
                 QPinfos.item = item
                 QPinfos.normal .= view(itemnormals, :, item)
@@ -648,24 +672,38 @@ function build_assembler!(A, O::BilinearOperatorDG{Tv}, FE_test, FE_ansatz; time
         AT = O.parameters[:entities]
         @assert AT <: ON_FACES || AT <: ON_BFACES "only works for entities <: ON_FACES or ON_BFACES"
         Ti = typeof(xgrid).parameters[2]
+        if AT <: ON_BFACES
+            AT = ON_FACES
+            on_bfaces = true
+        else
+            on_bfaces = false
+        end
         gridAT = ExtendableFEMBase.EffAT4AssemblyType(get_AT(FES_test[1]), AT)
-
 
         itemgeometries = xgrid[GridComponentGeometries4AssemblyType(gridAT)]
         itemvolumes = xgrid[GridComponentVolumes4AssemblyType(gridAT)]
         itemregions = xgrid[GridComponentRegions4AssemblyType(gridAT)]
-        if num_pcolors(xgrid) > 1
-            maxnpartitions = maximum(num_partitions_per_color(xgrid))
-            pe = xgrid[PartitionEdges]
-            itemassemblygroups = [pe[j]:(pe[j + 1] - 1) for j in 1:num_partitions(xgrid)]
+        if on_bfaces
+            itemassemblygroups = [xgrid[BFaceFaces]]
+            EGs = [xgrid[UniqueCellGeometries][1]]
+            if O.parameters[:parallel]
+                @warn "parallel assembly on boundary faces not supported yet"
+                O.parameters[:parallel] = false
+            end
         else
-            itemassemblygroups = xgrid[GridComponentAssemblyGroups4AssemblyType(gridAT)]
-            itemassemblygroups = [view(itemassemblygroups, :, j) for j in 1:num_sources(itemassemblygroups)]
+            if num_pcolors(xgrid) > 1
+                maxnpartitions = maximum(num_partitions_per_color(xgrid))
+                pe = xgrid[PartitionEdges]
+                itemassemblygroups = [pe[j]:(pe[j + 1] - 1) for j in 1:num_partitions(xgrid)]
+            else
+                itemassemblygroups = xgrid[GridComponentAssemblyGroups4AssemblyType(gridAT)]
+                itemassemblygroups = [view(itemassemblygroups, :, j) for j in 1:num_sources(itemassemblygroups)]
+            end
+            EGs = num_pcolors(xgrid) > 1 ? [xgrid[UniqueCellGeometries][1] for j in 1:num_partitions(xgrid)] : xgrid[UniqueCellGeometries]
         end
 
         FETypes_test = [eltype(F) for F in FES_test]
         FETypes_ansatz = [eltype(F) for F in FES_ansatz]
-        EGs = num_pcolors(xgrid) > 1 ? [xgrid[UniqueCellGeometries][1] for j in 1:num_partitions(xgrid)] : xgrid[UniqueCellGeometries]
 
         coeffs_ops_test = Array{Array{Float64, 1}, 1}([])
         coeffs_ops_ansatz = Array{Array{Float64, 1}, 1}([])
@@ -824,6 +862,15 @@ function build_assembler!(A, O::BilinearOperatorDG{Tv}, FE_test, FE_ansatz; time
             ## got into neighbouring cells and evaluate each operator according to
             ## facepos and orientation
             for item::Int in items
+                if itemregions[item] > 0
+                    if !(visit_region[itemregions[item]]) || AT == ON_IFACES
+                        continue
+                    end
+                else
+                    if length(regions) > 0
+                        continue
+                    end
+                end
 
                 QPinfos.region = itemregions[item]
                 QPinfos.item = item
