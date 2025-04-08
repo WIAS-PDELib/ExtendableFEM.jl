@@ -4,6 +4,11 @@
 
 ## v1.0.0 April 7, 2025
 
+### Added
+
+  - example `Example250` now also demonstrates a nonlinear problem solved by an iterative linear solver
+    with preconditioning and an initial solution.
+
 ### Changed
 
   - `solve` uses now the residual equation for the linear systems.
