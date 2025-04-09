@@ -282,7 +282,7 @@ end
 
 generateplots = ExtendableFEM.default_generateplots(Example264_StokesDarcy, "example264.png") #hide
 function runtests() #hide
-    errors, plt = main(; μ=1, k=1, σ=1, nrefs = 3, coupled = true) #hide
+    errors, plt = main(; μ = 1, k = 1, σ = 1, nrefs = 3, coupled = true) #hide
     @info errors
     @test errors[1] <= 0.000804 #hide
     @test errors[2] <= 0.004468 #hide
