@@ -2,11 +2,16 @@
 
 ## next version
 
-## v1.0.0 April 7, 2025
+## v1.0.0 April 9, 2025
+
+### Added
+
+  - new example on coupled Stokes-Darcy (Example264)
 
 ### Changed
 
-  - `solve` uses now the residual equation for the linear systems.
+  - `solve` uses now the residual equation for the linear systems
+  - some bugfixes concerning finite elements on subregions and BilinearOperatorDG
 
 ## v0.9.0 March 22, 2025
 
