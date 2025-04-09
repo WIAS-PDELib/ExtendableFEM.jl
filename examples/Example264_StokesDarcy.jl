@@ -3,63 +3,65 @@
 # 264 : Stokes+Darcy
 ([source code](@__SOURCE_URL__))
 
-This example solves the coupled Stokes-Darcy problem in a domain that has a free flow region ``\Omega_{FF}`` and a porous media regions ``\Omega_{PM}``.
-In the free flow region a Stokes problem is solved that seeks a velocity ``\mathbf{u}_{FF}`` and a pressure ``\mathbf{p}_{FF}``
+This example solves the coupled Stokes-Darcy problem in a domain
+``\Omega := \Omega_\text{FF} \cup \Omega_\text{PM}`` that has a free flow region
+``\Omega_\text{FF}`` and a porous media regions ``\Omega_\text{PM}``.
+In the free flow region a Stokes problem is solved that seeks a velocity
+``\mathbf{u}_\text{FF}`` and a pressure ``\mathbf{p}_\text{FF}``
 such that
 ```math
 \begin{aligned}
-- \mu \mathrm{div}(\epsilon(\mathbf{u}_{FF})) + \nabla p_{FF} & = \mathbf{f}_{FF}\\
-\mathrm{div}(\mathbf{u}_{FF}) & = 0.
+- \mu \mathrm{div}(\epsilon(\mathbf{u}_\text{FF})) + \nabla p_\text{FF} & = \mathbf{f}_\text{FF}\\
+\mathrm{div}(\mathbf{u}_\text{FF}) & = 0.
 \end{aligned}
 ```
-In the porous media region the Darcy problem is solved that seeks a velocity ``\mathbf{u}_{PM}``
-and a pressure ``\mathbf{p}_{PM}`` such that
-such that
+In the porous media region the Darcy problem is solved that seeks a velocity ``\mathbf{u}_\text{PM}``
+and a pressure ``\mathbf{p}_\text{PM}`` such that
 ```math
 \begin{aligned}
-\mathbf{u}_{PM} + k \nabla p_{PM} & = 0\\
-\mathrm{div}(\mathbf{u}_{PM}) & = f_{PM}.
+\mathbf{u}_\text{PM} + k \nabla p_\text{PM} & = 0\\
+\mathrm{div}(\mathbf{u}_\text{PM}) & = f_\text{PM}.
 \end{aligned}
 ```
-On the interface ``\Gamma := \partial \Omega_{FF} \cap \Omega_{PM}``
+On the interface ``\Gamma := \partial \Omega_\text{FF} \cap \partial \Omega_\text{PM}``
 the two velocities are coupled via several conditions, i.e., the conservation of mass 
 ```math
-\mathbf{u}_{FF} \cdot \mathbf{n} = \mathbf{u}_{PM} \cdot \mathbf{n} \quad \text{on \Gamma},
+\mathbf{u}_\text{FF} \cdot \mathbf{n} = \mathbf{u}_\text{PM} \cdot \mathbf{n} \quad \text{on } \Gamma,
 ```
 the balance of normal forces
 ```math
-p_{FF} - \mu \nabla \mathbf{u}_{FF}\mathbf{n}_{FF} \cdot \mathbf{n}_{FF} = p_{PM},
+p_\text{FF} - \mu \nabla \mathbf{u}_\text{FF}\mathbf{n}_\text{FF} \cdot \mathbf{n}_\text{FF} = p_\text{PM},
 ```
 and the Beavers-Joseph-Saffman condition
 ```math
-(\mathbf{u}_{FF} - \mathbf{u}_{PM}) \cdot \mathbf{\tau}
-= - \mu \nabla \mathbf{u}_{FF}\mathbf{n}_{FF} \cdot \mathbf{\tau}.
+\mathbf{u}_\text{FF} \cdot \mathbf{\tau}
+= -\frac{\sqrt{\mu k}}{\mu \alpha} \nabla \mathbf{u}_\text{FF}\mathbf{n}_\text{FF} \cdot \mathbf{\tau}.
 ```
 The interface condition for the normal fluxes is realized weakly via a Lagrange multiplier ``\lambda``
 that only lives on the interface.
 
 The weak formulation leads to the problem:
-seek ``(\mathbf{u}_{FF}, \mathbf{u}_{PM}, p_{FF}, p_{PM}, \lambda)``
-such that, for all ``(\mathbf{v}_{FF}, \mathbf{v}_{PM}, q_{FF}, q_{PM}, \chi)``,
+seek ``(\mathbf{u}_\text{FF}, \mathbf{u}_\text{PM}, p_\text{FF}, p_\text{PM}, \lambda)``
+such that, for all ``(\mathbf{v}_\text{FF}, \mathbf{v}_\text{PM}, q_\text{FF}, q_\text{PM}, \chi)``,
 ```math
 \begin{aligned}
-a_1(\mathbf{u}_{FF},\mathbf{v}_{FF}) + a_2(\mathbf{u}_{PM}, \mathbf{v}_{PM})
-+ b_1(p_{FF},\mathbf{v}_{FF}) + b_2(p_{PM},\mathbf{v}_{PM})
-+ b_{\Gamma}(\mathbf{v}_{FF} - \mathbf{v}_{PM}, \lambda)
-& = (\mathbf{f}_{FF}, \mathbf{v}_{FF})_{L^2(\Omega_{FF})}\\
-b_1(q_{FF},\mathbf{u}_{FF}) + b_2(q_{PM},\mathbf{u}_{PM}) & = (f_{PM}, q_{PM})_{L^2(\Omega_{PM})}\\
-b_{\Gamma}(\mathbf{u}_{FF} - \mathbf{u}_{PM}, \chi) & = 0.
+a_1(\mathbf{u}_\text{FF},\mathbf{v}_\text{FF}) + a_2(\mathbf{u}_\text{PM}, \mathbf{v}_\text{PM})
++ b_1(p_\text{FF},\mathbf{v}_\text{FF}) + b_2(p_\text{PM},\mathbf{v}_\text{PM})
++ b_{\Gamma}(\mathbf{v}_\text{FF} - \mathbf{v}_\text{PM}, \lambda)
+& = (\mathbf{f}_\text{FF}, \mathbf{v}_\text{FF})_{L^2(\Omega_\text{FF})}\\
+b_1(q_\text{FF},\mathbf{u}_\text{FF}) + b_2(q_\text{PM},\mathbf{u}_\text{PM}) & = (f_\text{PM}, q_\text{PM})_{L^2(\Omega_\text{PM})}\\
+b_{\Gamma}(\mathbf{u}_\text{FF} - \mathbf{u}_\text{PM}, \chi) & = 0.
 \end{aligned}
 ```
 
 The bilinearforms read
 ```math
 \begin{aligned}
-a_1(\mathbf{u}_{FF},\mathbf{v}_{FF}) & := \mu (\epsilon(\mathbf{u}_{FF}), \epsilon(\mathbf{v}_{FF}))_{L^2(\Omega_{FF})}
-+ \frac{αμ}{\sqrt{μk}} (\mathbf{u}_{FF} \cdot \mathbf{\tau},\mathbf{v}_{FF} \cdot \mathbf{\tau})_{L^2(\Gamma)}
-a_2(\mathbf{u}_{PM}, \mathbf{v}_{PM}) & := (\mathbf{u}_{PM}, \mathbf{v}_{PM})_{L^2(\Omega_{PM})}
-b_1(q_{FF},\mathbf{v}_{FF}) & := -(\mathrm{div} \mathbf{v}_{FF}, q_{FF})_{L^2(\Omega_{FF})}
-b_2(q_{PM},\mathbf{v}_{PM}) & := -(\mathrm{div} \mathbf{v}_{PM}, q_{PM})_{L^2(\Omega_{PM})}
+a_1(\mathbf{u}_\text{FF},\mathbf{v}_\text{FF}) & := \mu (\epsilon(\mathbf{u}_\text{FF}), \epsilon(\mathbf{v}_\text{FF}))_{L^2(\Omega_\text{FF})}
++ \frac{αμ}{\sqrt{μk}} (\mathbf{u}_\text{FF} \cdot \mathbf{\tau},\mathbf{v}_\text{FF} \cdot \mathbf{\tau})_{L^2(\Gamma)}\\
+a_2(\mathbf{u}_\text{PM}, \mathbf{v}_\text{PM}) & := (\mathbf{u}_\text{PM}, \mathbf{v}_\text{PM})_{L^2(\Omega_\text{PM})}\\
+b_1(q_\text{FF},\mathbf{v}_\text{FF}) & := -(\mathrm{div} \mathbf{v}_\text{FF}, q_\text{FF})_{L^2(\Omega_\text{FF})}\\
+b_2(q_\text{PM},\mathbf{v}_\text{PM}) & := -(\mathrm{div} \mathbf{v}_\text{PM}, q_\text{PM})_{L^2(\Omega_\text{PM})}\\
 b_{\Gamma}(\mathbf{v}, \lambda) & := (\mathbf{v} \cdot \mathbf{n}, \lambda)_{L^2(\Gamma)}
 \end{aligned}
 ```
@@ -144,13 +146,13 @@ end
 
 ## everything is wrapped in a main function
 function main(;
-        μ = 1.0,                # viscosity
+        μ = 1,                  # viscosity
         k = 1,                  # permeability
         α = 1,                  # parameter in interface condition
         coupled = true,         # solve coupled problem with interface conditions or separated problems on subgrids ?
         order_u = 2,            # polynomial order for free flow velocity
-        order_p = order_u - 1,    # polynomial order for free flow pressure
-        order_v = order_u - 1,    # polynomial order for porous media velocity
+        order_p = order_u - 1,  # polynomial order for free flow pressure
+        order_v = order_u - 1,  # polynomial order for porous media velocity
         nrefs = 4,              # number of mesh refinements
         Plotter = nothing,
         parallel = false,
@@ -273,16 +275,19 @@ function main(;
     @info "L2error(q) = $L2errorQ"
 
     ## plot
-    plt = plot([id(u), id(v), grid(u), id(p), id(q)], sol; Plotter = Plotter, ncols = 3, rasterpoints = 20, width = 800, height = 1200)
+    plt = plot([id(u), id(v), id(p), id(q), grid(u)], sol; Plotter = Plotter, ncols = 2, rasterpoints = 12, width = 800, height = 1200)
 
-    return sol, plt
+    return [L2errorU, L2errorV, L2errorP, L2errorQ], plt
 end
 
 generateplots = ExtendableFEM.default_generateplots(Example264_StokesDarcy, "example264.png") #hide
 function runtests() #hide
-    sol, plt = main() #hide
-    @test minimum(view(sol[3])) >= 0 #hide
-    @test maximum(view(sol[3])) <= 0.25 #hide
+    errors, plt = main(; μ=1, k=1, σ=1, nrefs = 3, coupled = true) #hide
+    @info errors
+    @test errors[1] <= 0.000804 #hide
+    @test errors[2] <= 0.004468 #hide
+    @test errors[3] <= 0.043904 #hide
+    @test errors[4] <= 0.002966 #hide
     return nothing #hide
 end #hide
 end # module
