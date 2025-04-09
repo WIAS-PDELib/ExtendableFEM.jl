@@ -11,7 +11,7 @@ In the free flow region a Stokes problem is solved that seeks a velocity
 such that
 ```math
 \begin{aligned}
-- \mu \mathrm{div}(\epsilon(\mathbf{u}_\text{FF})) + \nabla p_\text{FF} & = \mathbf{f}_\text{FF}\\
+- 2\mu \mathrm{div}(\epsilon(\mathbf{u}_\text{FF}) - p_\text{FF}I) & = \mathbf{f}_\text{FF}\\
 \mathrm{div}(\mathbf{u}_\text{FF}) & = 0.
 \end{aligned}
 ```
@@ -30,12 +30,12 @@ the two velocities are coupled via several conditions, i.e., the conservation of
 ```
 the balance of normal forces
 ```math
-p_\text{FF} - \mu \nabla \mathbf{u}_\text{FF}\mathbf{n}_\text{FF} \cdot \mathbf{n}_\text{FF} = p_\text{PM},
+p_\text{FF} - 2\mu \epsilon(\mathbf{u}_\text{FF}) \mathbf{n}_\text{FF} \cdot \mathbf{n}_\text{FF} = p_\text{PM},
 ```
 and the Beavers-Joseph-Saffman condition
 ```math
 \mathbf{u}_\text{FF} \cdot \mathbf{\tau}
-= -\frac{\sqrt{\mu k}}{\mu \alpha} \nabla \mathbf{u}_\text{FF}\mathbf{n}_\text{FF} \cdot \mathbf{\tau}.
+= -\frac{\sqrt{\mu k}}{\mu \alpha} 2 \epsilon(\mathbf{u}_\text{FF}) \mathbf{n}_\text{FF} \cdot \mathbf{\tau}.
 ```
 The interface condition for the normal fluxes is realized weakly via a Lagrange multiplier ``\lambda``
 that only lives on the interface.
@@ -57,7 +57,7 @@ b_{\Gamma}(\mathbf{u}_\text{FF} - \mathbf{u}_\text{PM}, \chi) & = 0.
 The bilinearforms read
 ```math
 \begin{aligned}
-a_1(\mathbf{u}_\text{FF},\mathbf{v}_\text{FF}) & := \mu (\epsilon(\mathbf{u}_\text{FF}), \epsilon(\mathbf{v}_\text{FF}))_{L^2(\Omega_\text{FF})}
+a_1(\mathbf{u}_\text{FF},\mathbf{v}_\text{FF}) & := 2\mu (\epsilon(\mathbf{u}_\text{FF}), \epsilon(\mathbf{v}_\text{FF}))_{L^2(\Omega_\text{FF})}
 + \frac{αμ}{\sqrt{μk}} (\mathbf{u}_\text{FF} \cdot \mathbf{\tau},\mathbf{v}_\text{FF} \cdot \mathbf{\tau})_{L^2(\Gamma)}\\
 a_2(\mathbf{u}_\text{PM}, \mathbf{v}_\text{PM}) & := (\mathbf{u}_\text{PM}, \mathbf{v}_\text{PM})_{L^2(\Omega_\text{PM})}\\
 b_1(q_\text{FF},\mathbf{v}_\text{FF}) & := -(\mathrm{div} \mathbf{v}_\text{FF}, q_\text{FF})_{L^2(\Omega_\text{FF})}\\
