@@ -206,10 +206,11 @@ function build_assembler!(b, O::LinearOperatorDG{Tv}, FE_test, FE_args::Array{<:
         ## prepare assembly
         AT = O.parameters[:entities]
         @assert AT <: ON_FACES || AT <: ON_BFACES "only works for entities <: ON_FACES or ON_BFACES"
-        on_bfaces = false
         if AT <: ON_BFACES
             AT = ON_FACES
             on_bfaces = true
+        else
+            on_bfaces = false
         end
         gridAT = ExtendableFEMBase.EffAT4AssemblyType(get_AT(FES_test[1]), AT)
         Ti = typeof(xgrid).parameters[2]
@@ -514,10 +515,11 @@ function build_assembler!(b, O::LinearOperatorDG{Tv}, FE_test; time = 0.0, kwarg
         ## prepare assembly
         AT = O.parameters[:entities]
         @assert AT <: ON_FACES || AT <: ON_BFACES "only works for entities <: ON_FACES or ON_BFACES"
-        on_bfaces = false
         if AT <: ON_BFACES
             AT = ON_FACES
             on_bfaces = true
+        else
+            on_bfaces = false
         end
         gridAT = ExtendableFEMBase.EffAT4AssemblyType(get_AT(FES_test[1]), AT)
         Ti = typeof(xgrid).parameters[2]
