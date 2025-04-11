@@ -2,7 +2,7 @@
 
 ## next version
 
-## v1.0.0 April 9, 2025
+## v1.0.0 April 11, 2025
 
 ### Added
 
