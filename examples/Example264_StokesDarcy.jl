@@ -66,7 +66,15 @@ b_{\Gamma}(\mathbf{v}, \lambda) & := (\mathbf{v} \cdot \mathbf{n}, \lambda)_{L^2
 \end{aligned}
 ```
 
-In this analytic benchmark example the problem is solved with the Taylor--Hood FEM in the free flow
+Details on the model can be found e.g. in the reference below.
+
+!!! reference
+
+	''Coupling Fluid Flow with Porous Media Flow''
+	SIAM Journal on Numerical Analysis 2002 40:6, 2195-2218
+	[>Link<](https://doi.org/10.1137/S0036142901392766)
+
+In this example an analytic benchmark problem is solved with the Taylor--Hood FEM in the free flow
 domain and the Raviart--Thomas FEM in the porous media domain. 
 
 The computed solution for the default parameters looks like this:
@@ -83,6 +91,7 @@ using ExtendableGrids
 using GridVisualize
 using SimplexGridFactory
 using Triangulate
+using Metis
 using Test #hide
 
 ## exact solution and data functions
@@ -149,20 +158,20 @@ function main(;
         μ = 1,                  # viscosity
         k = 1,                  # permeability
         α = 1,                  # parameter in interface condition
-        coupled = true,         # solve coupled problem with interface conditions or separated problems on subgrids ?
+        coupled = true,         # solve coupled problem with interface conditions or decoupled problems on subgrids ?
         order_u = 2,            # polynomial order for free flow velocity
         order_p = order_u - 1,  # polynomial order for free flow pressure
         order_v = order_u - 1,  # polynomial order for porous media velocity
         nrefs = 4,              # number of mesh refinements
-        Plotter = nothing,
-        parallel = false,
-        npart = 8,
+        Plotter = nothing,      # backend for Plotting (e.g. GLMakie)
+        parallel = false,       # do parallel assembly?
+        npart = 8,              # number of partitions for grid coloring (if parallel = true)
         kwargs...
     )
 
     ## region numbers
-    rFF = 1
-    rPM = 2
+    rFF = 1 # free flow region
+    rPM = 2 # porous media region
 
     ## load mesh and refine
     xgrid =
@@ -208,21 +217,23 @@ function main(;
     ## define free flow problem: Stokes equations to solve for velocity u and pressure p
     assign_operator!(PD, BilinearOperator(kernel_stokes_standard!, [grad(u), id(p)]; params = [μ], parallel = parallel, regions = [rFF], kwargs...))
     assign_operator!(PD, LinearOperator(f_FF!, [id(u)]; bonus_quadorder = 4, parallel = parallel, regions = [rFF], kwargs...))
-    assign_operator!(PD, InterpolateBoundaryData(u, u!; bonus_quadorder = 4, regions = bnd_stokes, parallel = parallel, kwargs...))
+    assign_operator!(PD, InterpolateBoundaryData(u, u!; bonus_quadorder = 4, regions = bnd_stokes, kwargs...))
 
-    ## define propus media flow: Darcy problem to solve for pressure q
+    ## define porous media flow: Darcy problem to solve for pressure q
     assign_operator!(PD, BilinearOperator([id(v)]; parallel = parallel, regions = [rPM], kwargs...))
-    assign_operator!(PD, BilinearOperator([div(v)], [id(q)]; factor = -1, transposed_copy = -1, regions = [rPM], kwargs...))
+    assign_operator!(PD, BilinearOperator([div(v)], [id(q)]; factor = -1, transposed_copy = -1, parallel = parallel, regions = [rPM], kwargs...))
     assign_operator!(PD, LinearOperator(f_PM!, [id(q)]; bonus_quadorder = 4, parallel = parallel, regions = [rPM], kwargs...))
 
-    ## coupling conditions
+    ## coupling conditions on interface (bregion 7)
     if coupled
         ## interface condition for tangential part
         assign_operator!(PD, BilinearOperator([tangentialflux(u)]; factor = α * μ / sqrt(μ * k), entities = ON_FACES, regions = [7]))
-        ## interface condition for normal part
+        ## interface condition for normal part via Lagrange multiplier
         assign_operator!(PD, BilinearOperator(coupling_normal!, [id(λ)], [normalflux(u), normalflux(v)]; transposed_copy = 1, entities = ON_FACES, regions = [7]))
     else
-        assign_operator!(PD, BilinearOperator([id(λ)]; entities = ON_FACES, regions = [7]))
+        ## dummy problem for Lagrange multiplier
+        assign_operator!(PD, BilinearOperator([id(λ)]; entities = ON_FACES, parallel = parallel, regions = [7]))
+        ## Dirichlet condition for Darcy problem with different factor (due to different direction of normal)
         assign_operator!(PD, LinearOperator(q!, [normalflux(v)]; bonus_quadorder = 4, factor = 1, entities = ON_FACES, params = [k], regions = [7], kwargs...))
     end
     assign_operator!(PD, LinearOperator(q!, [normalflux(v)]; bonus_quadorder = 4, factor = -1, entities = ON_BFACES, params = [k], regions = setdiff(bnd_darcy, 7), kwargs...))

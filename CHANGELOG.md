@@ -11,7 +11,10 @@
 ### Changed
 
   - `solve` uses now the residual equation for the linear systems
-  - some bugfixes concerning finite elements on subregions and BilinearOperatorDG
+
+### Fixed
+
+  - some bugfixes concerning finite elements on subregions and BilinearOperatorDG, related to issue #43
 
 ## v0.9.0 March 22, 2025
 
