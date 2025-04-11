@@ -153,7 +153,7 @@ function build_assembler!(O::ItemIntegratorDG{Tv}, FE_args::Array{<:FEVectorBloc
             end
 
             ## generate DG operator
-            push!(O.BE_args, [generate_DG_operators(StandardFunctionOperator(O.ops_args[j]), FES_args[j], quadorder, EG) for j in 1:nargs])
+            push!(O.BE_args, [generate_DG_operators(StandardFunctionOperator(O.ops_args[j]), FES_args[j], quadorder, EG, xgrid) for j in 1:nargs])
             push!(O.QF, generate_DG_master_quadrule(quadorder, EG))
 
             ## L2G map for EG

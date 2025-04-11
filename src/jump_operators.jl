@@ -81,12 +81,13 @@ end
 function FEEvaluator(
         FE::FESpace{TvG, TiG, FEType, FEAPT},
         operator::Type{<:DiscontinuousFunctionOperator},
-        qrule::QuadratureRule{TvR, EG};
+        qrule::QuadratureRule{TvR, EG},
+        xgrid = FE.dofgrid;
         T = Float64,
         kwargs...
     ) where {TvG, TiG, TvR, FEType <: AbstractFiniteElement, EG <: AbstractElementGeometry, FEAPT <: AssemblyType}
 
-    FEB = FEEvaluator(FE, StandardFunctionOperator(operator), qrule; T = T, kwargs...)
+    FEB = FEEvaluator(FE, StandardFunctionOperator(operator), qrule, xgrid; T = T, kwargs...)
     ndofs = size(FEB.cvals, 2)
     cvals = reshape(repeat(FEB.cvals, 2), (size(FEB.cvals, 1), 2 * ndofs, size(FEB.cvals, 3)))
     return FEEvaluatorDisc{T, TvG, TiG, FEType, typeof(FEB), operator}(FEB.citem, FE, FEB, coeffs(operator), cvals)
@@ -127,7 +128,7 @@ function generate_DG_master_quadrule(quadorder, EG; T = Float64)
     return QuadratureRule{T, EGface}(quadorder)
 end
 
-function generate_DG_operators(operator, FE, quadorder, EG; T = Float64)
+function generate_DG_operators(operator, FE, quadorder, EG, xgrid; T = Float64)
     ## prototype quadrature rule on face geometry
     qf4face = generate_DG_master_quadrule(quadorder, EG; T = T)
 
@@ -147,7 +148,7 @@ function generate_DG_operators(operator, FE, quadorder, EG; T = Float64)
         for i in 1:length(qf4face.xref)
             qf4cell.xref[i] = xrefFACE2CELL[f](xrefFACE2OFACE[orientation](qf4face.xref[i]))
         end
-        basisevaler4EG[f, orientation] = FEEvaluator(FE, operator, deepcopy(qf4cell); T = T, AT = ON_CELLS)
+        basisevaler4EG[f, orientation] = FEEvaluator(FE, operator, deepcopy(qf4cell), xgrid; T = T, AT = ON_CELLS)
     end
     return basisevaler4EG
 end

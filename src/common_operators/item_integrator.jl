@@ -155,7 +155,7 @@ function build_assembler!(O::ItemIntegrator{Tv}, FE_args::Array{<:FEVectorBlock,
             push!(O.QF, QuadratureRule{Tv, EG}(quadorder))
 
             ## FE basis evaluator for EG
-            push!(O.BE_args, [FEEvaluator(FES_args[j], O.ops_args[j], O.QF[end]; AT = AT) for j in 1:nargs])
+            push!(O.BE_args, [FEEvaluator(FES_args[j], O.ops_args[j], O.QF[end], xgrid; AT = AT) for j in 1:nargs])
 
             ## L2G map for EG
             push!(O.L2G, L2GTransformer(EG, xgrid, gridAT))
