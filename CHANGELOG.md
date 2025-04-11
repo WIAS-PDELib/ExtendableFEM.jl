@@ -8,6 +8,11 @@
 
   - new example on coupled Stokes-Darcy (Example264)
 
+### Added
+
+  - example `Example250` now also demonstrates a nonlinear problem solved by an iterative linear solver
+    with preconditioning and an initial solution.
+
 ### Changed
 
   - `solve` uses now the residual equation for the linear systems
