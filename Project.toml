@@ -33,6 +33,7 @@ ExtendableGrids = "1.10.3"
 ExtendableSparse = "1.5.3"
 ForwardDiff = "0.10.35,1"
 GridVisualize = "1.8.1"
+IncompleteLU = "0.2.1"
 LinearAlgebra = "1.9"
 LinearSolve = "2, 3"
 Metis = "1.5.0"
@@ -55,6 +56,7 @@ julia = "1.9"
 Aqua = "4c88cf16-eb10-579e-8560-4a9242c79595"
 ExampleJuggler = "3bbe58f8-ed81-4c4e-a134-03e85fcf4a1a"
 ExplicitImports = "7d51a73a-1435-4ff3-83d9-f097790105c7"
+IncompleteLU = "40713840-3770-5561-ab4c-a76e7d0d7895"
 Metis = "2679e427-3c69-5b7f-982b-ece356f1e94b"
 OrdinaryDiffEqRosenbrock = "43230ef6-c299-4910-a778-202eb28ce4ce"
 OrdinaryDiffEqSDIRK = "2d112036-d095-4a1e-ab9a-08536f3ecdbf"
@@ -65,4 +67,4 @@ TetGen = "c5d3f3f7-f850-59f6-8a2e-ffc6dc1317ea"
 Triangulate = "f7e6ffb2-c36d-4f8f-a77e-16e897189344"
 
 [targets]
-test = ["Aqua", "ExampleJuggler", "ExplicitImports", "Metis", "OrdinaryDiffEqRosenbrock", "OrdinaryDiffEqSDIRK", "SimplexGridFactory", "StaticArrays", "Test", "TetGen", "Triangulate"]
+test = ["Aqua", "ExampleJuggler", "ExplicitImports", "IncompleteLU", "Metis", "OrdinaryDiffEqRosenbrock", "OrdinaryDiffEqSDIRK", "SimplexGridFactory", "StaticArrays", "Test", "TetGen", "Triangulate"]
