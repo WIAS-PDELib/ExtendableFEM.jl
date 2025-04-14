@@ -10,12 +10,13 @@
 
 ### Added
 
-  - example `Example250` now also demonstrates a nonlinear problem solved by an iterative linear solver
-    with preconditioning and an initial solution.
+  - example `Example301` now also demonstrates a nonlinear problem solved by an iterative linear solver
+    with preconditioning.
 
 ### Changed
 
   - `solve` uses now the residual equation for the linear systems
+  - facelift `Example250`.
 
 ### Fixed
 

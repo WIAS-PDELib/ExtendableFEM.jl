@@ -26,8 +26,6 @@ using ExtendableGrids
 using SimplexGridFactory
 using LinearAlgebra
 using GridVisualize
-using LinearSolve
-using IncompleteLU
 using Test #hide
 
 
@@ -82,26 +80,12 @@ function u_boundary!(result, qpinfo)
     return nothing
 end
 
-function initialgrid_cone()
-    xgrid = ExtendableGrid{Float64, Int32}()
-    xgrid[Coordinates] = Array{Float64, 2}([-1 0; 0 -2; 1 0]')
-    xgrid[CellNodes] = Array{Int32, 2}([1 2 3]')
-    xgrid[CellGeometries] = VectorOfConstants{ElementGeometries, Int}(Triangle2D, 1)
-    xgrid[CellRegions] = ones(Int32, 1)
-    xgrid[BFaceRegions] = Array{Int32, 1}([1, 2, 3])
-    xgrid[BFaceNodes] = Array{Int32, 2}([1 2; 2 3; 3 1]')
-    xgrid[BFaceGeometries] = VectorOfConstants{ElementGeometries, Int}(Edge1D, 3)
-    xgrid[CoordinateSystem] = Cartesian2D
-    return xgrid
-end
 
 function main(;
         μ_final = 0.0005,        # flow parameter
         order = 2,               # FE order of the flow field (pressure order is order-1)
         h = 1.0e-3,              # grid cell volume
         nrefs = 1,               # additional grid refinements
-        method_linear = nothing, # linear solver ("nothing" invokes the default solver)
-        precon_linear = nothing, # preconditioner
         Plotter = nothing,
         kwargs...
     )
@@ -134,14 +118,9 @@ function main(;
     ## prepare plots
     plt = GridVisualizer(; Plotter = Plotter, layout = (1, 2), clear = true, size = (1600, 800))
 
-
-    ## prepare an initial solution matching the boundary data
-    sol = FEVector(FES; tags = PD.unknowns)
-    interpolate!(sol[u], ON_BFACES, u_boundary!; regions = [1])
-
-
     ## solve by μ embedding
     step = 0
+    sol = nothing
     SC = nothing
     PE = PointEvaluator([id(1)])
     while (true)
@@ -151,11 +130,6 @@ function main(;
             PD,
             FES,
             SC;
-            init = sol,
-            method_linear,
-            # use new preconditioner API: https://docs.sciml.ai/LinearSolve/stable/basics/Preconditioners/#Specifying-Preconditioners
-            # this does currently now work with ILU, see https://github.com/WIAS-PDELib/ExtendableFEM.jl/pull/47#issuecomment-2796849931
-            precon_linear,
             return_config = true,
             target_residual = 1.0e-10,
             maxiterations = 20,
@@ -187,15 +161,7 @@ generateplots = ExtendableFEM.default_generateplots(Example250_NSELidDrivenCavit
 function runtests()                                                                                  #hide
     sol, plt = main(; μ_final = 0.005)                                                               #hide
     sum(view(sol[1])) ≈ 237.24628017878518                                                           #hide
-
-    method_linear = KrylovJL_GMRES()                                                                 #hide
-    precon_linear = IncompleteLU.ilu                                                                 #hide
-
-    sol, plt = main(; μ_final = 0.005, method_linear, precon_linear)                                 #hide
-    @test sum(view(sol[1])) ≈ 237.24628017878518                                                     #hide
-
     return nothing                                                                                   #hide
 end                                                                                                  #hide
-
 
 end # module
