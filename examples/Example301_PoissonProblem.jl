@@ -31,22 +31,23 @@ using LinearAlgebra
 using Test
 
 function f!(result, qpinfo)
-    result[1] = qpinfo.params[1]*(1.7^2 + 3.9^2)*sin(1.7*qpinfo.x[1])*cos(3.9*qpinfo.x[2])
+    result[1] = qpinfo.params[1] * (1.7^2 + 3.9^2) * sin(1.7 * qpinfo.x[1]) * cos(3.9 * qpinfo.x[2])
     return nothing
 end
 
 function u!(result, qpinfo)
-    result[1] = sin(1.7*qpinfo.x[1])*cos(3.9*qpinfo.x[2])
+    result[1] = sin(1.7 * qpinfo.x[1]) * cos(3.9 * qpinfo.x[2])
     return nothing
 end
 
 function main(;
-    μ = 1.0,
-    nrefs = 4, 
-    method_linear = KrylovJL_GMRES(),
-    precon_linear = method_linear == KrylovJL_GMRES() ? IncompleteLU.ilu : nothing,
-    Plotter = nothing,
-    kwargs...)
+        μ = 1.0,
+        nrefs = 4,
+        method_linear = KrylovJL_GMRES(),
+        precon_linear = method_linear == KrylovJL_GMRES() ? IncompleteLU.ilu : nothing,
+        Plotter = nothing,
+        kwargs...
+    )
 
     ## problem description
     PD = ProblemDescription()
