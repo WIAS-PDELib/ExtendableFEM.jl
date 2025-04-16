@@ -1,19 +1,23 @@
 # CHANGES
 
-## next version
+## v1.0.1 April 16, 2025
 
-## v1.0.0 April 11, 2025
+### Fixed
+
+  - assemble! of (args-dependent) BilinearOperatorDG now works
+
+
+
+## v1.0.0 April 14, 2025
 
 ### Added
 
   - new example on coupled Stokes-Darcy (Example264)
 
-### Added
+### Changed
 
   - example `Example301` now also demonstrates a nonlinear problem solved by an iterative linear solver
     with preconditioning.
-
-### Changed
 
   - `solve` uses now the residual equation for the linear systems
   - facelift `Example250`.

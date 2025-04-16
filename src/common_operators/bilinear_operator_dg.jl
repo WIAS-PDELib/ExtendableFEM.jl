@@ -1070,7 +1070,7 @@ function assemble!(A::FEMatrix, O::BilinearOperatorDG{Tv, UT}, sol = nothing; as
     ind_args = O.u_args
     return if length(O.u_args) > 0
         build_assembler!(A.entries, O, [A[j, j] for j in ind_test], [A[j, j] for j in ind_ansatz], [sol[j] for j in ind_args]; kwargs...)
-        O.assembler(A.entries, [sol[j] for j in ind_args])
+        O.assembler(A.entries, nothing, [sol[j] for j in ind_args])
     else
         build_assembler!(A.entries, O, [A[j, j] for j in ind_test], [A[j, j] for j in ind_ansatz]; kwargs...)
         O.assembler(A.entries, nothing)
