@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Example280_CompressibleStokes · ExtendableFEM.jl</title><meta name="title" content="Example280_CompressibleStokes · ExtendableFEM.jl"/><meta property="og:title" content="Example280_CompressibleStokes · ExtendableFEM.jl"/><meta property="twitter:title" content="Example280_CompressibleStokes · ExtendableFEM.jl"/><meta name="description" content="Documentation for ExtendableFEM.jl."/><meta property="og:description" content="Documentation for ExtendableFEM.jl."/><meta property="twitter:description" content="Documentation for ExtendableFEM.jl."/><script data-outdated-warner src="../../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../search_index.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../../">ExtendableFEM.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../../">Home</a></li><li><a class="tocitem" href="../../package_index/">Index</a></li><li><span class="tocitem">Problem Description</span><ul><li><a class="tocitem" href="../../problemdescription/">Problem Description</a></li><li><a class="tocitem" href="../../tensordescription/">Tensor Description</a></li><li><a class="tocitem" href="../../nonlinearoperator/">NonlinearOperator</a></li><li><a class="tocitem" href="../../bilinearoperator/">BilinearOperator</a></li><li><a class="tocitem" href="../../linearoperator/">LinearOperator</a></li><li><a class="tocitem" href="../../interpolateboundarydata/">InterpolateBoundaryData</a></li><li><a class="tocitem" href="../../homogeneousdata/">HomogeneousData</a></li><li><a class="tocitem" href="../../fixdofs/">FixDofs</a></li><li><a class="tocitem" href="../../combinedofs/">CombineDofs</a></li><li><a class="tocitem" href="../../callbackoperator/">CallbackOperator</a></li><li><a class="tocitem" href="../../allindex/">Index</a></li></ul></li><li><span class="tocitem">Solving</span><ul><li><a class="tocitem" href="../../pdesolvers/">Stationary Solvers</a></li><li><a class="tocitem" href="../../pdesolvers_dt/">Time-dependent Solvers</a></li><li><a class="tocitem" href="../../parallel_assembly/">Parallel Assembly</a></li></ul></li><li><span class="tocitem">Postprocessing</span><ul><li><a class="tocitem" href="../../postprocessing/">Other packages</a></li><li><a class="tocitem" href="../../itemintegrators/">Item Integrators</a></li><li><a class="tocitem" href="../../faceinterpolator/">Face interpolator</a></li></ul></li><li><span class="tocitem">Examples</span><ul><li><a class="tocitem" href="../Example103_BurgersEquation/">Example103_BurgersEquation</a></li><li><a class="tocitem" href="../Example105_NonlinearPoissonEquation/">Example105_NonlinearPoissonEquation</a></li><li><a class="tocitem" href="../Example106_NonlinearDiffusion/">Example106_NonlinearDiffusion</a></li><li><a class="tocitem" href="../Example108_RobinBoundaryCondition/">Example108_RobinBoundaryCondition</a></li><li><a class="tocitem" href="../Example201_PoissonProblem/">Example201_PoissonProblem</a></li><li><a class="tocitem" href="../Example202_MixedPoissonProblem/">Example202_MixedPoissonProblem</a></li><li><a class="tocitem" href="../Example203_PoissonProblemDG/">Example203_PoissonProblemDG</a></li><li><a class="tocitem" href="../Example204_LaplaceEVProblem/">Example204_LaplaceEVProblem</a></li><li><a class="tocitem" href="../Example205_HeatEquation/">Example205_HeatEquation</a></li><li><a class="tocitem" href="../Example206_CoupledSubGridProblems/">Example206_CoupledSubGridProblems</a></li><li><a class="tocitem" href="../Example207_AdvectionUpwindDG/">Example207_AdvectionUpwindDG</a></li><li><a class="tocitem" href="../Example210_LshapeAdaptivePoissonProblem/">Example210_LshapeAdaptivePoissonProblem</a></li><li><a class="tocitem" href="../Example211_LshapeAdaptiveEQPoissonProblem/">Example211_LshapeAdaptiveEQPoissonProblem</a></li><li><a class="tocitem" href="../Example212_PeriodicBoundary2D/">Example212_PeriodicBoundary2D</a></li><li><a class="tocitem" href="../Example220_ReactionConvectionDiffusion/">Example220_ReactionConvectionDiffusion</a></li><li><a class="tocitem" href="../Example225_ObstacleProblem/">Example225_ObstacleProblem</a></li><li><a class="tocitem" href="../Example226_Thermoforming/">Example226_Thermoforming</a></li><li><a class="tocitem" href="../Example230_NonlinearElasticity/">Example230_NonlinearElasticity</a></li><li><a class="tocitem" href="../Example235_StokesIteratedPenalty/">Example235_StokesIteratedPenalty</a></li><li><a class="tocitem" href="../Example240_SVRTEnrichment/">Example240_SVRTEnrichment</a></li><li><a class="tocitem" href="../Example245_NSEFlowAroundCylinder/">Example245_NSEFlowAroundCylinder</a></li><li><a class="tocitem" href="../Example250_NSELidDrivenCavity/">Example250_NSELidDrivenCavity</a></li><li><a class="tocitem" href="../Example252_NSEPlanarLatticeFlow/">Example252_NSEPlanarLatticeFlow</a></li><li><a class="tocitem" href="../Example260_AxisymmetricNavierStokesProblem/">Example260_AxisymmetricNavierStokesProblem</a></li><li><a class="tocitem" href="../Example264_StokesDarcy/">Example264_StokesDarcy</a></li><li><a class="tocitem" href="../Example265_FlowTransport/">Example265_FlowTransport</a></li><li><a class="tocitem" href="../Example270_NaturalConvectionProblem/">Example270_NaturalConvectionProblem</a></li><li><a class="tocitem" href="../Example275_OptimalControlStokes/">Example275_OptimalControlStokes</a></li><li class="is-active"><a class="tocitem" href>Example280_CompressibleStokes</a></li><li><a class="tocitem" href="../Example282_IncompressibleMHD/">Example282_IncompressibleMHD</a></li><li><a class="tocitem" href="../Example284_LevelSetMethod/">Example284_LevelSetMethod</a></li><li><a class="tocitem" href="../Example285_CahnHilliard/">Example285_CahnHilliard</a></li><li><a class="tocitem" href="../Example290_PoroElasticity/">Example290_PoroElasticity</a></li><li><a class="tocitem" href="../Example301_PoissonProblem/">Example301_PoissonProblem</a></li><li><a class="tocitem" href="../Example310_DivFreeBasis/">Example310_DivFreeBasis</a></li><li><a class="tocitem" href="../Example312_PeriodicBoundary3D/">Example312_PeriodicBoundary3D</a></li><li><a class="tocitem" href="../Example330_HyperElasticity/">Example330_HyperElasticity</a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Examples</a></li><li class="is-active"><a href>Example280_CompressibleStokes</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Example280_CompressibleStokes</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/WIAS-PDELib/ExtendableFEM.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/WIAS-PDELib/ExtendableFEM.jl/blob/master/docs/src/module_examples/Example280_CompressibleStokes.md" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="280-:-Compressible-Stokes"><a class="docs-heading-anchor" href="#280-:-Compressible-Stokes">280 : Compressible Stokes</a><a id="280-:-Compressible-Stokes-1"></a><a class="docs-heading-anchor-permalink" href="#280-:-Compressible-Stokes" title="Permalink"></a></h1><p>(<a href="../Example280_CompressibleStokes.jl">source code</a>)</p><p>This example solves the two-dimensional compressible Stokes equations where one seeks a (vector-valued) velocity <span>$\mathbf{u}$</span>, a density <span>$\varrho$</span> and a pressure <span>$p$</span> such that</p><p class="math-container">\[\begin{aligned}
+- \mu \Delta \mathbf{u} + \lambda \nabla(\mathrm{div}(\mathbf{u})) + \nabla p &amp; = \mathbf{f} + \varrho \mathbf{g}\\
+\mathrm{div}(\varrho \mathbf{u}) &amp; = 0\\
+        p &amp; = eos(\varrho)\\
+        \int_\Omega \varrho \, dx &amp; = M\\
+        \varrho &amp; \geq 0.
+\end{aligned}\]</p><p>Here, eos <span>$eos$</span> is some equation of state function that describes the dependence of the pressure on the density (and further physical quantities like temperature in a more general setting). Moreover, <span>$\mu$</span> and <span>$\lambda$</span> are Lame parameters and <span>$\mathbf{f}$</span> and <span>$\mathbf{g}$</span> are given right-hand side data.</p><p>There are two testcases. The first testcase solves an analytical toy problem with the prescribed solution</p><p class="math-container">\[\begin{aligned}
+\mathbf{u}(\mathbf{x}) &amp; =0\\
+\varrho(\mathbf{x}) &amp; = \exp(-y/c) \\
+p &amp;= eos(\varrho) := c \varrho^\gamma
+\end{aligned}\]</p><p>such that <span>$\mathbf{f} = 0$</span> and <span>$\mathbf{g}$</span> nonzero to match the prescribed solution. The second testcase tests an analytical nonzero velocity benchmark problem with the same density.</p><p>This example is designed to study the well-balanced property of a discretisation. The gradient-robust discretisation approximates the well-balanced state much better, i.e. has a much smaller L2 velocity error. For larger c (= smaller Mach number) the problem gets more incompressible which reduces the error further as then the right-hand side is a perfect gradient also when evaluated with the (now closer to a constant) discrete density. See reference below for more details.</p><div class="admonition is-category-reference"><header class="admonition-header">Reference</header><div class="admonition-body"><p>&quot;A gradient-robust well-balanced scheme for the compressible isothermal Stokes problem&quot;,<br/>M. Akbas, T. Gallouet, A. Gassmann, A. Linke and C. Merdon,<br/>Computer Methods in Applied Mechanics and Engineering 367 (2020),<br/><a href="https://doi.org/10.1016/j.cma.2020.113069">&gt;Journal-Link&lt;</a> <a href="https://arxiv.org/abs/1911.01295">&gt;Preprint-Link&lt;</a></p></div></div><p>The computed solution for the default parameters looks like this:</p><p><img src="../example280.png" alt/></p><pre><code class="language-julia hljs">module Example280_CompressibleStokes
+
+using ExtendableFEM
+using ExtendableGrids
+using Triangulate
+using SimplexGridFactory
+using GridVisualize
+using Symbolics
+using LinearAlgebra
+
+# everything is wrapped in a main function
+# testcase = 1 : well-balanced test (stratified no-flow over mountain)
+# testcase = 2 : vortex example (ϱu is div-free p7 vortex)
+function main(;
+        testcase = 1,
+        nrefs = 4,
+        M = 1,
+        c = 1,
+        ufac = 100,
+        pressure_stab = 0,
+        laplacian_in_rhs = false, # for data in example 2
+        maxsteps = 5000,
+        target_residual = 1.0e-11,
+        Plotter = nothing,
+        reconstruct = true,
+        μ = 1,
+        order = 1,
+        kwargs...
+    )
+
+    # load data for testcase
+    grid_builder, kernel_gravity!, kernel_rhs!, u!, ∇u!, ϱ!, τfac = load_testcase_data(testcase; laplacian_in_rhs = laplacian_in_rhs, M = M, c = c, μ = μ, ufac = ufac)
+    xgrid = grid_builder(nrefs)
+
+    # define unknowns
+    u = Unknown(&quot;u&quot;; name = &quot;velocity&quot;, dim = 2)
+    ϱ = Unknown(&quot;ϱ&quot;; name = &quot;density&quot;, dim = 1)
+    p = Unknown(&quot;p&quot;; name = &quot;pressure&quot;, dim = 1)
+
+    # define reconstruction operator
+    if order == 1
+        FETypes = [H1BR{2}, L2P0{1}, L2P0{1}]
+        id_u = reconstruct ? apply(u, Reconstruct{HDIVRT0{2}, Identity}) : id(u)
+    elseif order == 2
+        FETypes = [H1P2B{2, 2}, L2P1{1}, L2P1{1}]
+        id_u = reconstruct ? apply(u, Reconstruct{HDIVRT1{2}, Identity}) : id(u)
+    end
+
+    # define first sub-problem: Stokes equations to solve for velocity u
+    PD = ProblemDescription(&quot;Stokes problem&quot;)
+    assign_unknown!(PD, u)
+    assign_operator!(PD, BilinearOperator([grad(u)]; factor = μ, store = true, kwargs...))
+    assign_operator!(PD, LinearOperator([div(u)], [id(ϱ)]; factor = c, kwargs...))
+    assign_operator!(PD, HomogeneousBoundaryData(u; regions = 1:4, kwargs...))
+    if kernel_rhs! !== nothing
+        assign_operator!(PD, LinearOperator(kernel_rhs!, [id_u]; factor = 1, store = true, bonus_quadorder = 3 * order, kwargs...))
+    end
+    assign_operator!(PD, LinearOperator(kernel_gravity!, [id_u], [id(ϱ)]; factor = 1, bonus_quadorder = 3 * order, kwargs...))
+
+    # FVM for continuity equation
+    τ = μ / (order^2 * M * sqrt(τfac)) # time step for pseudo timestepping
+    @info &quot;timestep = $τ&quot;
+    PDT = ProblemDescription(&quot;continuity equation&quot;)
+    assign_unknown!(PDT, ϱ)
+    if order &gt; 1
+        assign_operator!(PDT, BilinearOperator(kernel_continuity!, [grad(ϱ)], [id(ϱ)], [id(u)]; quadorder = 2 * order, factor = -1, kwargs...))
+    end
+    if pressure_stab &gt; 0
+        psf = pressure_stab #* xgrid[CellVolumes][1]
+        assign_operator!(PDT, BilinearOperator(stab_kernel!, [jump(id(ϱ))], [jump(id(ϱ))], [id(u)]; entities = ON_IFACES, factor = psf, kwargs...))
+    end
+    assign_operator!(PDT, BilinearOperator([id(ϱ)]; quadorder = 2 * (order - 1), factor = 1 / τ, store = true, kwargs...))
+    assign_operator!(PDT, LinearOperator([id(ϱ)], [id(ϱ)]; quadorder = 2 * (order - 1), factor = 1 / τ, kwargs...))
+    assign_operator!(PDT, BilinearOperatorDG(kernel_upwind!, [jump(id(ϱ))], [this(id(ϱ)), other(id(ϱ))], [id(u)]; quadorder = order + 1, entities = ON_IFACES, kwargs...))
+
+    # prepare error calculation
+    EnergyIntegrator = ItemIntegrator(energy_kernel!, [id(u)]; resultdim = 1, quadorder = 2 * (order + 1), kwargs...)
+    ErrorIntegratorExact = ItemIntegrator(exact_error!(u!, ∇u!, ϱ!), [id(u), grad(u), id(ϱ)]; resultdim = 9, quadorder = 2 * (order + 1), kwargs...)
+    NDofs = zeros(Int, nrefs)
+    Results = zeros(Float64, nrefs, 5)
+
+    sol = nothing
+    xgrid = nothing
+    op_upwind = 0
+    for lvl in 1:nrefs
+        xgrid = grid_builder(lvl)
+        @show xgrid
+        FES = [FESpace{FETypes[j]}(xgrid) for j in 1:3]
+        sol = FEVector(FES; tags = [u, ϱ, p])
+
+        # initial guess
+        fill!(sol[ϱ], M)
+        interpolate!(sol[u], u!)
+        interpolate!(sol[ϱ], ϱ!)
+        NDofs[lvl] = length(sol.entries)
+
+        # solve the two problems iteratively [1] &gt;&gt; [2] &gt;&gt; [1] &gt;&gt; [2] ...
+        SC1 = SolverConfiguration(PD; init = sol, maxiterations = 1, target_residual = target_residual, constant_matrix = true, kwargs...)
+        SC2 = SolverConfiguration(PDT; init = sol, maxiterations = 1, target_residual = target_residual, kwargs...)
+        sol, nits = iterate_until_stationarity([SC1, SC2]; energy_integrator = EnergyIntegrator, maxsteps = maxsteps, init = sol, kwargs...)
+
+        # calculate error
+        error = evaluate(ErrorIntegratorExact, sol)
+        Results[lvl, 1] = sqrt(sum(view(error, 1, :)) + sum(view(error, 2, :)))
+        Results[lvl, 2] = sqrt(sum(view(error, 3, :)) + sum(view(error, 4, :)) + sum(view(error, 5, :)) + sum(view(error, 6, :)))
+        Results[lvl, 3] = sqrt(sum(view(error, 7, :)))
+        Results[lvl, 4] = sqrt(sum(view(error, 8, :)) + sum(view(error, 9, :)))
+        Results[lvl, 5] = nits
+
+        # print results
+        print_convergencehistory(NDofs[1:lvl], Results[1:lvl, :]; X_to_h = X -&gt; X .^ (-1 / 2), ylabels = [&quot;|| u - u_h ||&quot;, &quot;|| ∇(u - u_h) ||&quot;, &quot;|| ϱ - ϱ_h ||&quot;, &quot;|| ϱu - ϱu_h ||&quot;, &quot;#its&quot;], xlabel = &quot;ndof&quot;)
+    end
+
+
+    # plot
+    plt = GridVisualizer(; Plotter = Plotter, layout = (2, 2), clear = true, size = (1000, 1000))
+    scalarplot!(plt[1, 1], xgrid, view(nodevalues(sol[u]; abs = true), 1, :), levels = 0, colorbarticks = 7)
+    vectorplot!(plt[1, 1], xgrid, eval_func_bary(PointEvaluator([id(u)], sol)), rasterpoints = 10, clear = false, title = &quot;u_h (abs + quiver)&quot;)
+    scalarplot!(plt[2, 1], xgrid, view(nodevalues(sol[ϱ]), 1, :), levels = 11, title = &quot;ϱ_h&quot;)
+    plot_convergencehistory!(plt[1, 2], NDofs, Results[:, 1:4]; add_h_powers = [order, order + 1], X_to_h = X -&gt; 0.2 * X .^ (-1 / 2), legend = :best, ylabels = [&quot;|| u - u_h ||&quot;, &quot;|| ∇(u - u_h) ||&quot;, &quot;|| ϱ - ϱ_h ||&quot;, &quot;|| ϱu - ϱu_h ||&quot;, &quot;#its&quot;])
+    gridplot!(plt[2, 2], xgrid)
+
+    return Results, plt
+end
+
+function stab_kernel!(result, p, u, qpinfo)
+    result[1] = p[1] #*abs(u[1] + u[2])
+    return nothing
+end
+
+# kernel for (uϱ, ∇λ) ON_CELLS in continuity equation
+function kernel_continuity!(result, ϱ, u, qpinfo)
+    result[1] = ϱ[1] * u[1]
+    result[2] = ϱ[1] * u[2]
+    return nothing
+end
+
+# kernel for (u⋅n ϱ^upw, λ) ON_IFACES in continuity equation
+function kernel_upwind!(result, input, u, qpinfo)
+    flux = dot(u, qpinfo.normal) # u * n
+    return if flux &gt; 0
+        result[1] = input[1] * flux # rho_left * flux
+    else
+        result[1] = input[2] * flux # rho_righ * flux
+    end
+end
+
+# kernel for exact error calculation
+function exact_error!(u!, ∇u!, ϱ!)
+    return function closure(result, u, qpinfo)
+        u!(view(result, 1:2), qpinfo)
+        ∇u!(view(result, 3:6), qpinfo)
+        ϱ!(view(result, 7), qpinfo)
+        result[8] = result[1] * result[7]
+        result[9] = result[2] * result[7]
+        view(result, 1:7) .-= u
+        result[8] -= u[1] * u[7]
+        result[9] -= u[2] * u[7]
+        return result .= result .^ 2
+    end
+end
+
+# kernel for gravity term in testcase 1
+function standard_gravity!(result, ϱ, qpinfo)
+    result[1] = 0
+    result[2] = -ϱ[1]
+    return nothing
+end
+
+function energy_kernel!(result, u, qpinfo)
+    result[1] = dot(u, u) / 2
+    return nothing
+end
+
+function load_testcase_data(testcase::Int = 1; laplacian_in_rhs = true, M = 1, c = 1, μ = 1, ufac = 100)
+    if testcase == 1
+        grid_builder = (nref) -&gt; simplexgrid(
+            Triangulate;
+            points = [0 0; 0.2 0; 0.3 0.2; 0.45 0.05; 0.55 0.35; 0.65 0.2; 0.7 0.3; 0.8 0; 1 0; 1 1 ; 0 1]&#39;,
+            bfaces = [1 2; 2 3; 3 4; 4 5; 5 6; 6 7; 7 8; 8 9; 9 10; 10 11; 11 1]&#39;,
+            bfaceregions = ones(Int, 11),
+            regionpoints = [0.5 0.5;]&#39;,
+            regionnumbers = [1],
+            regionvolumes = [4.0^-(nref) / 2]
+        )
+        xgrid = grid_builder(3)
+        u1!(result, qpinfo) = (fill!(result, 0);)
+        ∇u1!(result, qpinfo) = (fill!(result, 0);)
+        M_exact = integrate(xgrid, ON_CELLS, (result, qpinfo) -&gt; (result[1] = exp(-qpinfo.x[2] / c) / M;), 1; quadorder = 20)
+        area = sum(xgrid[CellVolumes])
+        ϱ1!(result, qpinfo) = (result[1] = exp(-qpinfo.x[2] / c) / (M_exact / area);)
+        return grid_builder, standard_gravity!, nothing, u1!, ∇u1!, ϱ1!, 1
+    elseif testcase == 2
+        grid_builder = (nref) -&gt; simplexgrid(
+            Triangulate;
+            points = [0 0; 1 0; 1 1 ; 0 1]&#39;,
+            bfaces = [1 2; 2 3; 3 4; 4 1]&#39;,
+            bfaceregions = ones(Int, 4),
+            regionpoints = [0.5 0.5;]&#39;,
+            regionnumbers = [1],
+            regionvolumes = [4.0^-(nref)]
+        )
+
+        xgrid = grid_builder(3)
+        M_exact = integrate(xgrid, ON_CELLS, (result, qpinfo) -&gt; (result[1] = exp(-qpinfo.x[1]^3 / (3 * c));), 1; quadorder = 20)
+        ϱ_eval, g_eval, f_eval, u_eval, ∇u_eval = prepare_data!(; laplacian_in_rhs = laplacian_in_rhs, M = M_exact, c = c, μ = μ, ufac = ufac)
+        ϱ2!(result, qpinfo) = (result[1] = ϱ_eval(qpinfo.x[1], qpinfo.x[2]);)
+
+        M_exact = integrate(xgrid, ON_CELLS, ϱ2!, 1)
+        area = sum(xgrid[CellVolumes])
+
+        function kernel_gravity!(result, input, qpinfo)
+            g_eval(result, qpinfo.x[1], qpinfo.x[2])
+            return result .*= input[1]
+        end
+
+        function kernel_rhs!(result, qpinfo)
+            return f_eval(result, qpinfo.x[1], qpinfo.x[2])
+        end
+
+        u2!(result, qpinfo) = (u_eval(result, qpinfo.x[1], qpinfo.x[2]);)
+        ∇u2!(result, qpinfo) = (∇u_eval(result, qpinfo.x[1], qpinfo.x[2]);)
+        return grid_builder, kernel_gravity!, f_eval === nothing ? nothing : kernel_rhs!, u2!, ∇u2!, ϱ2!, ufac
+    end
+end
+
+# exact data for testcase 2 computed by Symbolics
+function prepare_data!(; M = 1, c = 1, μ = 1, ufac = 100, laplacian_in_rhs = true)
+
+    @variables x y
+
+    # density
+    ϱ = exp(-x^3 / (3 * c)) / M
+
+    # stream function ξ
+    # sucht that ϱu = curl ξ
+    ξ = x^2 * y^2 * (x - 1)^2 * (y - 1)^2 * ufac
+
+    ∇ξ = Symbolics.gradient(ξ, [x, y])
+
+    # velocity u = curl ξ / ϱ
+    u = [-∇ξ[2], ∇ξ[1]] ./ ϱ
+
+    # gradient of velocity
+    ∇u = Symbolics.jacobian(u, [x, y])
+    ∇u_reshaped = [∇u[1, 1], ∇u[1, 2], ∇u[2, 1], ∇u[2, 2]]
+
+    # Laplacian
+    Δu = [
+        (Symbolics.gradient(∇u[1, 1], [x]) + Symbolics.gradient(∇u[1, 2], [y]))[1],
+        (Symbolics.gradient(∇u[2, 1], [x]) + Symbolics.gradient(∇u[2, 2], [y]))[1],
+    ]
+
+    # gravity ϱg = - Δu + ϱ∇log(ϱ)
+
+    if laplacian_in_rhs
+        f = - μ * Δu
+        g = c * Symbolics.gradient(log(ϱ), [x, y])
+    else
+        g = - μ * Δu / ϱ + c * Symbolics.gradient(log(ϱ), [x, y])
+        f = 0
+    end
+
+    #Δu = Symbolics.derivative(∇u[1,1], [x]) + Symbolics.derivative(∇u[2,2], [y])
+
+    ϱ_eval = build_function(ϱ, x, y, expression = Val{false})
+    u_eval = build_function(u, x, y, expression = Val{false})
+    ∇u_eval = build_function(∇u_reshaped, x, y, expression = Val{false})
+    g_eval = build_function(g, x, y, expression = Val{false})
+    f_eval = build_function(f, x, y, expression = Val{false})
+
+    return ϱ_eval, g_eval[2], f == 0 ? nothing : f_eval[2], u_eval[2], ∇u_eval[2]
+end
+
+end</code></pre><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../Example275_OptimalControlStokes/">« Example275_OptimalControlStokes</a><a class="docs-footer-nextpage" href="../Example282_IncompressibleMHD/">Example282_IncompressibleMHD »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.10.1 on <span class="colophon-date" title="Thursday 17 April 2025 20:08">Thursday 17 April 2025</span>. Using Julia version 1.11.5.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
