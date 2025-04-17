@@ -6,6 +6,11 @@
   - `get_periodic_coupling_matrix` with grid argument now deprecated
 
 ### Fixed
+  - assembly times and allocations from solver times are now correctly measured
+
+## v1.0.1 April 16, 2025
+
+### Fixed
 
   - `assemble!` of (args-dependent) BilinearOperatorDG now works
 
