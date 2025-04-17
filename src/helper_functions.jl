@@ -161,6 +161,7 @@ end
 # compact variant of lazy_interpolate! specialized on ON_FACES interpolations
 function interpolate_on_boundaryfaces(
         source::FEVector{Tv, TvG, TiG},
+        xgrid::ExtendableGrid{TvG, TiG},
         give_opposite,
         start_cell::Int = 1, # TODO we interpolate on the "b_from" side: a proper start cell should be given
         eps = 1.0e-13,
@@ -168,7 +169,6 @@ function interpolate_on_boundaryfaces(
     ) where {Tv, TvG, TiG}
 
     # wrap point evaluation into function that is put into normal interpolate!
-    xgrid = source[1].FES.xgrid
     xdim::Int = size(xgrid[Coordinates], 1)
     PE = PointEvaluator([(1, Identity)], source)
     xref = zeros(TvG, xdim)
@@ -197,41 +197,19 @@ function interpolate_on_boundaryfaces(
     return __eval_point, __setstartcell
 end
 
-"""
-    get_periodic_coupling_matrix(
-        FES::FESpace,
-        xgrid::ExtendableGrid,
+function get_periodic_coupling_matrix(
+        FES::FESpace{Tv},
+        xgrid::ExtendableGrid{TvG, TiG},
         b_from,
         b_to,
         give_opposite!::Function;
-        mask = :auto,
-        sparsity_tol = 1.0e-12
-    )
+        kwargs...
+    ) where {Tv, TvG, TiG}
+    @warn "get_periodic_coupling_matrix with grid argument is deprecated"
+    return _get_periodic_coupling_matrix(FES, xgrid, b_from, b_to, give_opposite!; kwargs...)
+end
 
-Compute a coupling information for each dof on one boundary as a linear combination of dofs on another boundary
-
-Input:
- - FES: FE space to be coupled
- - xgrid: the grid
- - b_from: boundary region of the grid which dofs should be replaced in terms of dofs on b_to
- - b_to: boundary region of the grid with dofs to replace the dofs in b_from
- - give_opposite! Function in (y,x)
- - mask: (optional) vector of masking components
- - sparsity_tol: threshold for treating an interpolated value as zero
-
-give_opposite!(y,x) has to be defined in a way that for each x ∈ b_from the resulting y is in the opposite boundary.
-For each x in the grid, the resulting y has to be in the grid, too: incorporate some mirroring of the coordinates.
-Example: If b_from is at x[1] = 0 and the opposite boundary is at y[1] = 1, then give_opposite!(y,x) = y .= [ 1-x[1], x[2] ]
-
-The return value is a (𝑛 × 𝑛) sparse matrix 𝐴 (𝑛 is the total number of dofs) containing the periodic coupling information.
-The relation ship between the degrees of freedome is  dofᵢ = ∑ⱼ Aⱼᵢ ⋅ dofⱼ.
-It is guaranteed that
-    i)  Aⱼᵢ=0 if dofᵢ is 𝑛𝑜𝑡 on the boundary b_from.
-    ii) Aⱼᵢ=0 if the opposite of dofᵢ is not in the same grid cell as dofⱼ.
-Note that A is transposed for efficient col-wise storage.
-
-"""
-function get_periodic_coupling_matrix(
+function _get_periodic_coupling_matrix(
         FES::FESpace{Tv},
         xgrid::ExtendableGrid{TvG, TiG},
         b_from,
@@ -320,7 +298,7 @@ function get_periodic_coupling_matrix(
         return
     end
 
-    eval_point, set_start = interpolate_on_boundaryfaces(fe_vector, give_opposite!)
+    eval_point, set_start = interpolate_on_boundaryfaces(fe_vector, xgrid, give_opposite!)
 
     # precompute approximate search region for each boundary face in b_from
     search_areas = Dict{TiG, Vector{TiG}}()
@@ -396,6 +374,48 @@ function get_periodic_coupling_matrix(
     end
 
     return sparse(result)
+end
+
+"""
+    get_periodic_coupling_matrix(
+        FES::FESpace,
+        b_from,
+        b_to,
+        give_opposite!::Function;
+        mask = :auto,
+        sparsity_tol = 1.0e-12
+    )
+
+Compute a coupling information for each dof on one boundary as a linear combination of dofs on another boundary
+
+Input:
+ - FES: FE space to be coupled (on its dofgrid)
+ - b_from: boundary region of the grid which dofs should be replaced in terms of dofs on b_to
+ - b_to: boundary region of the grid with dofs to replace the dofs in b_from
+ - give_opposite! Function in (y,x)
+ - mask: (optional) vector of masking components
+ - sparsity_tol: threshold for treating an interpolated value as zero
+
+give_opposite!(y,x) has to be defined in a way that for each x ∈ b_from the resulting y is in the opposite boundary.
+For each x in the grid, the resulting y has to be in the grid, too: incorporate some mirroring of the coordinates.
+Example: If b_from is at x[1] = 0 and the opposite boundary is at y[1] = 1, then give_opposite!(y,x) = y .= [ 1-x[1], x[2] ]
+
+The return value is a (𝑛 × 𝑛) sparse matrix 𝐴 (𝑛 is the total number of dofs) containing the periodic coupling information.
+The relation ship between the degrees of freedome is  dofᵢ = ∑ⱼ Aⱼᵢ ⋅ dofⱼ.
+It is guaranteed that
+    i)  Aⱼᵢ=0 if dofᵢ is 𝑛𝑜𝑡 on the boundary b_from.
+    ii) Aⱼᵢ=0 if the opposite of dofᵢ is not in the same grid cell as dofⱼ.
+Note that A is transposed for efficient col-wise storage.
+
+"""
+function get_periodic_coupling_matrix(
+        FES,
+        b_from,
+        b_to,
+        give_opposite!;
+        kwargs...
+    )
+    return _get_periodic_coupling_matrix(FES, FES.dofgrid, b_from, b_to, give_opposite!; kwargs...)
 end
 
 

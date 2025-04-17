@@ -1,12 +1,13 @@
 # CHANGES
 
-## v1.0.1 April 16, 2025
+## v1.1.0 April 17, 2025
+
+### Changed
+  - `get_periodic_coupling_matrix` with grid argument now deprecated
 
 ### Fixed
 
-  - assemble! of (args-dependent) BilinearOperatorDG now works
-
-
+  - `assemble!` of (args-dependent) BilinearOperatorDG now works
 
 ## v1.0.0 April 14, 2025
 
