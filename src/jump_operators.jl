@@ -31,11 +31,11 @@ evaluates the right (w.r.t. orientation of the face) value of a StandardFunction
 abstract type Right{O} <: DiscontinuousFunctionOperator where {O <: StandardFunctionOperator} end # calculates the value on right side of the face
 
 
-StandardFunctionOperator(::Type{Jump{O}}) where {O} = O
-StandardFunctionOperator(::Type{Average{O}}) where {O} = O
-StandardFunctionOperator(::Type{Left{O}}) where {O} = O
-StandardFunctionOperator(::Type{Right{O}}) where {O} = O
-StandardFunctionOperator(::Type{O}) where {O <: StandardFunctionOperator} = O
+ExtendableFEMBase.StandardFunctionOperator(::Type{Jump{O}}) where {O} = O
+ExtendableFEMBase.StandardFunctionOperator(::Type{Average{O}}) where {O} = O
+ExtendableFEMBase.StandardFunctionOperator(::Type{Left{O}}) where {O} = O
+ExtendableFEMBase.StandardFunctionOperator(::Type{Right{O}}) where {O} = O
+ExtendableFEMBase.StandardFunctionOperator(::Type{O}) where {O <: StandardFunctionOperator} = O
 coeffs(::Type{<:Jump}) = [1, -1]
 coeffs(::Type{<:Average}) = [0.5, 0.5]
 coeffs(::Type{<:Left}) = [1, 0]
@@ -78,7 +78,7 @@ struct FEEvaluatorDisc{T, TvG, TiG, FEType, FEBType, O <: DiscontinuousFunctionO
     cvals::Array{T, 3}
 end
 
-function FEEvaluator(
+function ExtendableFEMBase.FEEvaluator(
         FE::FESpace{TvG, TiG, FEType, FEAPT},
         operator::Type{<:DiscontinuousFunctionOperator},
         qrule::QuadratureRule{TvR, EG},
