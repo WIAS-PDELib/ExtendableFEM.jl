@@ -50,6 +50,8 @@ function FixDofs(u; dofs = [], vals = zeros(Float64, length(dofs)), kwargs...)
     return FixDofs{typeof(u), typeof(dofs), typeof(vals)}(u, dofs, 0, vals, nothing, parameters)
 end
 
+_myset(a, b) = b
+
 function apply_penalties!(A, b, sol, O::FixDofs{UT}, SC::SolverConfiguration; assemble_matrix = true, assemble_rhs = true, kwargs...) where {UT}
     if UT <: Integer
         ind = O.u
@@ -64,7 +66,7 @@ function apply_penalties!(A, b, sol, O::FixDofs{UT}, SC::SolverConfiguration; as
         AE = A.entries
         for j in 1:length(dofs)
             dof = dofs[j] + offset
-            AE[dof, dof] = penalty
+            rawupdateindex!(AE, _myset, penalty, dof, dof, 1)
         end
     end
     if assemble_rhs
