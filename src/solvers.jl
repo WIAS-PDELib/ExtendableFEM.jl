@@ -191,7 +191,7 @@ function CommonSolve.solve(PD::ProblemDescription, FES::Union{<:FESpace, Vector{
 
                 ## penalize fixed dofs
                 time_assembly += @elapsed for op in PD.operators
-                    allocs_assembly += @allocated apply_penalties!(A, b, sol, op, SC; kwargs...)
+                    allocs_assembly += @allocated apply_penalties!(A, b, sol, op, SC; assemble_matrix = !SC.parameters[:initialized] || !SC.parameters[:constant_matrix], assemble_rhs = !SC.parameters[:initialized] || !SC.parameters[:constant_rhs], kwargs...)
                 end
                 flush!(A.entries)
                 # end

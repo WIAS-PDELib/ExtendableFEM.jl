@@ -19,7 +19,7 @@ function plot!(p::GridVisualizer, ops, sol; kwargs...)
 Plots the operator evaluations ops of blocks in sol into the GridVisualizer.
 
 """
-function plot!(p::GridVisualizer, ops, sol; rasterpoints = 10, keep = [], ncols = size(p.subplots, 2), do_abs = true, do_vector_plots = true, title_add = "", kwargs...)
+function plot!(p::GridVisualizer, ops, sol; rasterpoints = 10, linewidth = 1, keep = [], ncols = size(p.subplots, 2), do_abs = true, do_vector_plots = true, title_add = "", kwargs...)
     col, row, id = 0, 1, 0
     for op in ops
         col += 1
@@ -35,9 +35,9 @@ function plot!(p::GridVisualizer, ops, sol; rasterpoints = 10, keep = [], ncols 
             end
         end
         if op[2] == "grid"
-            gridplot!(p[row, col], sol[op[1]].FES.xgrid; kwargs...)
+            gridplot!(p[row, col], sol[op[1]].FES.xgrid; linewidth = linewidth, kwargs...)
         elseif op[2] == "dofgrid"
-            gridplot!(p[row, col], sol[op[1]].FES.dofgrid; kwargs...)
+            gridplot!(p[row, col], sol[op[1]].FES.dofgrid; linewidth = linewidth, kwargs...)
         else
             ncomponents = get_ncomponents(sol[op[1]])
             edim = size(sol[op[1]].FES.xgrid[Coordinates], 1)
@@ -96,7 +96,7 @@ function plot(ops, sol; add = 0, Plotter = nothing, ncols = min(2, length(ops) +
     if height == 0
         height = width / ncols * nrows
     end
-    p = GridVisualizer(; Plotter = Plotter, layout = (nrows, ncols), clear = true, resolution = (width, height))
+    p = GridVisualizer(; Plotter = Plotter, layout = (nrows, ncols), clear = true, size = (width, height))
     return plot!(p, ops, sol; do_abs = do_abs, kwargs...)
 end
 
