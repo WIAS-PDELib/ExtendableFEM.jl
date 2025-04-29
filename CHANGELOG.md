@@ -1,5 +1,10 @@
 # CHANGES
 
+## v1.1.1 April 29, 2025
+
+### Fixed
+  - FixDofs operator does not crash when system matrix is of type GenericMTExtendableSparseMatrixCSC
+  
 ## v1.1.0 April 17, 2025
 
 ### Changed

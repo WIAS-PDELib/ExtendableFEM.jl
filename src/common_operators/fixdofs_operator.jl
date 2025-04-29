@@ -64,7 +64,7 @@ function apply_penalties!(A, b, sol, O::FixDofs{UT}, SC::SolverConfiguration; as
         AE = A.entries
         for j in 1:length(dofs)
             dof = dofs[j] + offset
-            AE[dof, dof] = penalty
+            rawupdateindex!(AE, (a, b) -> b, penalty, dof, dof, 1)
         end
     end
     if assemble_rhs
