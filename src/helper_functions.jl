@@ -347,6 +347,10 @@ function _get_periodic_coupling_matrix(
                 fe_vector.entries[local_dof] = 1.0
 
                 # interpolate on the opposite boundary using x_trafo = give_opposite
+                if !haskey(search_areas, face_numbers_of_bfaces[i_boundary_face])
+                    throw("face $(face_numbers_of_bfaces[i_boundary_face]) is not on source boundary. Are the from/to regions and the give_opposite function correct?")
+                end
+
                 interpolate!(
                     fe_vector_target[1],
                     ON_FACES, eval_point,

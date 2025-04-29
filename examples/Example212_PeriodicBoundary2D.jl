@@ -153,7 +153,7 @@ function main(;
             return nothing
         end
 
-        coupling_matrix = get_periodic_coupling_matrix(FES, xgrid, reg_left, reg_right, give_opposite!)
+        coupling_matrix = get_periodic_coupling_matrix(FES, reg_left, reg_right, give_opposite!)
         display(coupling_matrix)
         assign_operator!(PD, CombineDofs(u, u, coupling_matrix; kwargs...))
     end
