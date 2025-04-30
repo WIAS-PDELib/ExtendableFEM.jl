@@ -127,8 +127,8 @@ end
 
 generateplots = ExtendableFEM.default_generateplots(Example252_NSEPlanarLatticeFlow, "example252.png") #hide
 function runtests() #hide
-    L2errorU, plt = main(; nrefs = 3) #hide
-    @test L2errorU ≈ 0.11892169556349004 #hide
+    L2errorU, plt = main(; nrefs = 4) #hide
+    @test L2errorU ≈ 0.010616923333947861 #hide
     return nothing #hide
 end #hide
 end # module
