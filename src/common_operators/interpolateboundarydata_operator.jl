@@ -188,7 +188,7 @@ apply_penalties!(A, b, sol, O::InterpolateBoundaryData{UT}, SC::SolverConfigurat
 modifies the linear system A|b such that the boundary dofs are penalized and attain the
 correct values from the last assemble! call of O. Also applies the correct values to sol.
 """
-function apply_penalties!(A, b, sol, O::InterpolateBoundaryData{UT}, SC::SolverConfiguration; kwargs...) where {UT}
+function apply_penalties!(A, b, sol, O::InterpolateBoundaryData{UT}, SC::SolverConfiguration; assemble_matrix = true, assemble_rhs = true, assemble_sol = true, kwargs...) where {UT}
     time = @elapsed begin
         if UT <: Integer
             ind = O.u
@@ -201,16 +201,22 @@ function apply_penalties!(A, b, sol, O::InterpolateBoundaryData{UT}, SC::SolverC
         bddata = O.bddata
         bdofs = O.bdofs
         penalty = O.parameters[:penalty]
-        AE = A.entries
-        BE = b.entries
-        for dof in bdofs
-            AE[dof, dof] = penalty
+        if assemble_matrix
+            AE = A.entries
+            for dof in bdofs
+                AE[dof, dof] = penalty
+            end
+            flush!(AE)
         end
-        flush!(AE)
-        for dof in bdofs
-            BE[dof] = penalty * bddata.entries[dof - offset]
+        if assemble_rhs
+            BE = b.entries
+            for dof in bdofs
+                BE[dof] = penalty * bddata.entries[dof - offset]
+            end
         end
-        apply!(sol[ind_sol], O; offset = offset)
+        if assemble_sol
+            apply!(sol[ind_sol], O; offset = offset)
+        end
     end
     return if O.parameters[:verbosity] > 1
         @info "$(O.parameters[:name]) : applying penalties took $time s"
