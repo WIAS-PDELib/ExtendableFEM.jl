@@ -85,11 +85,11 @@ function build_assembler!(CD::CombineDofs{UT, CT}, FE::Array{<:FEVectorBlock, 1}
             @info ".... coupling $(length(coupling_matrix.nzval)) dofs"
         end
         function assemble!(A::AbstractSparseArray{T}, b::AbstractVector{T}, assemble_matrix::Bool, assemble_rhs::Bool, kwargs...) where {T}
+
+            # transpose the matrix once for efficient row access
+            transposed_coupling_matrix = sparse(transpose(coupling_matrix))
+
             if assemble_matrix
-
-                # transpose the matrix once for efficient row access
-                transposed_coupling_matrix = sparse(transpose(coupling_matrix))
-
                 # go through each coupled dof and update the FE adjacency info
                 # from the constrained dofs here
 
