@@ -301,12 +301,17 @@ function _get_periodic_coupling_matrix(
     eval_point, set_start = interpolate_on_boundaryfaces(fe_vector, xgrid, give_opposite!)
 
     # precompute approximate search region for each boundary face in b_from
-    search_areas = Dict{TiG, Vector{TiG}}()
+    searchareas = ExtendableGrids.VariableTargetAdjacency(TiG)
     coords = xgrid[Coordinates]
     facenodes = xgrid[FaceNodes]
     box_from = zeros(TvG, 2)
+    faces_to = zeros(Int, 1)
+    coords_from = coords[:, facenodes[:, 1]]
+    nfaces_to = 0
     for face_from in faces_in_b_from
-        coords_from = coords[:, facenodes[:, face_from]]
+        @views coords_from .= coords[:, facenodes[:, face_from]]
+        fill!(faces_to, 0)
+        nfaces_to = 0
 
         # transfer the coords_from to the other side
         transfer_face!(coords_from)
@@ -319,12 +324,20 @@ function _get_periodic_coupling_matrix(
             @views box_to = extrema(coords_to, dims = (2))[:]
 
             if do_boxes_overlap(box_from, box_to)
-                if !haskey(search_areas, face_from)
-                    search_areas[face_from] = []
+                #if !haskey(search_areas, face_from)
+                #    search_areas[face_from] = []
+                #end
+                nfaces_to += 1
+                if length(faces_to) < nfaces_to
+                    push!(faces_to, face_to)
+                else
+                    faces_to[nfaces_to] = face_to
                 end
-                push!(search_areas[face_from], face_to)
+                #push!(search_areas[face_from], face_to)
             end
         end
+
+        append!(searchareas, view(faces_to, 1:nfaces_to))
     end
 
     # loop over boundary face indices: we need this index for dofs_on_boundary
@@ -347,14 +360,16 @@ function _get_periodic_coupling_matrix(
                 fe_vector.entries[local_dof] = 1.0
 
                 # interpolate on the opposite boundary using x_trafo = give_opposite
-                if !haskey(search_areas, face_numbers_of_bfaces[i_boundary_face])
+
+                j = findfirst(==(face_numbers_of_bfaces[i_boundary_face]), faces_in_b_from)
+                if j <= 0
                     throw("face $(face_numbers_of_bfaces[i_boundary_face]) is not on source boundary. Are the from/to regions and the give_opposite function correct?")
                 end
 
                 interpolate!(
                     fe_vector_target[1],
                     ON_FACES, eval_point,
-                    items = search_areas[face_numbers_of_bfaces[i_boundary_face]],
+                    items = view(searchareas, :, j)
                 )
 
                 # deactivate entry
