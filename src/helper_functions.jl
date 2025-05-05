@@ -304,12 +304,18 @@ function _get_periodic_coupling_matrix(
     searchareas = ExtendableGrids.VariableTargetAdjacency(TiG)
     coords = xgrid[Coordinates]
     facenodes = xgrid[FaceNodes]
-    box_from = zeros(TvG, 2)
     faces_to = zeros(Int, 1)
     coords_from = coords[:, facenodes[:, 1]]
+    coords_to = coords[:, facenodes[:, 1]]
+    nodes_per_faces = size(coords_from, 2)
+    dim = size(coords_from, 1)
+    box_from = [Float64[0, 0], Float64[0, 0], Float64[0, 0]]
+    box_to = [Float64[0, 0], Float64[0, 0], Float64[0, 0]]
     nfaces_to = 0
-    for face_from in faces_in_b_from
-        @views coords_from .= coords[:, facenodes[:, face_from]]
+    @time for face_from in faces_in_b_from
+        for j in 1:nodes_per_faces, k in 1:dim
+            coords_from[k, j] = coords[k, facenodes[j, face_from]]
+        end
         fill!(faces_to, 0)
         nfaces_to = 0
 
@@ -317,11 +323,19 @@ function _get_periodic_coupling_matrix(
         transfer_face!(coords_from)
 
         # get the extrama in each component ( = bounding box of the face)
-        @views box_from = extrema(coords_from, dims = (2))[:]
+        for k in 1:dim
+            box_from[k][1] = minimum(view(coords_from, k, :))
+            box_from[k][2] = maximum(view(coords_from, k, :))
+        end
 
         for face_to in faces_in_b_to
-            @views coords_to = coords[:, facenodes[:, face_to]]
-            @views box_to = extrema(coords_to, dims = (2))[:]
+            for j in 1:nodes_per_faces, k in 1:dim
+                coords_to[k, j] = coords[k, facenodes[j, face_to]]
+            end
+            for k in 1:dim
+                box_to[k][1] = minimum(view(coords_to, k, :))
+                box_to[k][2] = maximum(view(coords_to, k, :))
+            end
 
             if do_boxes_overlap(box_from, box_to)
                 #if !haskey(search_areas, face_from)
