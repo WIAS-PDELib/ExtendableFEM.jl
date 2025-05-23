@@ -174,7 +174,7 @@ function apply_penalties!(A, b, sol, O::HomogeneousData{UT}, SC::SolverConfigura
             penalty = O.parameters[:penalty]
             AE = A.entries
             for dof in bdofs
-                AE[dof, dof] = penalty
+                rawupdateindex!(AE, (a, b) -> b, penalty, dof, dof, 1)
             end
             flush!(AE)
         end
