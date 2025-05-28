@@ -72,6 +72,7 @@ using SparseDiffTools: SparseDiffTools, ForwardColorJacCache,
     forwarddiff_color_jacobian!, matrix_colors
 using Symbolics: Symbolics
 using SciMLBase: SciMLBase
+using TimerOutputs: TimerOutput, print_timer, @timeit
 using UnicodePlots: UnicodePlots
 
 

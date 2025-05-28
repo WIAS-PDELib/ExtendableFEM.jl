@@ -1,13 +1,8 @@
-default_statistics() = Dict{Symbol, Vector{Real}}(
-    :assembly_times => [],
-    :solver_times => [],
-    :assembly_allocations => [],
-    :solver_allocations => [],
-    :linear_residuals => [],
-    :nonlinear_residuals => [],
-    :matrix_nnz => [],
-    :total_times => [],
-    :total_allocations => [],
+default_statistics(Tv = Float64, Ti = Int64) = Dict{Symbol, Any}(
+    :timeroutput => TimerOutput(),
+    :linear_residuals => Tv[],
+    :nonlinear_residuals => Tv[],
+    :matrix_nnz => Ti[],
 )
 
 mutable struct SolverConfiguration{AT <: AbstractMatrix, bT, xT}
@@ -19,7 +14,7 @@ mutable struct SolverConfiguration{AT <: AbstractMatrix, bT, xT}
     res::xT
     freedofs::Vector{Int} ## stores indices of free dofs
     LP::LinearProblem
-    statistics::Dict{Symbol, Vector{Real}}
+    statistics::Dict{Symbol, Any}
     linsolver::Any
     unknown_ids_in_sol::Array{Int, 1}
     unknowns::Array{Unknown, 1}
@@ -65,6 +60,7 @@ default_solver_kwargs() = Dict{Symbol, Tuple{Any, String}}(
     :constant_rhs => (false, "right-hand side is constant (skips reassembly)"),
     :method_linear => (UMFPACKFactorization(), "any solver or custom LinearSolveFunction compatible with LinearSolve.jl (default = UMFPACKFactorization())"),
     :precon_linear => (nothing, "function that computes preconditioner for method_linear in case an iterative solver is chosen"),
+    :timeroutputs => (true, "show detailed timeroutputs"),
     :initialized => (false, "linear system in solver configuration is already assembled (turns true after first solve)"),
     :plot => (false, "plot all solved unknowns with a (very rough but fast) unicode plot"),
 )
@@ -170,5 +166,5 @@ function SolverConfiguration(Problem::ProblemDescription, unknowns::Array{Unknow
     else
         LP = LinearProblem(A.entries.cscmatrix, b.entries)
     end
-    return SolverConfiguration{typeof(A), typeof(b), typeof(x)}(Problem, A, b, x, x_temp, res, freedofs, LP, default_statistics(), nothing, unknown_ids_in_sol, unknowns, copy(unknowns), offsets, parameters)
+    return SolverConfiguration{typeof(A), typeof(b), typeof(x)}(Problem, A, b, x, x_temp, res, freedofs, LP, default_statistics(TvM, TiM), nothing, unknown_ids_in_sol, unknowns, copy(unknowns), offsets, parameters)
 end
