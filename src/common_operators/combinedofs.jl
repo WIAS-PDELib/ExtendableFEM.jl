@@ -13,6 +13,7 @@ mutable struct CombineDofs{UT, CT} <: AbstractOperator
 end
 
 default_combop_kwargs() = Dict{Symbol, Tuple{Any, String}}(
+    :name => ("CombineDofs", "name for operator used in printouts"),
     :penalty => (1.0e30, "penalty for fixed degrees of freedom"),
     :verbosity => (0, "verbosity level"),
 )
