@@ -301,30 +301,53 @@ function _get_periodic_coupling_matrix(
     eval_point, set_start = interpolate_on_boundaryfaces(fe_vector, xgrid, give_opposite!)
 
     # precompute approximate search region for each boundary face in b_from
-    search_areas = Dict{TiG, Vector{TiG}}()
+    searchareas = ExtendableGrids.VariableTargetAdjacency(TiG)
     coords = xgrid[Coordinates]
     facenodes = xgrid[FaceNodes]
-    box_from = zeros(TvG, 2)
+    faces_to = zeros(Int, 1)
+    coords_from = coords[:, facenodes[:, 1]]
+    coords_to = coords[:, facenodes[:, 1]]
+    nodes_per_faces = size(coords_from, 2)
+    dim = size(coords_from, 1)
+    box_from = [Float64[0, 0], Float64[0, 0], Float64[0, 0]]
+    box_to = [Float64[0, 0], Float64[0, 0], Float64[0, 0]]
+    nfaces_to = 0
     for face_from in faces_in_b_from
-        coords_from = coords[:, facenodes[:, face_from]]
+        for j in 1:nodes_per_faces, k in 1:dim
+            coords_from[k, j] = coords[k, facenodes[j, face_from]]
+        end
+        fill!(faces_to, 0)
+        nfaces_to = 0
 
         # transfer the coords_from to the other side
         transfer_face!(coords_from)
 
         # get the extrama in each component ( = bounding box of the face)
-        @views box_from = extrema(coords_from, dims = (2))[:]
+        for k in 1:dim
+            box_from[k][1] = minimum(view(coords_from, k, :))
+            box_from[k][2] = maximum(view(coords_from, k, :))
+        end
 
         for face_to in faces_in_b_to
-            @views coords_to = coords[:, facenodes[:, face_to]]
-            @views box_to = extrema(coords_to, dims = (2))[:]
+            for j in 1:nodes_per_faces, k in 1:dim
+                coords_to[k, j] = coords[k, facenodes[j, face_to]]
+            end
+            for k in 1:dim
+                box_to[k][1] = minimum(view(coords_to, k, :))
+                box_to[k][2] = maximum(view(coords_to, k, :))
+            end
 
             if do_boxes_overlap(box_from, box_to)
-                if !haskey(search_areas, face_from)
-                    search_areas[face_from] = []
+                nfaces_to += 1
+                if length(faces_to) < nfaces_to
+                    push!(faces_to, face_to)
+                else
+                    faces_to[nfaces_to] = face_to
                 end
-                push!(search_areas[face_from], face_to)
             end
         end
+
+        append!(searchareas, view(faces_to, 1:nfaces_to))
     end
 
     # loop over boundary face indices: we need this index for dofs_on_boundary
@@ -347,14 +370,16 @@ function _get_periodic_coupling_matrix(
                 fe_vector.entries[local_dof] = 1.0
 
                 # interpolate on the opposite boundary using x_trafo = give_opposite
-                if !haskey(search_areas, face_numbers_of_bfaces[i_boundary_face])
+
+                j = findfirst(==(face_numbers_of_bfaces[i_boundary_face]), faces_in_b_from)
+                if j <= 0
                     throw("face $(face_numbers_of_bfaces[i_boundary_face]) is not on source boundary. Are the from/to regions and the give_opposite function correct?")
                 end
 
                 interpolate!(
                     fe_vector_target[1],
                     ON_FACES, eval_point,
-                    items = search_areas[face_numbers_of_bfaces[i_boundary_face]],
+                    items = view(searchareas, :, j)
                 )
 
                 # deactivate entry
