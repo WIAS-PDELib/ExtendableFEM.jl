@@ -1,10 +1,5 @@
 # CHANGES
 
-## v1.1.2 May 23, 2025
-
-### Fixed
-  - HomogeneousData and InterpolateBoundaryData operators do not crash when system matrix is of type GenericMTExtendableSparseMatrixCSC
-  
 ## v1.1.1 April 29, 2025
 
 ### Fixed
