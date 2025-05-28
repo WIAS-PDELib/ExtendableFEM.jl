@@ -312,7 +312,7 @@ function _get_periodic_coupling_matrix(
     box_from = [Float64[0, 0], Float64[0, 0], Float64[0, 0]]
     box_to = [Float64[0, 0], Float64[0, 0], Float64[0, 0]]
     nfaces_to = 0
-    @time for face_from in faces_in_b_from
+    for face_from in faces_in_b_from
         for j in 1:nodes_per_faces, k in 1:dim
             coords_from[k, j] = coords[k, facenodes[j, face_from]]
         end
@@ -338,16 +338,12 @@ function _get_periodic_coupling_matrix(
             end
 
             if do_boxes_overlap(box_from, box_to)
-                #if !haskey(search_areas, face_from)
-                #    search_areas[face_from] = []
-                #end
                 nfaces_to += 1
                 if length(faces_to) < nfaces_to
                     push!(faces_to, face_to)
                 else
                     faces_to[nfaces_to] = face_to
                 end
-                #push!(search_areas[face_from], face_to)
             end
         end
 
