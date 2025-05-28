@@ -204,7 +204,7 @@ function apply_penalties!(A, b, sol, O::InterpolateBoundaryData{UT}, SC::SolverC
         if assemble_matrix
             AE = A.entries
             for dof in bdofs
-                AE[dof, dof] = penalty
+                rawupdateindex!(AE, (a, b) -> b, penalty, dof, dof, 1)
             end
             flush!(AE)
         end
