@@ -146,6 +146,7 @@ export tensor_view
 include("solver_config.jl")
 export SolverConfiguration
 export residual
+export timeroutputs
 
 include("solvers.jl")
 export solve

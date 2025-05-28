@@ -1,5 +1,5 @@
 default_statistics(Tv = Float64, Ti = Int64) = Dict{Symbol, Any}(
-    :timeroutput => TimerOutput(),
+    :timeroutputs => TimerOutput(),
     :linear_residuals => Tv[],
     :nonlinear_residuals => Tv[],
     :matrix_nnz => Ti[],
@@ -25,13 +25,50 @@ end
 
 """
 ````
+residuals(S::SolverConfiguration)
+````
+
+returns the vector with the residuals of all iterations
+"""
+residuals(S::SolverConfiguration) = S.statistics[:nonlinear_residuals]
+
+"""
+````
 residual(S::SolverConfiguration)
 ````
 
 returns the residual of the last solve
-
 """
 residual(S::SolverConfiguration) = S.statistics[:nonlinear_residuals][end]
+
+
+"""
+````
+timeroutputs(S::SolverConfiguration)
+````
+
+returns TimerOutputs object that contains detailed information on solving and assembly times
+"""
+timeroutputs(S::SolverConfiguration) = S.statistics[:timeroutputs]
+
+
+"""
+````
+lastmatrix(S::SolverConfiguration)
+````
+
+returns the currently stored system matrix
+"""
+lastmatrix(S::SolverConfiguration) = S.A
+
+"""
+````
+lastrhs(S::SolverConfiguration)
+````
+
+returns the currently stored right-hand side
+"""
+lastrhs(S::SolverConfiguration) = S.b
 
 
 #
@@ -60,7 +97,7 @@ default_solver_kwargs() = Dict{Symbol, Tuple{Any, String}}(
     :constant_rhs => (false, "right-hand side is constant (skips reassembly)"),
     :method_linear => (UMFPACKFactorization(), "any solver or custom LinearSolveFunction compatible with LinearSolve.jl (default = UMFPACKFactorization())"),
     :precon_linear => (nothing, "function that computes preconditioner for method_linear in case an iterative solver is chosen"),
-    :timeroutputs => (true, "show detailed timeroutputs"),
+    :timeroutputs => (:full, "configures show of timeroutputs (choose between :hide, :full, :compact)"),
     :initialized => (false, "linear system in solver configuration is already assembled (turns true after first solve)"),
     :plot => (false, "plot all solved unknowns with a (very rough but fast) unicode plot"),
 )
@@ -79,8 +116,8 @@ end
 
 """
 ````
-function iterate_until_stationarity(
-	SolverConfiguration(Problem::ProblemDescription
+function SolverConfiguration(
+    Problem::ProblemDescription
 	[FES::Union{<:FESpace, Vector{<:FESpace}}];
 	init = nothing,
 	unknowns = Problem.unknowns,
