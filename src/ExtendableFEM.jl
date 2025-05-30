@@ -74,7 +74,7 @@ using Symbolics: Symbolics
 using SciMLBase: SciMLBase
 using TimerOutputs: TimerOutput, print_timer, @timeit
 using UnicodePlots: UnicodePlots
-
+using TimerOutputs
 
 ## reexport stuff from ExtendableFEMBase and ExtendableGrids
 export FESpace, FEMatrix, FEVector
