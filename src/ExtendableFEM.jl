@@ -73,7 +73,7 @@ using SparseDiffTools: SparseDiffTools, ForwardColorJacCache,
 using Symbolics: Symbolics
 using SciMLBase: SciMLBase
 using UnicodePlots: UnicodePlots
-
+using TimerOutputs
 
 ## reexport stuff from ExtendableFEMBase and ExtendableGrids
 export FESpace, FEMatrix, FEVector
