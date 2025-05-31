@@ -1,5 +1,14 @@
 # CHANGES
 
+
+## v1.2.0 May 28, 2025
+
+### Changed
+  - TimerOutputs for measuring/storing/showing runtime and allocations in solve, now also for separate operators
+  
+### Fixed
+  - HomogeneousData/InterpolateBoundaryData operator fix when system matrix is of type GenericMTExtendableSparseMatrixCSC
+  
 ## v1.1.1 April 29, 2025
 
 ### Fixed

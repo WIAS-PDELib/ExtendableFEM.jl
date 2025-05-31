@@ -72,6 +72,7 @@ using SparseDiffTools: SparseDiffTools, ForwardColorJacCache,
     forwarddiff_color_jacobian!, matrix_colors
 using Symbolics: Symbolics
 using SciMLBase: SciMLBase
+using TimerOutputs: TimerOutput, print_timer, @timeit
 using UnicodePlots: UnicodePlots
 
 
@@ -145,6 +146,7 @@ export tensor_view
 include("solver_config.jl")
 export SolverConfiguration
 export residual
+export timeroutputs
 
 include("solvers.jl")
 export solve

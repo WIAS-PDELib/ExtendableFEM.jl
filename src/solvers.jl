@@ -70,17 +70,17 @@ function CommonSolve.solve(PD::ProblemDescription, FES::Union{<:FESpace, Vector{
         if SC.parameters[:verbosity] > 0
             @info ".... reusing given solver configuration\n"
         end
-        time = 0
-        allocs = 0
     else
-        time = @elapsed begin
-            allocs = @allocated begin
-                SC = SolverConfiguration(PD, unknowns, FES; kwargs...)
-                if SC.parameters[:verbosity] > 0
-                    @info ".... init solver configuration\n"
-                end
-            end
+        SC = SolverConfiguration(PD, unknowns, FES; kwargs...)
+        if SC.parameters[:verbosity] > 0
+            @info ".... init solver configuration\n"
         end
+    end
+
+    ## load TimerOutputs
+    timer = timeroutputs(SC)
+    if timer == Any[]
+        timer = TimerOutput()
     end
 
     A = SC.A
@@ -102,7 +102,6 @@ function CommonSolve.solve(PD::ProblemDescription, FES::Union{<:FESpace, Vector{
     is_linear = SC.parameters[:is_linear]
     damping = SC.parameters[:damping]
     freedofs = SC.freedofs
-
 
     if SC.parameters[:verbosity] > -1
         if length(freedofs) > 0
@@ -133,7 +132,7 @@ function CommonSolve.solve(PD::ProblemDescription, FES::Union{<:FESpace, Vector{
             end
         end
     end
-    if SC.parameters[:verbosity] > -1
+    if SC.parameters[:verbosity] > 0
         @info " nonlinear = $(nonlinear ? "true" : "false")\n"
     end
     if is_linear == "auto"
@@ -146,30 +145,20 @@ function CommonSolve.solve(PD::ProblemDescription, FES::Union{<:FESpace, Vector{
         maxits = 0
     end
 
-    alloc_factor = 1024^2
-
     if SC.parameters[:verbosity] > -1
-        @printf " #IT\t------- RESIDUALS -------\t---- DURATION (s) ----\t\t---- ALLOCATIONS (MiB) ----\n"
-        @printf "   \tNONLINEAR\tLINEAR\t\tASSEMB\tSOLVE\tTOTAL\t\tASSEMB\tSOLVE\tTOTAL\n"
-        @printf " INI\t\t\t\t\t\t\t%.2f\t\t\t\t%.2f\n" time allocs / alloc_factor
+        @printf " #IT\t------- RESIDUALS -------\n"
+        @printf "   \tNONLINEAR\tLINEAR\n"
     end
-    time_final = time
-    allocs_final = allocs
     nlres = 1.1e30
     linres = 1.1e30
     linsolve = SC.linsolver
     reduced = false
 
     for j in 1:(maxits + 1)
-        allocs_assembly = 0
-        time_assembly = 0
-        time_solve_init = 0
-        allocs_solve_init = 0
-        time_total = 0
         if is_linear && j == 2
             nlres = linres
         else
-            time_total += @elapsed begin
+            @timeit timer "assembly" begin
 
                 ## assemble operators
                 if !SC.parameters[:constant_rhs]
@@ -179,19 +168,19 @@ function CommonSolve.solve(PD::ProblemDescription, FES::Union{<:FESpace, Vector{
                     fill!(A.entries.cscmatrix.nzval, 0)
                 end
                 if SC.parameters[:initialized]
-                    time_assembly += @elapsed for op in PD.operators
-                        allocs_assembly += @allocated assemble!(A, b, sol, op, SC; time = SC.parameters[:time], assemble_matrix = !SC.parameters[:constant_matrix], assemble_rhs = !SC.parameters[:constant_rhs], kwargs...)
+                    for op in PD.operators
+                        @timeit timer "$(op.parameters[:name])" assemble!(A, b, sol, op, SC; time = SC.parameters[:time], assemble_matrix = !SC.parameters[:constant_matrix], assemble_rhs = !SC.parameters[:constant_rhs], kwargs...)
                     end
                 else
-                    time_assembly += @elapsed for op in PD.operators
-                        allocs_assembly += @allocated assemble!(A, b, sol, op, SC; time = SC.parameters[:time], kwargs...)
+                    for op in PD.operators
+                        @timeit timer "$(op.parameters[:name]) (first)" assemble!(A, b, sol, op, SC; time = SC.parameters[:time], kwargs...)
                     end
                 end
                 flush!(A.entries)
 
                 ## penalize fixed dofs
-                time_assembly += @elapsed for op in PD.operators
-                    allocs_assembly += @allocated apply_penalties!(A, b, sol, op, SC; assemble_matrix = !SC.parameters[:initialized] || !SC.parameters[:constant_matrix], assemble_rhs = !SC.parameters[:initialized] || !SC.parameters[:constant_rhs], kwargs...)
+                for op in PD.operators
+                    @timeit timer "$(op.parameters[:name]) (penalties)" apply_penalties!(A, b, sol, op, SC; assemble_matrix = !SC.parameters[:initialized] || !SC.parameters[:constant_matrix], assemble_rhs = !SC.parameters[:initialized] || !SC.parameters[:constant_rhs], kwargs...)
                 end
                 flush!(A.entries)
                 # end
@@ -222,48 +211,50 @@ function CommonSolve.solve(PD::ProblemDescription, FES::Union{<:FESpace, Vector{
                 #         residual = copy(b)
                 #     end
                 # end
+            end
 
-                ## show spy
-                if SC.parameters[:symmetrize]
-                    A.entries.cscmatrix = (A.entries.cscmatrix + A.entries.cscmatrix') / 2
-                elseif SC.parameters[:symmetrize_structure]
-                    symmetrize_structure!(A.entries)
-                end
-                if SC.parameters[:show_matrix]
-                    @show A
-                elseif SC.parameters[:spy]
-                    @info ".... spy plot of system matrix:\n$(A.entries.cscmatrix))"
-                end
-                if SC.parameters[:check_matrix]
-                    #λ, ϕ = Arpack.eigs(A.entries.cscmatrix; nev = 5, which = :SM, ritzvec = false)
-                    #@info ".... 5 :SM eigs = $(λ)"
-                    #λ, ϕ = Arpack.eigs(A.entries.cscmatrix; nev = 5, which = :LM, ritzvec = false)
-                    #@info ".... 5 :LM eigs = $(λ)"
-                    @info ".... ||A - A'|| = $(norm(A.entries.cscmatrix - A.entries.cscmatrix', Inf))"
-                    @info "....  isposdef  = $(isposdef(A.entries.cscmatrix))"
-                end
+            ## show spy
+            if SC.parameters[:symmetrize]
+                A.entries.cscmatrix = (A.entries.cscmatrix + A.entries.cscmatrix') / 2
+            elseif SC.parameters[:symmetrize_structure]
+                symmetrize_structure!(A.entries)
+            end
+            if SC.parameters[:show_matrix]
+                @show A
+            elseif SC.parameters[:spy]
+                @info ".... spy plot of system matrix:\n$(A.entries.cscmatrix))"
+            end
+            if SC.parameters[:check_matrix]
+                #λ, ϕ = Arpack.eigs(A.entries.cscmatrix; nev = 5, which = :SM, ritzvec = false)
+                #@info ".... 5 :SM eigs = $(λ)"
+                #λ, ϕ = Arpack.eigs(A.entries.cscmatrix; nev = 5, which = :LM, ritzvec = false)
+                #@info ".... 5 :LM eigs = $(λ)"
+                @info ".... ||A - A'|| = $(norm(A.entries.cscmatrix - A.entries.cscmatrix', Inf))"
+                @info "....  isposdef  = $(isposdef(A.entries.cscmatrix))"
+            end
 
-                ## init solver
+            ## init solver
+            @timeit timer "linear solver" begin
                 if linsolve === nothing
                     if SC.parameters[:verbosity] > 0
                         @info ".... initializing linear solver ($(method_linear))\n"
                     end
-                    time_solve_init += @elapsed begin
-                        allocs_solve_init += @allocated begin
-                            abstol = SC.parameters[:abstol]
-                            reltol = SC.parameters[:reltol]
-                            LP = reduced ? LP_reduced : SC.LP
-                            if precon_linear !== nothing
-                                linsolve = init(LP, method_linear; Pl = precon_linear(A.entries.cscmatrix), abstol = abstol, reltol = reltol)
-                            else
-                                linsolve = init(LP, method_linear; abstol = abstol, reltol = reltol)
-                            end
-                            SC.linsolver = linsolve
+                    @timeit timer "initialization" begin
+                        abstol = SC.parameters[:abstol]
+                        reltol = SC.parameters[:reltol]
+                        LP = reduced ? LP_reduced : SC.LP
+                        if precon_linear !== nothing
+                            linsolve = init(LP, method_linear; Pl = precon_linear(A.entries.cscmatrix), abstol = abstol, reltol = reltol)
+                        else
+                            linsolve = init(LP, method_linear; abstol = abstol, reltol = reltol)
                         end
+                        SC.linsolver = linsolve
                     end
                 end
+            end
 
-                ## compute nonlinear residual
+            ## compute nonlinear residual
+            @timeit timer "assembly" @timeit timer "residual vector" begin
                 fill!(residual.entries, 0)
                 for j in 1:length(b), k in 1:length(b)
                     addblock_matmul!(residual[j], A[j, k], sol[unknowns[k]])
@@ -288,11 +279,7 @@ function CommonSolve.solve(PD::ProblemDescription, FES::Union{<:FESpace, Vector{
                     @info "sub-residuals = $(norms(residual))"
                 end
             end
-            time_final += time_assembly + time_solve_init
-            allocs_final += allocs_assembly + allocs_solve_init
         end
-        push!(stats[:assembly_allocations], allocs_assembly)
-        push!(stats[:assembly_times], time_assembly)
         if !is_linear
             push!(stats[:nonlinear_residuals], nlres)
         end
@@ -300,33 +287,21 @@ function CommonSolve.solve(PD::ProblemDescription, FES::Union{<:FESpace, Vector{
             if SC.parameters[:verbosity] > -1
                 @printf " END\t"
                 @printf "%.3e\t" nlres
-                @printf "\t\t%.2f\t\t%.2f\t" time_assembly time_total
-                @printf "\t%.2f\t\t%.2f\n" allocs_assembly / alloc_factor allocs_assembly / alloc_factor
-                @printf "\tconverged"
-                @printf "\t\t\t\tSUM -->\t%.2f" time_final
-                @printf "\t\t\tSUM -->\t%.2f\n\n" allocs_final / alloc_factor
+                @printf "converged\n"
             end
             break
         elseif isnan(nlres)
             if SC.parameters[:verbosity] > -1
                 @printf " END\t"
                 @printf "%.3e\t" nlres
-                @printf "\t\t\t%.2f\t\t%.2f\t" time_assembly time_total
-                @printf "\t%.2f\t\t%.2f\n" allocs_assembly / alloc_factor allocs_assembly / alloc_factor
-                @printf "\tdid not converge"
-                @printf "\t\t\tSUM -->\t%.2f" time_final
-                @printf "\t\t\tSUM -->\t%.2f\n\n" allocs_final / alloc_factor
+                @printf "not converged\n"
             end
             break
         elseif (j == maxits + 1) && !(is_linear)
             if SC.parameters[:verbosity] > -1
                 @printf " END\t"
                 @printf "\t\t%.3e\t" linres
-                @printf "\t\t%.2f\t\t%.2f\t" time_assembly time_total
-                @printf "\t%.2f\t\t%.2f\n" allocs_assembly / alloc_factor allocs_assembly / alloc_factor
-                @printf "\tmaxiterations reached"
-                @printf "\t\t\tSUM -->\t%.2f" time_final
-                @printf "\t\t\tSUM -->\t%.2f\n\n" allocs_final / alloc_factor
+                @printf "maxiterations reached\n"
             end
             break
         else
@@ -344,30 +319,30 @@ function CommonSolve.solve(PD::ProblemDescription, FES::Union{<:FESpace, Vector{
             end
         end
 
-        time_solve = @elapsed begin
-            allocs_solve = @allocated begin
-                if !SC.parameters[:constant_matrix] || !SC.parameters[:initialized]
-                    if length(freedofs) > 0
-                        linsolve.A = A.entries.cscmatrix[freedofs, freedofs]
-                    else
-                        linsolve.A = A.entries.cscmatrix
-                    end
-                end
-
-                # we solve for A Δx = r
-                # and update x = sol - Δx
+        @timeit timer "linear solver" begin
+            if !SC.parameters[:constant_matrix] || !SC.parameters[:initialized]
                 if length(freedofs) > 0
-                    linsolve.b = residual.entries[freedofs]
+                    linsolve.A = A.entries.cscmatrix[freedofs, freedofs]
                 else
-                    linsolve.b = residual.entries
+                    linsolve.A = A.entries.cscmatrix
                 end
-                SC.parameters[:initialized] = true
+            end
 
-                ## solve
-                push!(stats[:matrix_nnz], nnz(linsolve.A))
-                Δx = LinearSolve.solve!(linsolve)
+            # we solve for A Δx = r
+            # and update x = sol - Δx
+            if length(freedofs) > 0
+                linsolve.b = residual.entries[freedofs]
+            else
+                linsolve.b = residual.entries
+            end
+            SC.parameters[:initialized] = true
 
-                # x = sol.entries - Δx.u for free dofs or partial solutions
+            ## solve
+            push!(stats[:matrix_nnz], nnz(linsolve.A))
+            @timeit timer "solve! call" Δx = LinearSolve.solve!(linsolve)
+
+            # x = sol.entries - Δx.u for free dofs or partial solutions
+            @timeit timer "update solution" begin
                 if length(freedofs) > 0
                     x = sol.entries[freedofs] - Δx.u
                 else
@@ -380,8 +355,10 @@ function CommonSolve.solve(PD::ProblemDescription, FES::Union{<:FESpace, Vector{
                         offset += ndofs_u
                     end
                 end
+            end
 
-                ## check linear residual with full matrix
+            ## check linear residual with full matrix
+            @timeit timer "linear residual computation" begin
                 if length(freedofs) > 0
                     soltemp.entries[freedofs] .= x
                     residual.entries .= A.entries.cscmatrix * soltemp.entries
@@ -396,13 +373,15 @@ function CommonSolve.solve(PD::ProblemDescription, FES::Union{<:FESpace, Vector{
                         end
                     end
                 end
-                linres = norm(residual.entries)
-                push!(stats[:linear_residuals], linres)
-                if is_linear
-                    push!(stats[:nonlinear_residuals], linres)
-                end
+            end
+            linres = norm(residual.entries)
+            push!(stats[:linear_residuals], linres)
+            if is_linear
+                push!(stats[:nonlinear_residuals], linres)
+            end
 
-                ## update solution (incl. damping etc.)
+            ## update solution (incl. damping etc.)
+            @timeit timer "update solution" begin
                 offset = 0
                 if length(freedofs) > 0
                     sol.entries[freedofs] .= x
@@ -419,23 +398,12 @@ function CommonSolve.solve(PD::ProblemDescription, FES::Union{<:FESpace, Vector{
                 end
             end
         end
-        time_total += time_solve
-        time_final += time_solve
-        allocs_final += allocs_solve
-        time_solve += time_solve_init
-        allocs_solve += allocs_solve_init
-        push!(stats[:solver_allocations], allocs_solve)
-        push!(stats[:solver_times], time_solve)
-        push!(stats[:total_times], time_total)
-        push!(stats[:total_allocations], (allocs_assembly + allocs_solve))
         if SC.parameters[:verbosity] > -1
-            @printf "%.3e\t" linres
-            @printf "%.2f\t%.2f\t%.2f\t" time_assembly time_solve time_total
-            @printf "\t%.2f\t%.2f\t%.2f\n" allocs_assembly / alloc_factor allocs_solve / alloc_factor (allocs_assembly + allocs_solve) / alloc_factor
             if is_linear
-                @printf "\tfinished"
-                @printf "\t\t\t\tSUM -->\t%.2f" time_final
-                @printf "\t\t\tSUM -->\t%.2f\n\n" allocs_final / alloc_factor
+                @printf "%.3e\t" linres
+                @printf "finished\n"
+            else
+                @printf "%.3e\n" linres
             end
         end
     end
@@ -444,6 +412,14 @@ function CommonSolve.solve(PD::ProblemDescription, FES::Union{<:FESpace, Vector{
         for u in unknowns
             println(stdout, unicode_scalarplot(sol[u]; title = u.name, kwargs...))
         end
+    end
+
+    # Print the timings in the default way
+    stats[:timeroutputs] = timer
+    if SC.parameters[:timeroutputs] in [:full, :compact]
+        # TimerOutputs.complement!(to)
+        @printf "\n"
+        print_timer(timer, compact = SC.parameters[:timeroutputs] == :compact, sortby = :firstexec)
     end
 
     if SC.parameters[:return_config]
