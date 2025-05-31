@@ -2,15 +2,18 @@
 ### COMBINE DOFS (e.g. for periodicity) ###
 ###########################################
 
-mutable struct CombineDofs{UT, CT} <: AbstractOperator
+mutable struct CombineDofs{UT, CT, AT} <: AbstractOperator
     uX::UT                  # component nr for dofsX
     uY::UT                  # component nr for dofsY
     coupling_info::CT
+    fixeddofs::AT
     FESX::Any
     FESY::Any
     assembler::Any
     parameters::Dict{Symbol, Any}
 end
+
+fixed_dofs(O::CombineDofs) = O.fixeddofs
 
 default_combop_kwargs() = Dict{Symbol, Tuple{Any, String}}(
     :name => ("CombineDofs", "name for operator used in printouts"),
@@ -61,7 +64,14 @@ $(_myprint(default_combop_kwargs()))
 function CombineDofs(uX, uY, coupling_matrix::AbstractMatrix; kwargs...)
     parameters = Dict{Symbol, Any}(k => v[1] for (k, v) in default_combop_kwargs())
     _update_params!(parameters, kwargs)
-    return CombineDofs(uX, uY, coupling_matrix, nothing, nothing, nothing, parameters)
+    fixeddofs = zeros(Int, 0)
+    for dof_i in 1:size(coupling_matrix, 2)
+        coupling_i = coupling_matrix[:, dof_i]
+        if nnz(coupling_i) > 0
+            push!(fixeddofs, dof_i)
+        end
+    end
+    return CombineDofs(uX, uY, coupling_matrix, fixeddofs, nothing, nothing, nothing, parameters)
 end
 
 function apply_penalties!(A, b, sol, CD::CombineDofs{UT, CT}, SC::SolverConfiguration; assemble_matrix = true, assemble_rhs = true, kwargs...) where {UT, CT}
@@ -80,6 +90,7 @@ function build_assembler!(CD::CombineDofs{UT, CT}, FE::Array{<:FEVectorBlock, 1}
     FESX, FESY = FE[1].FES, FE[2].FES
     if (CD.FESX != FESX) || (CD.FESY != FESY)
         coupling_matrix = CD.coupling_info
+        fixeddofs = CD.fixeddofs
         offsetX = FE[1].offset
         offsetY = FE[2].offset
         if CD.parameters[:verbosity] > 0
@@ -96,15 +107,10 @@ function build_assembler!(CD::CombineDofs{UT, CT}, FE::Array{<:FEVectorBlock, 1}
             if assemble_matrix
                 # go through each constrained dof and update the FE adjacency info
                 # of the coupled dofs
-                @timeit timerOutput "for loop 1" for dof_i in 1:size(coupling_matrix, 2)
+                @timeit timerOutput "for loop 1" for dof_i in fixeddofs
 
                     # this col-view is efficient
                     @timeit timerOutput "coupling_i view" coupling_i = @views coupling_matrix[:, dof_i]
-
-                    # do nothing if dof_k is not coupled to any constrained dof
-                    @timeit timerOutput "nnz == 0" if nnz(coupling_i) == 0
-                        continue
-                    end
 
                     # write the FE adjacency of the constrained dofs into this row
                     sourcerow = dof_i + offsetX
@@ -129,13 +135,9 @@ function build_assembler!(CD::CombineDofs{UT, CT}, FE::Array{<:FEVectorBlock, 1}
 
                 # replace the geometric coupling rows based
                 # on the original coupling matrix
-                @timeit timerOutput "for loop 2" for dof_i in 1:size(coupling_matrix, 2)
+                @timeit timerOutput "for loop 2" for dof_i in fixeddofs
 
                     coupling_i = coupling_matrix[:, dof_i]
-                    # do nothing if no coupling for dof_i
-                    if nnz(coupling_i) == 0
-                        continue
-                    end
 
                     # get the coupled dofs of dof_i and the corresponding weights
                     @timeit timerOutput "findnz"  coupled_dofs_i, weights_i = findnz(coupling_i)
@@ -156,13 +158,9 @@ function build_assembler!(CD::CombineDofs{UT, CT}, FE::Array{<:FEVectorBlock, 1}
 
             if assemble_rhs
 
-                for dof_i in 1:size(coupling_matrix, 2)
+                for dof_i in fixeddofs
                     # this col-view is efficient
                     coupling_i = @views coupling_matrix[:, dof_i]
-                    # do nothing if no coupling for dof_i
-                    if nnz(coupling_i) == 0
-                        continue
-                    end
 
                     # get the coupled dofs of dof_i and the corresponding weights
                     coupled_dofs, weights = findnz(coupling_i)
@@ -177,15 +175,8 @@ function build_assembler!(CD::CombineDofs{UT, CT}, FE::Array{<:FEVectorBlock, 1}
 
 
                 # now set the rows of the constrained dofs to zero to enforce the linear combination
-                for dof_i in 1:size(coupling_matrix, 2)
-                    coupling_i = coupling_matrix[:, dof_i]
-                    # do nothing if no coupling for dof_i
-                    if nnz(coupling_i) == 0
-                        continue
-                    end
-
+                for dof_i in fixeddofs
                     b[dof_i + offsetX] = 0.0
-
                 end
             end
 
