@@ -96,8 +96,9 @@ function main(;
         t = 0
         for it in 1:Int(floor(T / τ))
             t += τ
-            ExtendableFEM.solve(PD, FES, SC; time = t)
+            ExtendableFEM.solve(PD, FES, SC; time = t, verbosity = -1, timeroutputs = :hide)
         end
+        show(timeroutputs(SC))
     end
 
     ## plot final state
