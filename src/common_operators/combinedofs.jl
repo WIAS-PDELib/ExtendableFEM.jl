@@ -90,6 +90,8 @@ function build_assembler!(CD::CombineDofs{UT, CT}, FE::Array{<:FEVectorBlock, 1}
         function assemble!(A::AbstractSparseArray{T}, b::AbstractVector{T}, assemble_matrix::Bool, assemble_rhs::Bool, kwargs...) where {T}
 
             timerOutput = TimerOutput()
+            cscmat = A.cscmatrix
+            Avals = cscmat.nzval
 
             if assemble_matrix
                 # go through each constrained dof and update the FE adjacency info
@@ -112,11 +114,14 @@ function build_assembler!(CD::CombineDofs{UT, CT}, FE::Array{<:FEVectorBlock, 1}
 
                     # parse through sourcerow and add the contents to the coupled dofs
                     @timeit timerOutput  "A[sourcerow, col]"  for col in 1:size(A, 2)
-                        val = A[sourcerow, col]
-                        if abs(val) > 1.0e-15
-                            for (dof_k, weight_ik) in zip(coupled_dofs_i, weights_i)
-                                targetrow = dof_k + offsetX
-                                _addnz(A, targetrow, col, val, weight_ik)
+                        r = findindex(cscmat, sourcerow, col)
+                        if r > 0
+                            val = Avals[r]
+                            if abs(val) > 1.0e-15
+                                for (dof_k, weight_ik) in zip(coupled_dofs_i, weights_i)
+                                    targetrow = dof_k + offsetX
+                                    _addnz(A, targetrow, col, val, weight_ik)
+                                end
                             end
                         end
                     end

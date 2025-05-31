@@ -57,7 +57,7 @@ using ExtendableGrids: ExtendableGrids, AT_NODES, AbstractElementGeometry,
     unique, update_trafo!, xrefFACE2xrefCELL,
     xrefFACE2xrefOFACE
 using ExtendableSparse: ExtendableSparse, ExtendableSparseMatrix, flush!,
-    MTExtendableSparseMatrixCSC,
+    MTExtendableSparseMatrixCSC, findindex,
     rawupdateindex!
 using ForwardDiff: ForwardDiff
 using GridVisualize: GridVisualize, GridVisualizer, gridplot!, reveal, save,
