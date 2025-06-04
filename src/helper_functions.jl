@@ -396,7 +396,7 @@ function _get_periodic_coupling_matrix(
                 # set entries
                 for (i, target_entry) in enumerate(fe_vector_target.entries)
                     if abs(target_entry) > sparsity_tol
-                        result[i, local_dof] = target_entry
+                        result[local_dof, i] = target_entry
                     end
                 end
             end
@@ -410,7 +410,7 @@ function _get_periodic_coupling_matrix(
         @warn "no coupling found. Are the grid boundary regions and the give_opposite! method correct?"
     end
 
-    return sparse(result)
+    return sp_result
 end
 
 """
@@ -440,10 +440,8 @@ Example: If b_from is at x[1] = 0 and the opposite boundary is at y[1] = 1, then
 The return value is a (𝑛 × 𝑛) sparse matrix 𝐴 (𝑛 is the total number of dofs) containing the periodic coupling information.
 The relation ship between the degrees of freedome is  dofᵢ = ∑ⱼ Aⱼᵢ ⋅ dofⱼ.
 It is guaranteed that
-    i)  Aⱼᵢ=0 if dofᵢ is 𝑛𝑜𝑡 on the boundary b_from.
-    ii) Aⱼᵢ=0 if the opposite of dofᵢ is not in the same grid cell as dofⱼ.
-Note that A is transposed for efficient col-wise storage.
-
+    i)  Aᵢⱼ=0 if dofᵢ is 𝑛𝑜𝑡 on the boundary b_from.
+    ii) Aᵢⱼ=0 if the opposite of dofᵢ is not in the same grid cell as dofⱼ.
 """
 function get_periodic_coupling_matrix(
         FES,

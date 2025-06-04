@@ -57,7 +57,7 @@ using ExtendableGrids: ExtendableGrids, AT_NODES, AbstractElementGeometry,
     unique, update_trafo!, xrefFACE2xrefCELL,
     xrefFACE2xrefOFACE
 using ExtendableSparse: ExtendableSparse, ExtendableSparseMatrix, flush!,
-    MTExtendableSparseMatrixCSC,
+    MTExtendableSparseMatrixCSC, findindex,
     rawupdateindex!
 using ForwardDiff: ForwardDiff
 using GridVisualize: GridVisualize, GridVisualizer, gridplot!, reveal, save,
@@ -74,7 +74,6 @@ using Symbolics: Symbolics
 using SciMLBase: SciMLBase
 using TimerOutputs: TimerOutput, print_timer, @timeit
 using UnicodePlots: UnicodePlots
-
 
 ## reexport stuff from ExtendableFEMBase and ExtendableGrids
 export FESpace, FEMatrix, FEVector
