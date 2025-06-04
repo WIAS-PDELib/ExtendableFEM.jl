@@ -1,6 +1,6 @@
 # CHANGES
 
-## v1.2.0 May 28, 2025
+## v1.2.0 June 4, 2025
 
 ### Changed
   - TimerOutputs for measuring/storing/showing runtime and allocations in solve, now also for separate operators
