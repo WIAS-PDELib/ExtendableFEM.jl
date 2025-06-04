@@ -1,16 +1,11 @@
 # CHANGES
 
-## next version
-
-### Changed
-  - Coupling matrix result of `compute_periodic_coupling_matrix` is no longer transposed
-  - rewrote internals of `CombineDofs` `apply_penalty` method to speed up the assembly
-
-
 ## v1.2.0 May 28, 2025
 
 ### Changed
   - TimerOutputs for measuring/storing/showing runtime and allocations in solve, now also for separate operators
+  - Coupling matrix result of `compute_periodic_coupling_matrix` is no longer transposed
+  - rewrote internals of `CombineDofs` `apply_penalty` method to speed up the assembly
 
 ### Fixed
   - HomogeneousData/InterpolateBoundaryData operator fix when system matrix is of type GenericMTExtendableSparseMatrixCSC
