@@ -6,14 +6,14 @@ mutable struct CombineDofs{UT, CT, AT} <: AbstractOperator
     uX::UT                  # component nr for dofsX
     uY::UT                  # component nr for dofsY
     coupling_info::CT
-    fixeddofs::AT
+    fixed_dofs::AT
     FESX::Any
     FESY::Any
     assembler::Any
     parameters::Dict{Symbol, Any}
 end
 
-fixed_dofs(O::CombineDofs) = O.fixeddofs
+fixed_dofs(O::CombineDofs) = O.fixed_dofs
 
 default_combop_kwargs() = Dict{Symbol, Tuple{Any, String}}(
     :name => ("CombineDofs", "name for operator used in printouts"),
@@ -64,14 +64,14 @@ $(_myprint(default_combop_kwargs()))
 function CombineDofs(uX, uY, coupling_matrix::AbstractMatrix; kwargs...)
     parameters = Dict{Symbol, Any}(k => v[1] for (k, v) in default_combop_kwargs())
     _update_params!(parameters, kwargs)
-    fixeddofs = zeros(Int, 0)
+    fixed_dofs = zeros(Int, 0)
     for dof_i in 1:size(coupling_matrix, 2)
-        coupling_i = coupling_matrix[:, dof_i]
+        coupling_i = @views coupling_matrix[:, dof_i]
         if nnz(coupling_i) > 0
-            push!(fixeddofs, dof_i)
+            push!(fixed_dofs, dof_i)
         end
     end
-    return CombineDofs(uX, uY, coupling_matrix, fixeddofs, nothing, nothing, nothing, parameters)
+    return CombineDofs(uX, uY, coupling_matrix, fixed_dofs, nothing, nothing, nothing, parameters)
 end
 
 function apply_penalties!(A, b, sol, CD::CombineDofs{UT, CT}, SC::SolverConfiguration; assemble_matrix = true, assemble_rhs = true, kwargs...) where {UT, CT}
@@ -90,7 +90,7 @@ function build_assembler!(CD::CombineDofs{UT, CT}, FE::Array{<:FEVectorBlock, 1}
     FESX, FESY = FE[1].FES, FE[2].FES
     if (CD.FESX != FESX) || (CD.FESY != FESY)
         coupling_matrix = CD.coupling_info
-        fixeddofs = CD.fixeddofs
+        fixed_dofs = CD.fixed_dofs
         offsetX = FE[1].offset
         offsetY = FE[2].offset
         if CD.parameters[:verbosity] > 0
@@ -99,30 +99,24 @@ function build_assembler!(CD::CombineDofs{UT, CT}, FE::Array{<:FEVectorBlock, 1}
         penalty = CD.parameters[:penalty]
 
         function assemble!(A::AbstractSparseArray{T}, b::AbstractVector{T}, assemble_matrix::Bool, assemble_rhs::Bool, kwargs...) where {T}
-
-            timerOutput = TimerOutput()
-            cscmat = A.cscmatrix
-            Avals = cscmat.nzval
-
             if assemble_matrix
                 # go through each constrained dof and update the FE adjacency info
                 # of the coupled dofs
-                @timeit timerOutput "for loop 1" for dof_i in fixeddofs
-
+                for dof_i in fixed_dofs
                     # this col-view is efficient
-                    @timeit timerOutput "coupling_i view" coupling_i = @views coupling_matrix[:, dof_i]
+                    coupling_i = @views coupling_matrix[:, dof_i]
 
                     # write the FE adjacency of the constrained dofs into this row
                     sourcerow = dof_i + offsetX
 
                     # extract the constrained dofs and the weights
-                    @timeit timerOutput "findnz" coupled_dofs_i, weights_i = findnz(coupling_i)
+                    coupled_dofs_i, weights_i = findnz(coupling_i)
 
                     # parse through sourcerow and add the contents to the coupled dofs
-                    @timeit timerOutput  "A[sourcerow, col]"  for col in 1:size(A, 2)
-                        r = findindex(cscmat, sourcerow, col)
+                    for col in 1:size(A, 2)
+                        r = findindex(A.cscmatrix, sourcerow, col)
                         if r > 0
-                            val = Avals[r]
+                            val = A.cscmatrix.nzval[r]
                             if abs(val) > 1.0e-15
                                 for (dof_k, weight_ik) in zip(coupled_dofs_i, weights_i)
                                     targetrow = dof_k + offsetX
@@ -135,30 +129,25 @@ function build_assembler!(CD::CombineDofs{UT, CT}, FE::Array{<:FEVectorBlock, 1}
 
                 # replace the geometric coupling rows based
                 # on the original coupling matrix
-                @timeit timerOutput "for loop 2" for dof_i in fixeddofs
-
+                for dof_i in fixed_dofs
                     coupling_i = coupling_matrix[:, dof_i]
 
                     # get the coupled dofs of dof_i and the corresponding weights
-                    @timeit timerOutput "findnz"  coupled_dofs_i, weights_i = findnz(coupling_i)
-
+                    coupled_dofs_i, weights_i = findnz(coupling_i)
                     sourcerow = dof_i + offsetX
 
                     # replace sourcerow with coupling linear combination
-                    @timeit timerOutput "_addnz"  begin
-                        _addnz(A, sourcerow, sourcerow, -1.0, penalty)
-                        for (dof_j, weight_ij) in zip(coupled_dofs_i, weights_i)
-                            # weights for ∑ⱼ wⱼdofⱼ - dofᵢ = 0
-                            _addnz(A, sourcerow, dof_j + offsetY, weight_ij, penalty)
-                        end
+                    _addnz(A, sourcerow, sourcerow, -1.0, penalty)
+                    for (dof_j, weight_ij) in zip(coupled_dofs_i, weights_i)
+                        # weights for ∑ⱼ wⱼdofⱼ - dofᵢ = 0
+                        _addnz(A, sourcerow, dof_j + offsetY, weight_ij, penalty)
                     end
                 end
-                @timeit timerOutput "flush"  flush!(A)
+                flush!(A)
             end
 
             if assemble_rhs
-
-                for dof_i in fixeddofs
+                for dof_i in fixed_dofs
                     # this col-view is efficient
                     coupling_i = @views coupling_matrix[:, dof_i]
 
@@ -173,15 +162,11 @@ function build_assembler!(CD::CombineDofs{UT, CT}, FE::Array{<:FEVectorBlock, 1}
                     end
                 end
 
-
                 # now set the rows of the constrained dofs to zero to enforce the linear combination
-                for dof_i in fixeddofs
+                for dof_i in fixed_dofs
                     b[dof_i + offsetX] = 0.0
                 end
             end
-
-            TimerOutputs.complement!(timerOutput)
-            show(timerOutput)
 
             return nothing
         end
