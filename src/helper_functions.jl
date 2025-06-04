@@ -427,8 +427,8 @@ Compute a coupling information for each dof on one boundary as a linear combinat
 
 Input:
  - FES: FE space to be coupled (on its dofgrid)
- - b_from: boundary region of the grid which dofs should be replaced in terms of dofs on b_to
- - b_to: boundary region of the grid with dofs to replace the dofs in b_from
+ - b_from: boundary region(s) of the grid which dofs should be replaced in terms of dofs on b_to
+ - b_to: boundary region(s) of the grid with dofs to replace the dofs in b_from
  - give_opposite! Function in (y,x)
  - mask: (optional) vector of masking components
  - sparsity_tol: threshold for treating an interpolated value as zero
