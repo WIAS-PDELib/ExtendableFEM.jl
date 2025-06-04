@@ -54,11 +54,11 @@ function run_test_helper_functions()
             end
         end
 
-        # row sum is 0.0 or 1.0
+        # col sum is 0.0 or 1.0
         for i in 1:size(matrix, 1)
-            row_sum = sum(matrix[i, :])
-            if !(row_sum == 0.0 || row_sum ≈ 1.0)
-                @show row_sum i
+            col_cum = sum(matrix[:, i])
+            if !(col_cum == 0.0 || col_cum ≈ 1.0)
+                @show col_cum i
                 return false
             end
         end
