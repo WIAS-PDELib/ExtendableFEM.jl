@@ -221,6 +221,14 @@ function _get_periodic_coupling_matrix(
 
     @info "Computing periodic coupling matrix. This may take a while."
 
+    if typeof(b_from) <: Int
+        b_from = [b_from]
+    end
+
+    if typeof(b_to) <: Int
+        b_to = [b_to]
+    end
+
     # total number of grid boundary faces
     boundary_nodes = xgrid[BFaceNodes]
     n_boundary_faces = size(boundary_nodes, 2)
@@ -250,9 +258,9 @@ function _get_periodic_coupling_matrix(
     faces_in_b_to = TiG[]
     faces_in_b_from = TiG[]
     for (i, region) in enumerate(boundary_regions)
-        if region == b_to
+        if region in b_to
             push!(faces_in_b_to, face_numbers_of_bfaces[i])
-        elseif region == b_from
+        elseif region in b_from
             push!(faces_in_b_from, face_numbers_of_bfaces[i])
         end
     end
@@ -354,7 +362,7 @@ function _get_periodic_coupling_matrix(
     for i_boundary_face in 1:n_boundary_faces
 
         # for each boundary face: check if in b_from
-        if boundary_regions[i_boundary_face] == b_from
+        if boundary_regions[i_boundary_face] in b_from
 
             local_dofs = @views dofs_on_boundary[:, i_boundary_face]
             for local_dof in local_dofs
@@ -419,8 +427,8 @@ Compute a coupling information for each dof on one boundary as a linear combinat
 
 Input:
  - FES: FE space to be coupled (on its dofgrid)
- - b_from: boundary region of the grid which dofs should be replaced in terms of dofs on b_to
- - b_to: boundary region of the grid with dofs to replace the dofs in b_from
+ - b_from: boundary region(s) of the grid which dofs should be replaced in terms of dofs on b_to
+ - b_to: boundary region(s) of the grid with dofs to replace the dofs in b_from
  - give_opposite! Function in (y,x)
  - mask: (optional) vector of masking components
  - sparsity_tol: threshold for treating an interpolated value as zero
