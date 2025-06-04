@@ -78,14 +78,14 @@ function run_test_helper_functions()
         let # 3D P1
             xgrid = simplexgrid(0:0.1:1.0, 0:0.1:1.0, 0:0.1:1.0)
             FES = FESpace{H1P1{1}}(xgrid)
-            A = get_periodic_coupling_matrix(FES, xgrid, 4, 2, give_opposite!, sparsity_tol = 1.0e-8)
+            A = get_periodic_coupling_matrix(FES, 4, 2, give_opposite!, sparsity_tol = 1.0e-8)
             @test test_matrix(A)
         end
 
         let # 3D P2 with 2 components
             xgrid = simplexgrid(0:0.5:1.0, 0:0.5:1.0, 0:0.5:1.0)
             FES = FESpace{H1P2{2, 3}}(xgrid)
-            A = get_periodic_coupling_matrix(FES, xgrid, 4, 2, give_opposite!, sparsity_tol = 1.0e-8)
+            A = get_periodic_coupling_matrix(FES, 4, 2, give_opposite!, sparsity_tol = 1.0e-8)
             @test test_matrix(A)
         end
 
@@ -98,7 +98,7 @@ function run_test_helper_functions()
             xgrid = simplexgrid(b)
 
             FES = FESpace{H1P1{1}}(xgrid)
-            A = get_periodic_coupling_matrix(FES, xgrid, 4, 2, give_opposite!, sparsity_tol = 1.0e-8)
+            A = get_periodic_coupling_matrix(FES, 4, 2, give_opposite!, sparsity_tol = 1.0e-8)
             @test test_matrix(A; structured_grid = false)
         end
     end
