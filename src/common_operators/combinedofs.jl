@@ -119,8 +119,10 @@ function build_assembler!(CD::CombineDofs{UT, CT}, FE::Array{<:FEVectorBlock, 1}
                             val = A.cscmatrix.nzval[r]
                             if abs(val) > 1.0e-15
                                 for (dof_k, weight_ik) in zip(coupled_dofs_i, weights_i)
-                                    targetrow = dof_k + offsetX
-                                    _addnz(A, targetrow, col, val, weight_ik)
+                                    if dof_k != dof_i
+                                        targetrow = dof_k + offsetX
+                                        _addnz(A, targetrow, col, val, weight_ik)
+                                    end
                                 end
                             end
                         end
@@ -137,8 +139,11 @@ function build_assembler!(CD::CombineDofs{UT, CT}, FE::Array{<:FEVectorBlock, 1}
                     sourcerow = dof_i + offsetX
 
                     # replace sourcerow with coupling linear combination
-                    _addnz(A, sourcerow, sourcerow, -1.0, penalty)
+                    # _addnz(A, sourcerow, sourcerow, -1.0, penalty)
                     for (dof_j, weight_ij) in zip(coupled_dofs_i, weights_i)
+                        if dof_j == dof_i
+                            @info "dof_j == dof_i with weight $weight_ij"
+                        end
                         # weights for ∑ⱼ wⱼdofⱼ - dofᵢ = 0
                         _addnz(A, sourcerow, dof_j + offsetY, weight_ij, penalty)
                     end
@@ -157,8 +162,10 @@ function build_assembler!(CD::CombineDofs{UT, CT}, FE::Array{<:FEVectorBlock, 1}
                     # transfer all assembly information to dof_i
                     sourcerow = dof_i + offsetY
                     for (dof_j, weight) in zip(coupled_dofs, weights)
-                        targetrow = dof_j + offsetY
-                        b[targetrow] += weight * b[sourcerow]
+                        if dof_j != dof_i
+                            targetrow = dof_j + offsetY
+                            b[targetrow] += weight * b[sourcerow]
+                        end
                     end
                 end
 

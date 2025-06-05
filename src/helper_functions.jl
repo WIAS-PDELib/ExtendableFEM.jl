@@ -371,32 +371,35 @@ function _get_periodic_coupling_matrix(
                     continue
                 end
 
-                # reset
-                fill!(fe_vector_target.entries, 0.0)
-
                 # activate one entry
                 fe_vector.entries[local_dof] = 1.0
 
                 # interpolate on the opposite boundary using x_trafo = give_opposite
 
-                j = findfirst(==(face_numbers_of_bfaces[i_boundary_face]), faces_in_b_from)
-                if j <= 0
+                face_index = findfirst(==(face_numbers_of_bfaces[i_boundary_face]), faces_in_b_from)
+                if face_index <= 0
                     throw("face $(face_numbers_of_bfaces[i_boundary_face]) is not on source boundary. Are the from/to regions and the give_opposite function correct?")
                 end
+
+                # reset target vector
+                fill!(fe_vector_target.entries, 0.0)
 
                 interpolate!(
                     fe_vector_target[1],
                     ON_FACES, eval_point,
-                    items = view(searchareas, :, j)
+                    items = view(searchareas, :, face_index)
                 )
 
                 # deactivate entry
                 fe_vector.entries[local_dof] = 0.0
 
+
                 # set entries
                 for (i, target_entry) in enumerate(fe_vector_target.entries)
                     if abs(target_entry) > sparsity_tol
-                        result[local_dof, i] = target_entry
+                        rawupdateindex!(result, (a, b) -> b, target_entry, local_dof, i, 1)
+                        # put a -1 on the diagoal
+                        rawupdateindex!(result, (a, b) -> b, -1.0, i, i, 1)
                     end
                 end
             end
