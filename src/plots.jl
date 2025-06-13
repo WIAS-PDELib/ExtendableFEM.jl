@@ -19,7 +19,20 @@ function plot!(p::GridVisualizer, ops, sol; kwargs...)
 Plots the operator evaluations ops of blocks in sol into the GridVisualizer.
 
 """
-function plot!(p::GridVisualizer, ops, sol; rasterpoints = 10, linewidth = 1, keep = [], ncols = size(p.subplots, 2), do_abs = true, do_vector_plots = true, title_add = "", kwargs...)
+function plot!(
+        p::GridVisualizer,
+        ops,
+        sol;
+        rasterpoints = 10,
+        linewidth = 1,
+        keep = [],
+        ncols = size(p.subplots, 2),
+        do_abs = true,
+        do_vector_plots = true,
+        title_add = "",
+        average_broken_plots = false,
+        kwargs...
+    )
     col, row, id = 0, 1, 0
     for op in ops
         col += 1
@@ -47,7 +60,9 @@ function plot!(p::GridVisualizer, ops, sol; rasterpoints = 10, linewidth = 1, ke
             else
                 title = op[2] == Identity ? "$(sol[op[1]].name)" : "$(op[2])($(sol[op[1]].name))"
             end
-            if resultdim == 1
+            if !average_broken_plots && is_scalar_broken_lagrange_FE(get_FEType(sol[op[1]].FES))
+                broken_scalarplot!(p[row, col], sol[op[1]]; title = title * title_add, kwargs...)
+            elseif resultdim == 1
                 GridVisualize.scalarplot!(p[row, col], sol[op[1]].FES.dofgrid, view(nodevalues(sol[op[1]], op[2]; abs = false), 1, :), title = title * title_add; kwargs...)
             elseif do_abs == true
                 GridVisualize.scalarplot!(p[row, col], sol[op[1]].FES.dofgrid, view(nodevalues(sol[op[1]], op[2]; abs = true), 1, :), title = "|" * title * "|" * title_add; kwargs...)
@@ -69,6 +84,69 @@ function plot!(p::GridVisualizer, ops, sol; rasterpoints = 10, linewidth = 1, ke
         end
     end
     return p
+end
+
+# helper to detect broken Lagrange FES
+is_scalar_broken_lagrange_FE(FEType) = false
+is_scalar_broken_lagrange_FE(::Type{L2P0{1}}) = true
+is_scalar_broken_lagrange_FE(::Type{L2P1{1}}) = true
+
+"""
+    broken_scalarplot!(vis, feVectorBlock; kwargs...)
+
+A "broken" scalarplot of a broken finite element vector (currently only L2P0 and L2P1 are supported)
+Instead of averaging the discontinuous values on the grid nodes, each grid cell is plotted
+independently. Thus, a discontinuous plot is generated.
+
+All kwargs of the calling method are transferred to the scalarplot in this method.
+"""
+function broken_scalarplot!(vis, feVectorBlock::FEVectorBlock; kwargs...)
+
+    FES = feVectorBlock.FES
+    dofgrid = FES.dofgrid
+    dim = dim_space(dofgrid)
+
+    cell_nodes = dofgrid[CellNodes]
+    cell_dofs = FES[CellDofs]
+    coords = dofgrid[Coordinates]
+
+    nodes_per_cell = size(cell_nodes, 1)
+    all_cells = Vector{SVector{nodes_per_cell, Int32}}(undef, 0)
+    all_coords = Vector{SVector{dim, Float64}}(undef, 0)
+    all_values = Vector{Float64}(undef, 0)
+
+    for i_cell in 1:size(cell_nodes, 2)
+        # create a new independent cell
+        i = nodes_per_cell * (i_cell - 1) + 1
+        push!(all_cells, i:(i + nodes_per_cell - 1))
+
+        # copy the coords
+        for n in @views cell_nodes[:, i_cell]
+            @views push!(all_coords, coords[:, n][:])
+        end
+
+        # extract values from feVector
+        values = feVectorBlock.entries[cell_dofs[:, i_cell]]
+        if length(values) == 1 # L2P0 !!
+            values = fill(values[1], nodes_per_cell)
+        end
+        @views append!(all_values, values)
+    end
+
+    # convert to matrices
+    cell_matrix = Matrix{Int32}(undef, nodes_per_cell, length(all_cells))
+    for i in 1:size(cell_matrix, 1), j in 1:size(cell_matrix, 2)
+        cell_matrix[i, j] = all_cells[j][i]
+    end
+
+    coord_matrix = Matrix{Float64}(undef, dim, length(all_coords))
+    for i in 1:size(coord_matrix, 1), j in 1:size(coord_matrix, 2)
+        coord_matrix[i, j] = all_coords[j][i]
+    end
+
+    GridVisualize.scalarplot!(vis, coord_matrix, cell_matrix, all_values; kwargs...)
+
+    return nothing
 end
 
 
