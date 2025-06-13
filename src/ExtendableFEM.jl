@@ -49,7 +49,7 @@ using ExtendableGrids: ExtendableGrids, AT_NODES, AbstractElementGeometry,
     ON_BEDGES, ON_BFACES, ON_CELLS, ON_EDGES, ON_FACES,
     ON_IFACES, SerialVariableTargetAdjacency,
     UniqueBFaceGeometries, UniqueCellGeometries,
-    UniqueFaceGeometries, append!, dim_element, eval_trafo!,
+    UniqueFaceGeometries, append!, dim_element, dim_space, eval_trafo!,
     facetype_of_cellface, interpolate!,
     max_num_targets_per_source, num_cells, num_faces,
     num_nodes, num_sources, num_targets, simplexgrid,
@@ -74,6 +74,7 @@ using Symbolics: Symbolics
 using SciMLBase: SciMLBase
 using TimerOutputs: TimerOutput, print_timer, @timeit
 using UnicodePlots: UnicodePlots
+using StaticArrays: SVector
 
 ## reexport stuff from ExtendableFEMBase and ExtendableGrids
 export FESpace, FEMatrix, FEVector
