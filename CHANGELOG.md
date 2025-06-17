@@ -1,6 +1,6 @@
 # CHANGES
 
-## v1.3.0
+## v1.3.0 June 17, 2025
 
 ### Added
   - `plot` and `scalarplot!` for broken FE Spaces are now plotted discontinuously to avoid averaging of values at the grid nodes.
