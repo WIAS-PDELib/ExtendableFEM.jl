@@ -3,7 +3,7 @@
 ## v1.3.0
 
 ### Added
-  - `plot` for broken FE Spaces are now plotted discontinuously to avoid averaging of values at the grid nodes.
+  - `plot` and `scalarplot!` for broken FE Spaces are now plotted discontinuously to avoid averaging of values at the grid nodes.
      This can be disabled by passing the kwarg `average_broken_plots = true` to the `plot` call.
   - new `id(u, c)` operator for the component `c` of a FE function `u` wrapping `IdentityComponent{c}` from ExtendableFEMBase
 
