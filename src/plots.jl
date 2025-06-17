@@ -1,9 +1,20 @@
-function GridVisualize.scalarplot!(p, op::Tuple{Unknown, DataType}, sol; abs = false, component = 1, title = String(op[1].identifier), kwargs...)
-    return GridVisualize.scalarplot!(p, sol[op[1]].FES.dofgrid, view(nodevalues(sol[op[1]], op[2]; abs = abs), component, :); title = title, kwargs...)
+function GridVisualize.scalarplot!(
+        p,
+        op::Union{Tuple{Unknown, DataType}, Tuple{Int, DataType}},
+        sol;
+        abs = false,
+        component = 1,
+        title = typeof(op) <: Tuple{Unknown, DataType} ? String(op[1].identifier) : sol[op[1]].name,
+        average_broken_plots = false,
+        kwargs...
+    )
+    if !average_broken_plots && ExtendableFEMBase.broken(sol[op[1]].FES)
+        broken_scalarplot!(p, sol[op[1]], op[2]; title, average_broken_plots, kwargs...)
+    else
+        return GridVisualize.scalarplot!(p, sol[op[1]].FES.dofgrid, view(nodevalues(sol[op[1]], op[2]; abs = abs), component, :); title = title, kwargs...)
+    end
 end
-function GridVisualize.scalarplot!(p, op::Tuple{Int, DataType}, sol; abs = false, component = 1, title = sol[op[1]].name, kwargs...)
-    return GridVisualize.scalarplot!(p, sol[op[1]].FES.dofgrid, view(nodevalues(sol[op[1]], op[2]; abs = abs), component, :); title = title, kwargs...)
-end
+
 function GridVisualize.vectorplot!(p, op::Tuple{Unknown, DataType}, sol; title = String(op[1].identifier), kwargs...)
     return GridVisualize.vectorplot!(p, sol[op[1]].FES.dofgrid, eval_func_bary(PointEvaluator([op], sol)); title = title, kwargs...)
 end
