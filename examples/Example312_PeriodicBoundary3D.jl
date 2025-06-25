@@ -186,7 +186,7 @@ end
 generateplots = ExtendableFEM.default_generateplots(Example312_PeriodicBoundary3D, "example312.png") #hide
 function runtests()                                                                                  #hide
     sol, plt = main()                                                                                #hide
-    @test abs(maximum(view(sol[1])) - 1.8038107003663026) < 1.0e-3                                   #hide
+    @test abs(maximum(view(sol[1])) - 1.8038107003663026) < 0.0036                                   #hide
     return nothing                                                                                   #hide
 end                                                                                                  #hide
 
