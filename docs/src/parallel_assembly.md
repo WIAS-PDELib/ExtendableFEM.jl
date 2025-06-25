@@ -1,15 +1,26 @@
 # Parallel Assembly
 
-Within the solve call, all operators will be assembled according to their configured parameters.
-When 'parallel = true' is used (not available yet for all DG operators), the operators will be assembled in parallel
-based on the color partitions within the grid. Hence, the computational grid must provide these
-partitions, see [Documentation of ExtendableGrids.jl on Partitioning](https://wias-pdelib.github.io/ExtendableGrids.jl/stable/partitioning/)
-for details. Also the sparse system matrix needs to be able to work on different
-partitions in parallel. Once, the grid has partitions, the solver automatically
-uses a suitable constructor for the system matrix (MTExtendableSparseMatrixCSC from [ExtendableSparse.jl](https://github.com/WIAS-PDELib/ExtendableSparse.jl)).
+Efficient assembly of finite element operators is crucial for large-scale simulations. This package supports parallel assembly of most operators.
 
+## How It Works
 
-!!! note
+- When `parallel = true` is set for an operator, assembly is performed in parallel over grid partitions (color groups).
+- The computational grid must provide partition information. See the [ExtendableGrids.jl documentation on partitioning](https://wias-pdelib.github.io/ExtendableGrids.jl/stable/partitioning/) for details on how to partition your grid.
+- The system matrix is constructed using a parallel-aware type (`MTExtendableSparseMatrixCSC` from [ExtendableSparse.jl](https://github.com/WIAS-PDELib/ExtendableSparse.jl)), which allows safe concurrent writes from different partitions.
+- The solver automatically detects and uses the appropriate matrix type when the grid is partitioned.
 
-    DG operators that assemble along cell faces need the option 'edges = true' in the partition call for the grid partitioning, otherwise assembly will be still sequentially.
-    
+## Usage
+
+- Set the `parallel = true` keyword argument in the operators or in the solver configuration.
+- Ensure your grid is partitioned appropriately for your problem size and hardware.
+- For DG operators that assemble along cell faces, use the option `edges = true` in the partition call to enable parallel face assembly. Otherwise, face-based assembly will remain sequential.
+
+## Example
+
+```julia
+# Partition the grid for parallel assembly
+partition!(xgrid; nparts = 12, edges = true)
+
+# Construct operator with parallel assembly enabled
+assign_operator!(PD, BilinearOperator([grad(u)]; parallel = true))
+```

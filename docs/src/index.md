@@ -5,58 +5,49 @@
 
 # ExtendableFEM.jl
 
-This package offers a toolkit to easily setup (mostly low-order, standard and non-standard) finite element methods for multiphysics problems in Julia
-and to run fixed-point iterations to solve them.
+**ExtendableFEM.jl** is a high-level, extensible finite element method (FEM) library for Julia, designed for rapid prototyping and research in multiphysics and numerical analysis of FEM. It provides a flexible `ProblemDescription` interface, supports custom operators, and builds upon [ExtendableGrids.jl](https://github.com/WIAS-PDELib/ExtendableGrids.jl) and [ExtendableFEMBase.jl](https://github.com/WIAS-PDELib/ExtendableFEMBase.jl).
 
-The implementation is based on [ExtendableGrids.jl](https://github.com/WIAS-PDELib/ExtendableGrids.jl) (for meshing and administration) and [ExtendableFEMBase.jl](https://github.com/WIAS-PDELib/ExtendableFEMBase.jl) (for quadrature and FEM basis functions).
+## Features
 
-!!! note
-
-    This package is still in an early development stage and features and interfaces might change in future updates.
-    
-
-#### Dependencies on other Julia packages
-
-[ExtendableGrids.jl](https://github.com/WIAS-PDELib/ExtendableGrids.jl)\
-[ExtendableSparse.jl](https://github.com/WIAS-PDELib/ExtendableSparse.jl)\
-[ExtendableFEMBase.jl](https://github.com/WIAS-PDELib/ExtendableFEMBase.jl)\
-[GridVisualize.jl](https://github.com/WIAS-PDELib/GridVisualize.jl)\
-[DocStringExtensions.jl](https://github.com/JuliaDocs/DocStringExtensions.jl)\
-[ForwardDiff.jl](https://github.com/JuliaDiff/ForwardDiff.jl)\
-[DiffResults.jl](https://github.com/JuliaDiff/DiffResults.jl)\
+- High-level, modular API for PDE problems and finite element solvers
+- Bilinear, linear, and nonlinear operators with custom kernel functions
+- Automatic assembly and Newton's method for nonlinear operators
+- Parallel assembly is possible
 
 
-## Getting started
+## Dependencies
 
-The general work-flow is as follows:
+- [ExtendableGrids.jl](https://github.com/WIAS-PDELib/ExtendableGrids.jl)
+- [ExtendableSparse.jl](https://github.com/WIAS-PDELib/ExtendableSparse.jl)
+- [ExtendableFEMBase.jl](https://github.com/WIAS-PDELib/ExtendableFEMBase.jl)
+- [GridVisualize.jl](https://github.com/WIAS-PDELib/GridVisualize.jl)
+- [DocStringExtensions.jl](https://github.com/JuliaDocs/DocStringExtensions.jl)
+- [ForwardDiff.jl](https://github.com/JuliaDiff/ForwardDiff.jl)
+- [DiffResults.jl](https://github.com/JuliaDiff/DiffResults.jl)
 
-#### 1. Geometry description / meshing
+## Getting Started
 
-The geometry description and meshing is not really separated.
-For meshes of rectangular domains, there are simple constructors available in [ExtendableGrids.jl](https://github.com/WIAS-PDELib/ExtendableGrids.jl), e.g.
+The general workflow is as follows:
+
+### 1. Geometry and Meshing
+
+Create or load a grid using [ExtendableGrids.jl](https://github.com/WIAS-PDELib/ExtendableGrids.jl):
+
 ```julia
 using ExtendableGrids
-## unit square criss-cross into Triangles
-xgrid1 = uniform_refine(grid_unitsquare(Triangle2D), 4)
-
-## uniform rectangular grid
+# Unit square, triangulated and refined
+xgrid = uniform_refine(grid_unitsquare(Triangle2D), 4)
+# Uniform rectangular grid
 xgrid2 = simplexgrid(0:0.1:1, 0:0.2:2)
 ```
-Note that these grids generate boundary regions from 1 to 4 (bottom, left, top, right) that can be used
-to assign boundary conditions.
 
-More complex grids can be created via the mesh generators in [SimplexGridFactory.jl](https://github.com/WIAS-PDELib/SimplexGridFactory.jl),
-see e.g. Examples 245 or 265, or by loading a Gmsh grid file via the corresponding [ExtendableGrids.jl](https://github.com/WIAS-PDELib/ExtendableGrids.jl) extension.
+More complex grids can be created with [SimplexGridFactory.jl](https://github.com/WIAS-PDELib/SimplexGridFactory.jl) or by loading Gmsh files.
 
-#### 2. Problem description
+### 2. Problem Description
 
-Before discretizing the user has the option to pose his problems
-in form of a [Problem Description](@ref). Note, that usually no grid
-has to be defined at this point, but region numbers correspond
-to regions defined in the grid. Here is a short example:
+Pose your problem using the `ProblemDescription` interface:
 
 ```julia
-# a simple Poisson problem with right-hand side f(x,y) = x*y and u = 0 along boundary
 PD = ProblemDescription()
 u = Unknown("u"; name = "potential")
 assign_unknown!(PD, u)
@@ -66,79 +57,49 @@ assign_operator!(PD, LinearOperator(f!, [id(u)]))
 assign_operator!(PD, HomogeneousBoundaryData(u; regions = 1:4))
 ```
 
+### 3. Discretization
 
-#### 3. Discretization
+Choose finite element types and create spaces:
 
-In this step, the user chooses suitable finite element types for the unknowns of the problem,
-and generates finite element spaces on the grid (and probably already a solution vector
-to preoccupy it with an initial solution).
 ```julia
-# cubic H1 element in 2D with one component
-FES = FESpace{H1Pk{1,2,3}}(xgrid) 
-# alternatively: create solution vector and tag blocks with problem unknowns
-sol = FEVector(FES; tags = PD.unknowns) 
-# fill block corresponding to unknown u with initial values
-fill(sol[u], 1)
-# interpolate some given function u!(result, qpinfo)
-interpolate!(sol[u], u!)
+FES = FESpace{H1Pk{1,2,3}}(xgrid)
+sol = FEVector(FES; tags = PD.unknowns)
+fill(sol[u], 1) # optional: set initial values
 ```
 
-#### 4. Solve
+### 4. Solve
 
-Here, we solve the problem. If the problem is nonlinear, several
-additional arguments allow to steer the fixed-point iteration,
-see [Stationary Solvers](@ref). In the simplest case, the user
-only needs to call:
+Solve the problem:
 
 ```julia
-# solve problem with finite element space(s)
-# (in case of more than one unknown, provide a vector of FESpaces)
 sol = solve(PD, FES; init = sol)
 ```
 
-For time-dependent problem, the user can add the necessary
-operators for the time derivative manually. Alternatively,
-the problem description in space can be turned into an ODE
-and solve via DifferentialEquations.jl, see
-[Time-dependent Solvers](@ref) for details.
+For time-dependent problems, add time-derivative operators or use ODE solvers (see documentation).
 
-Also note, that the use can bypass the problem description
-and control the algebraic level manually via
-assembling the operators directly into an FEMatrix,
-see e.g. Example310.
-It is also possible to take control over the low-level
-assembly of the operators, see [ExtendableFEMBase.jl](https://github.com/WIAS-PDELib/ExtendableFEMBase.jl)
-for details.
+### 5. Postprocessing and Plotting
 
+After solving, postprocess or plot the solution:
 
+```julia
+using PyPlot
+plot(id(u), sol; Plotter = PyPlot)
+```
 
-#### 5. Plot and postprocess
+## Gradient-Robustness
 
-After solving, the user can postprocess the solution,
-calculate quantities of interest or plot components.
+ExtendableFEM.jl supports gradient-robust schemes via reconstruction operators or divergence-free elements. Gradient-robustness ensures that discrete velocities are independent of the exact pressure in incompressible flows. See the references below for more details.
 
+## Citing
 
-## Gradient-robustness
+If you use ExtendableFEM.jl in your research, please cite [this Zenodo record](https://zenodo.org/doi/10.5281/zenodo.10563834).
 
-This package offers some ingredients to build gradient-robust schemes via reconstruction operators or divergence-free elements.
-Gradient-robustness is a feature of discretisations that exactly balances gradient forces in the momentum balance. In the case of the incompressible Navier--Stokes equations this means that the discrete velocity does not depend on the exact pressure. Divergence-free finite element methods have this property but are usually expensive and difficult to construct. However, also non-divergence-free classical finite element methods can be made pressure-robust with the help of reconstruction operators applied to testfunctions in certain terms of the momentum balance, see e.g. references [1,2] below.
+## License
 
-Recently gradient-robustness was also connected to the design of well-balanced schemes e.g. in the context of (nearly) compressible flows, see e.g. reference [3] below.
+ExtendableFEM.jl is licensed under the MIT License. See [LICENSE](https://github.com/WIAS-PDELib/ExtendableFEM.jl/blob/main/LICENSE) for details.
 
-#### References
+## References
 
-- [1]   "On the divergence constraint in mixed finite element methods for incompressible flows",\
-        V. John, A. Linke, C. Merdon, M. Neilan and L. Rebholz,\
-        SIAM Review 59(3) (2017), 492--544,\
-        [>Journal-Link<](https://doi.org/10.1137/15M1047696),
-        [>Preprint-Link<](http://www.wias-berlin.de/publications/wias-publ/run.jsp?template=abstract&type=Preprint&year=2015&number=2177)
-- [2]   "Pressure-robustness and discrete Helmholtz projectors in mixed finite element methods for the incompressible Navier--Stokes equations",\
-        A. Linke and C. Merdon,
-        Computer Methods in Applied Mechanics and Engineering 311 (2016), 304--326,\
-        [>Journal-Link<](http://dx.doi.org/10.1016/j.cma.2016.08.018)
-        [>Preprint-Link<](http://www.wias-berlin.de/publications/wias-publ/run.jsp?template=abstract&type=Preprint&year=2016&number=2250)
-- [3]   "A gradient-robust well-balanced scheme for the compressible isothermal Stokes problem",\
-        M. Akbas, T. Gallouet, A. Gassmann, A. Linke and C. Merdon,\
-        Computer Methods in Applied Mechanics and Engineering 367 (2020),\
-        [>Journal-Link<](https://doi.org/10.1016/j.cma.2020.113069)
-        [>Preprint-Link<](https://arxiv.org/abs/1911.01295)
+- [1] V. John, A. Linke, C. Merdon, M. Neilan, L. Rebholz, "On the divergence constraint in mixed finite element methods for incompressible flows", SIAM Review 59(3) (2017), 492--544. [Journal](https://doi.org/10.1137/15M1047696), [Preprint](http://www.wias-berlin.de/publications/wias-publ/run.jsp?template=abstract&type=Preprint&year=2015&number=2177)
+- [2] A. Linke, C. Merdon, "Pressure-robustness and discrete Helmholtz projectors in mixed finite element methods for the incompressible Navier--Stokes equations", Computer Methods in Applied Mechanics and Engineering 311 (2016), 304--326. [Journal](http://dx.doi.org/10.1016/j.cma.2016.08.018), [Preprint](http://www.wias-berlin.de/publications/wias-publ/run.jsp?template=abstract&type=Preprint&year=2016&number=2250)
+- [3] M. Akbas, T. Gallouet, A. Gassmann, A. Linke, C. Merdon, "A gradient-robust well-balanced scheme for the compressible isothermal Stokes problem", Computer Methods in Applied Mechanics and Engineering 367 (2020). [Journal](https://doi.org/10.1016/j.cma.2020.113069), [Preprint](https://arxiv.org/abs/1911.01295)
