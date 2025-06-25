@@ -119,7 +119,7 @@ function broken_scalarplot!(vis, feVectorBlock::FEVectorBlock, operator = Identi
     all_coords = @views coords[:, cell_nodes[:]]
     all_cells = reshape(1:length(all_values), size(all_values))
 
-    GridVisualize.scalarplot!(vis, all_coords, all_cells, view(all_values, :); kwargs...)
+    GridVisualize.scalarplot!(vis, simplexgrid(all_coords, all_cells, dofgrid[CellRegions]), view(all_values, :); kwargs...)
 
     return nothing
 end
