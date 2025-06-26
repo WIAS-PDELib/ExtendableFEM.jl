@@ -32,15 +32,21 @@ end
 
 
 """
-````
-function HomogeneousData(u; entities = ON_CELLS, kwargs...)
-````
+$(TYPEDSIGNATURES)
 
-When assembled, the unknown u of the Problem will be penalized
-to zero on the specifies entities and entity regions (via kwargs).
+Construct an operator that enforces homogeneous (typically zero) values for the unknown `u` on specified mesh entities and regions, using a penalty method.
 
-Keyword arguments:
+When assembled, the operator penalizes the degrees of freedom (dofs) of `u` to the value specified by the `value` keyword (default: `0`) on the selected entities and regions.
+
+# Arguments
+- `u`: The unknown (field variable) to be constrained.
+
+# Keyword Arguments
+- `entities`: The mesh entities on which to apply the condition (e.g., `ON_CELLS`, `ON_BFACES`, `ON_FACES`). Default is `ON_CELLS`.
 $(_myprint(default_homdata_kwargs()))
+
+# Returns
+A `HomogeneousData` operator instance specifying the constraint.
 
 """
 function HomogeneousData(u; entities = ON_CELLS, kwargs...)
@@ -50,15 +56,21 @@ function HomogeneousData(u; entities = ON_CELLS, kwargs...)
 end
 
 """
-````
-function HomogeneousBoundaryData(u; entities = ON_BFACES, kwargs...)
-````
+$(TYPEDSIGNATURES)
 
-When assembled, the unknown u of the Problem will be penalized
-to zero on the boundary faces and boundary regions (via kwargs).
+Construct an operator that enforces homogeneous (typically zero) values for the unknown `u` on boundary faces and specified boundary regions, using a penalty method.
 
-Keyword arguments:
+This is a convenience constructor for imposing homogeneous Dirichlet or essential boundary conditions on the boundary of the domain. It is equivalent to calling `HomogeneousData(u; entities=ON_BFACES, ...)`.
+
+# Arguments
+- `u`: The unknown (field variable) to be constrained.
+
+# Keyword Arguments
+- `entities`: The boundary entities on which to apply the condition (default: `ON_BFACES`).
 $(_myprint(default_homdata_kwargs()))
+
+# Returns
+- A `HomogeneousData` operator instance specifying the boundary constraint.
 
 """
 function HomogeneousBoundaryData(u; entities = ON_BFACES, kwargs...)

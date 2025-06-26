@@ -54,20 +54,15 @@ function Base.show(io::IO, O::InterpolateBoundaryData)
 end
 
 """
-````
-function InterpolateBoundaryData(u, data!::Function; kwargs...)
-````
+$(TYPEDSIGNATURES)
 
-When assembled, the unknown u of the Problem will be penalized
-to match the standard interpolation of the provided data! function.
-The header of this function needs to be conform to the interface
+Construct an operator that enforces the unknown `u` to match the standard finite element interpolation of a user-provided boundary data function on the boundary of the domain.
 
-	data!(result, qpinfo)
+# Arguments
+- `u`: The unknown (field variable) to be constrained.
+- `data`: A function with signature `data!(result, qpinfo)` that computes the desired boundary values at each quadrature point. The `qpinfo` argument provides information such as global coordinates (`qpinfo.x`).
 
-where qpinfo allows to access information at the current quadrature point,
-e.g. qpinfo.x provides the global coordinates of the quadrature/evaluation point.
-
-Keyword arguments:
+# Keyword Arguments
 $(_myprint(default_bndop_kwargs()))
 
 """

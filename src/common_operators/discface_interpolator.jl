@@ -26,23 +26,27 @@ default_interp_kwargs() = Dict{Symbol, Tuple{Any, String}}(
 )
 
 """
-````
-function FaceInterpolator(
-	[kernel,]
-	u_args,
-	ops_args;
-	Tv = Float64,
-	Ti = Int,
-	kwargs...)
-````
+    FaceInterpolator([kernel], u_args, ops_args; Tv=Float64, Ti=Int, kwargs...)
 
-Generates a FaceInterpolator that evaluates discontinuous function operator
-of its arguments, possibly further postprocessed via a kernel function of interface
-function kernel(result, input, qpinfo), into a FEVector of H1Pk living on the faces
-of the grid with the fitting order and number of components.
+Constructs a face-based interpolator for evaluating (possibly discontinuous) finite element function operators, e.g. jumps or averages, on mesh faces (edges in 2D, faces in 3D). 
 
-Keyword arguments:
+# Arguments
+- `kernel` (optional): A function of the form `kernel(result, input, qpinfo)` for postprocessing the operator evaluations at each quadrature point. If omitted, a standard kernel is used.
+- `u_args`: Array of unknowns or indices specifying which solution blocks are used as arguments.
+- `ops_args`: Array of operator types (e.g., `jump(grad(u))`, `id(u)`) specifying which operators to evaluate on the faces.
+
+# Keyword Arguments
+- `Tv`: Value type for computations (default: `Float64`).
+- `Ti`: Integer type for indexing (default: `Int`).
 $(_myprint(default_interp_kwargs()))
+
+# Returns
+A `FaceInterpolator` object that can be used to evaluate or interpolate face-based quantities into a new `FEVector` living on the mesh faces.
+
+# Notes
+- The result is an `FEVector` on a face-based finite element space (e.g., `H1Pk` on faces).
+- Supports both interior and boundary faces; set `only_interior=true` to restrict to interior faces.
+- The kernel function can be used to compose customized quantities at each quadrature point.
 """
 function FaceInterpolator(kernel, u_args, ops_args; Tv = Float64, Ti = Int, kwargs...)
     parameters = Dict{Symbol, Any}(k => v[1] for (k, v) in default_interp_kwargs())
@@ -67,7 +71,7 @@ function FaceInterpolator(kernel, u_args, ops_args; Tv = Float64, Ti = Int, kwar
         nothing,
         nothing,
         ExtendableSparseMatrix{Tv, Int64}(0, 0),
-        parameters,
+        parameters
     )
 end
 

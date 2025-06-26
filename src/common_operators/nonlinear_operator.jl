@@ -100,33 +100,22 @@ end
 
 
 """
-````
-function NonlinearOperator(
-	[kernel!::Function],
-	oa_test::Array{<:Tuple{Union{Unknown,Int}, DataType},1},
-	oa_args::Array{<:Tuple{Union{Unknown,Int}, DataType},1} = oa_test;
-	jacobian = nothing,
-	kwargs...)
-````
+$(TYPEDSIGNATURES)
 
-Generates a nonlinear form for the specified kernel function, test function operators,
-and argument operators evaluations. Operator evaluations are tuples that pair an unknown identifier or integer
-with a FunctionOperator. The header of the kernel functions needs to be conform
-to the interface
+Constructs a nonlinear finite element operator for use in variational formulations and nonlinear PDEs.
 
-	kernel!(result, input, qpinfo)
+# Arguments
+- `kernel!::Function`: The nonlinear kernel function with signature `kernel!(result, input, qpinfo)`, where `result` is the output vector, `input` is the vector of argument values at a quadrature point, and `qpinfo` provides quadrature and geometry information.
+- `oa_test::Vector{<:Tuple{Union{Unknown, Int}, DataType}}`: Array of tuples specifying the test function unknowns (or indices) and their associated function operators.
+- `oa_args::Vector{<:Tuple{Union{Unknown, Int}, DataType}}`: (optional) Array of tuples specifying the argument unknowns (or indices) and their associated function operators. Defaults to `oa_test`.
+- `jacobian`: (optional) A function with signature `jacobian!(jac, input_args, params)` for computing the local Jacobian. If not provided, automatic differentiation is used.
+- `kwargs...`: Additional keyword arguments to control assembly and operator options (see below).
 
-where qpinfo allows to access information at the current quadrature point.
-
-During assembly the Newton update is computed via local jacobians of the kernel
-which are calculated by automatic differentiation or
-by the user-provided jacobian function with interface
-
-	jacobian!(jac, input_args, params)
-
-
-Keyword arguments:
+# Keyword Arguments
 $(_myprint(default_nlop_kwargs()))
+
+# Returns
+A `NonlinearOperator` object.
 
 """
 function NonlinearOperator(kernel, oa_test::Array{<:Tuple{Union{Unknown, Int}, DataType}, 1}, oa_args::Array{<:Tuple{Union{Unknown, Int}, DataType}, 1} = oa_test; kwargs...)
@@ -504,7 +493,22 @@ function assemble!(A, b, sol, O::NonlinearOperator{Tv, UT}, SC::SolverConfigurat
     return O.assembler(A.entries, b.entries, [sol[j] for j in ind_args]; time = time)
 end
 
+"""
+$(TYPEDSIGNATURES)
 
+Assembles the Jacobian matrix and Newton residual for a NonlinearOperator at the current solution into the matrix A and right-hand side b. 
+
+# Arguments
+- `A`: The matrix (or matrix-like object) to assemble into.
+- `b`: The right-hand side vector to assemble into.
+- `O::NonlinearOperator`: The nonlinear operator to assemble.
+- `sol`: The current solution, typically an FEVector or array of FEVectorBlock.
+- `assemble_matrix`: (optional, default: `true`) Whether to assemble the matrix.
+- `assemble_rhs`: (optional, default: `true`) Whether to assemble the right-hand side.
+- `time`: (optional, default: `0.0`) The time parameter for time-dependent problems.
+- `kwargs...`: Additional keyword arguments passed to the assembler.
+
+"""
 function assemble!(A, b, O::NonlinearOperator{Tv, UT}, sol; assemble_matrix = true, assemble_rhs = true, time = 0.0, kwargs...) where {Tv, UT}
     if assemble_matrix * assemble_rhs == false
         return nothing

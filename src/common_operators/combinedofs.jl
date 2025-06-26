@@ -50,16 +50,23 @@ function CombineDofs(uX, uY, dofsX, dofsY, factors = ones(Int, length(dofsX)); k
 end
 
 """
-````
-function CombineDofs(uX, uY, coupling_matrix::AbstractMatrix; kwargs...)
-````
-Input:
-    uX: FEVectorBlock of the "from" boundary region
-    uY: FEVectorBlock of the "to" boundary region (usually the same as uX)
-    coupling_matrix: coupling matrix computed from `get_periodic_coupling_matrix`
+$(TYPEDSIGNATURES)
 
-Keyword arguments:
+Creates an operator that enforces linear constraints between degrees of freedom (dofs)
+of two unknowns, e.g. for periodic boundary conditions.
+
+# Arguments
+- `uX`: The unknown (or block index) whose dofs are to be constrained (the "from" side).
+- `uY`: The unknown (or block index) whose dofs are used as targets (the "to" side).
+- `coupling_matrix`: A precomputed sparse matrix encoding the coupling between dofs (as from `get_periodic_coupling_matrix`).
+
+# Keyword Arguments
 $(_myprint(default_combop_kwargs()))
+
+# Returns
+A `CombineDofs` operator that, when assembled, enforces the specified linear relationships between dofs
+by adding penalty terms to the system matrix.
+
 """
 function CombineDofs(uX, uY, coupling_matrix::AbstractMatrix; kwargs...)
     parameters = Dict{Symbol, Any}(k => v[1] for (k, v) in default_combop_kwargs())

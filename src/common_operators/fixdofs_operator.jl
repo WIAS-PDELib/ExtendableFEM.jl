@@ -32,16 +32,20 @@ function Base.show(io::IO, O::FixDofs)
 end
 
 """
-````
-function FixDofs(u; vals = [], dofs = [], kwargs...)
-````
+$(TYPEDSIGNATURES)
 
-When assembled, all specified dofs of the unknown u will be penalized
-to the specified values.
+Construct a `FixDofs` operator to strongly enforce fixed values on specified degrees of freedom (dofs) in a finite element system.
 
-Keyword arguments:
+# Arguments
+- `u`: The unknown (field variable) or its identifier for which dofs are to be fixed.
+
+# Keyword Arguments
+- `dofs`: Vector of dof indices to be fixed (default: empty vector).
+- `vals`: Vector of values to assign to the fixed dofs (default: zeros of same length as `dofs`).
 $(_myprint(default_fixdofs_kwargs()))
 
+# Returns
+- A `FixDofs` operator instance specifying which dofs to fix and their target values.
 """
 function FixDofs(u; dofs = [], vals = zeros(Float64, length(dofs)), kwargs...)
     parameters = Dict{Symbol, Any}(k => v[1] for (k, v) in default_fixdofs_kwargs())

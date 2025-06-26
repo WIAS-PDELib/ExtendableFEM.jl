@@ -1,11 +1,23 @@
 """
-````
-struct Unknown
-````
+$(TYPEDEF)
 
-Structure holding information for an unknown with the following fields:
+A structure representing a problem "unknown" (e.g., a field variable) with associated metadata.
 
-$(TYPEDFIELDS)
+# Fields
+- `name::String`: name of the unknown (used in printouts and messages).
+- `identifier::IT`: identifier for operator assignment and indexing.
+- `parameters::Dict{Symbol, Any}`: Dictionary of additional properties (e.g., dimension, symbols for ansatz/test functions, ...).
+
+# Type Parameters
+- `IT`: Type of the identifier (commonly `Symbol`).
+
+# Usage
+Create an `Unknown` using the provided constructor, optionally specifying the name, identifier, and additional keyword arguments for parameters.
+
+# Example
+```julia
+u = Unknown("velocity"; dimension=2, symbol_ansatz="u", symbol_test="v")
+```
 """
 mutable struct Unknown{IT}
     """
@@ -35,20 +47,22 @@ ansatz_function(u::Unknown) = u.parameters[:symbol_ansatz] === nothing ? u.ident
 
 
 """
-````
-function Unknown(
-	u::String;
-	identifier = Symbol(u),
-	name = u,
-	kwargs...)
-````
+$(TYPEDSIGNATURES)
 
-Generates and returns an Unknown with the specified name, identifier and other traits.
+Construct an `Unknown` representing a finite element field variable or problem unknown.
 
-Example: BilinearOperator([grad(1)], [grad(1)]; kwargs...) generates a weak Laplace operator.
+# Arguments
+- `u::String`: Name of the unknown.
+- `identifier`: (optional) Symbolic or integer identifier for operator assignment and indexing (default: `Symbol(u)`).
+- `name`: (optional) name in printouts (default: `u`).
+- `kwargs...`: Additional keyword arguments to set or override entries in the `parameters` dictionary (see below).
 
-Keyword arguments:
+# Keyword Arguments
 $(_myprint(default_unknown_kwargs()))
+
+# Example
+```julia
+u = Unknown("velocity"; dimension=2, symbol_ansatz="u", symbol_test="v")
 
 """
 function Unknown(u::String; identifier = Symbol(u), name = u, kwargs...)

@@ -7,7 +7,7 @@ module ExtendableFEM
 
 using CommonSolve: CommonSolve
 using DiffResults: DiffResults
-using DocStringExtensions: DocStringExtensions, TYPEDFIELDS
+using DocStringExtensions: DocStringExtensions, TYPEDEF, TYPEDSIGNATURES, TYPEDFIELDS
 using ExtendableFEMBase: ExtendableFEMBase, AbstractFiniteElement,
     AbstractFunctionOperator, AbstractH1FiniteElement,
     AbstractHdivFiniteElement, BEdgeDofs, BFaceDofs,
@@ -65,7 +65,7 @@ using GridVisualize: GridVisualize, GridVisualizer, gridplot!, reveal, save,
 using LinearAlgebra: LinearAlgebra, copyto!, isposdef, mul!, norm
 using LinearSolve: LinearSolve, LinearProblem, UMFPACKFactorization, deleteat!,
     init, solve
-using Printf: Printf, @printf
+using Printf: Printf, @printf, @sprintf
 using SparseArrays: SparseArrays, AbstractSparseArray, SparseMatrixCSC, findnz, nnz,
     nzrange, rowvals, sparse
 using SparseDiffTools: SparseDiffTools, ForwardColorJacCache,

@@ -103,34 +103,56 @@ default_solver_kwargs() = Dict{Symbol, Tuple{Any, String}}(
 )
 
 
-function Base.show(io::IO, PD::SolverConfiguration)
-    println(io, "\nSOLVER-CONFIGURATION")
-    for item in PD.parameters
-        print(item.first)
-        print(" : ")
-        println(item.second)
+function Base.show(io::IO, SC::SolverConfiguration)
+    println(io, "\nSOLVER CONFIGURATION")
+    println(io, "--------------------")
+    println(io, "Problem:         ", SC.PD.name)
+    println(io, "Unknowns:        ", join([u.name for u in SC.unknowns], ", "))
+    println(io, "FE Spaces:       ", join([typeof(block.FES) for block in SC.sol], ", "))
+    println(io, "Matrix size:     ", size(SC.A.entries))
+    println(io, "Max iterations:  ", get(SC.parameters, :maxiterations, "N/A"))
+    println(io, "Linear solver:   ", get(SC.parameters, :method_linear, "N/A"))
+    println(io, "Preconditioner:  ", get(SC.parameters, :precon_linear, "N/A"))
+    println(io, "Tolerance:       ", get(SC.parameters, :target_residual, "N/A"))
+    println(io, "Constant matrix: ", get(SC.parameters, :constant_matrix, "N/A"))
+    println(io, "Constant rhs:    ", get(SC.parameters, :constant_rhs, "N/A"))
+    println(io, "Verbosity:       ", get(SC.parameters, :verbosity, "N/A"))
+    println(io, "Initialized:     ", get(SC.parameters, :initialized, "N/A"))
+    println(io, "--------------------")
+    println(io, "Other parameters:")
+    for (k, v) in SC.parameters
+        if !(k in (:maxiterations, :method_linear, :precon_linear, :target_residual, :constant_matrix, :constant_rhs, :verbosity, :initialized))
+            println(io, "  ", rpad(string(k), 16), " : ", v)
+        end
     end
     return
 end
 
 
 """
-````
-function SolverConfiguration(
-    Problem::ProblemDescription
-	[FES::Union{<:FESpace, Vector{<:FESpace}}];
-	init = nothing,
-	unknowns = Problem.unknowns,
-	kwargs...)
-````
+$(TYPEDSIGNATURES)
 
-Returns a solver configuration for the ProblemDescription that can be passed to the solve
-function. Here, FES are the FESpaces that should be used to discretize the
-selected unknowns. If no FES is provided an initial FEVector (see keyword init) must be provided
-(which is used to built the FES).
+Construct a `SolverConfiguration` for a given problem and set of finite element spaces.
 
-Keyword arguments:
+A `SolverConfiguration` bundles all data and options needed to assemble and solve a finite element system for a given `ProblemDescription`. It stores the system matrix, right-hand side, solution vector, solver parameters, and bookkeeping for unknowns and degrees of freedom.
+
+# Arguments
+- `Problem::ProblemDescription`: The problem to be solved, including operators, unknowns, and boundary conditions.
+- `FES::Union{<:FESpace, Vector{<:FESpace}}`: The finite element space(s) for the unknowns. Can be a single space or a vector of spaces (one per unknown).
+- `unknowns::Vector{Unknown}`: (optional) The unknowns to be solved for (default: `Problem.unknowns`).
+- `init`: (optional) Initial `FEVector` for the solution. If provided, the finite element spaces are inferred from it.
+- `kwargs...`: Additional keyword arguments to set solver parameters (see below).
+
+# Keyword Arguments
 $(_myprint(default_solver_kwargs()))
+
+# Returns
+- A `SolverConfiguration` instance, ready to be passed to the `solve` function.
+
+# Notes
+- If `init` is provided, the finite element spaces are inferred from it and the solution vector is initialized accordingly.
+- The constructor checks that the number of unknowns matches the number of finite element spaces and that all unknowns are present in the problem description.
+- The configuration includes storage for the system matrix, right-hand side, solution, temporary solution, residual, and solver statistics.
 
 """
 function SolverConfiguration(Problem::ProblemDescription; init = nothing, unknowns = Problem.unknowns, kwargs...)
