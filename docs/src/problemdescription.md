@@ -63,12 +63,35 @@ Each operator assembles on certain mesh entities. The default is cell-wise assem
 
 ### Function Operators
 
-Operators involve pairs of an `Unknown` and a `FunctionOperator` (or an alias such as `Identity`, `Gradient`, etc.). FunctionOperators specify the mathematical operation to be applied (see [the full list here](https://wias-pdelib.github.io/ExtendableFEMBase.jl/dev/functionoperators/)).
+Function operators specify the mathematical operation to be applied to an unknown within an operator term. Each operator is defined as a pair of an `Unknown` (or integer index) and a `FunctionOperator` (such as `Identity`, `Gradient`, etc.), e.g., `(u, Identity)` or `(u, Gradient)`.
 
-Additional FunctionOperators for evaluating discontinuous operators on faces are available (needed for DG methods or face terms in a posteriori error estimators):
+See the [full list of function operators](https://wias-pdelib.github.io/ExtendableFEMBase.jl/dev/functionoperators/).
 
-```@autodocs
-Modules = [ExtendableFEM]
-Pages = ["jump_operators.jl"]
-Order   = [:type, :function]
-```
+For convenience and readability, common operator pairs have short aliases:
+- `id(u)` for `(u, Identity)`
+- `grad(u)` for `(u, Gradient)`
+- `div(u)` for `(u, Divergence)`
+- `curl1(u)` for `(u, CurlScalar)`
+- `curl2(u)` for `(u, Curl2D)`
+- `curl3(u)` for `(u, Curl3D)`
+- `laplace(u)` or `Δ(u)` for `(u, Laplacian)`
+- `hessian(u)` for `(u, Hessian)`
+- `normalflux(u)` for `(u, NormalFlux)`
+- `tangentialflux(u)` for `(u, TangentFlux)`
+- `tangentialgrad(u)` for `(u, TangentialGradient)`
+- `symgrad_voigt(u, factor)` for `(u, SymmetricGradient{factor})` in Voigt notation
+- `εV(u, factor)` as a unicode alias for `symgrad_voigt(u, factor)`
+- `grid(u)` for `(u, "grid")` (triggers gridplot in plot)
+- `dofgrid(u)` for `(u, "dofgrid")` (triggers gridplot for the dofgrid in plot)
+- `apply(u, FO)` for `(u, FO)` for any function operator type
+
+Additional function operators for evaluating discontinuous quantities on faces (such as `jump`, `average`, `this`, `other`) are available.
+
+For convenience, these discontinuous operator pairs also have short aliases:
+- `jump((u, FO))` for `(u, Jump{FO})` (jump across a face)
+- `average((u, FO))` for `(u, Average{FO})` (average across a face)
+- `this((u, FO))` for `(u, Left{FO})` (value on the left side of a face)
+- `other((u, FO))` for `(u, Right{FO})` (value on the right side of a face)
+
+Here, `FO` can be any standard function operator (e.g., `Identity`, `Gradient`, etc.).
+Of course, also something like `jump(id(u))` or `jump(grad(u))` works.
