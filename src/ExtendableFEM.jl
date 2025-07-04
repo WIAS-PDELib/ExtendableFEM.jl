@@ -5,6 +5,7 @@ $(read(joinpath(@__DIR__, "..", "README.md"), String))
 """
 module ExtendableFEM
 
+using ChunkSplitters: chunks
 using CommonSolve: CommonSolve
 using DiffResults: DiffResults
 using DocStringExtensions: DocStringExtensions, TYPEDFIELDS
