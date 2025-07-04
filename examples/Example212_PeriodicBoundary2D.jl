@@ -121,6 +121,7 @@ function main(;
         h = 1.0e-2,
         width = 6.0,
         height = 1.0,
+        threads = 1,
         kwargs...
     )
     xgrid = create_grid(; h, width, height)
@@ -153,8 +154,7 @@ function main(;
             return nothing
         end
 
-        coupling_matrix = get_periodic_coupling_matrix(FES, reg_left, reg_right, give_opposite!)
-        display(coupling_matrix)
+        @time coupling_matrix = get_periodic_coupling_matrix(FES, reg_left, reg_right, give_opposite!; parallel = threads > 1, threads)
         assign_operator!(PD, CombineDofs(u, u, coupling_matrix; kwargs...))
     end
 
@@ -172,8 +172,10 @@ end
 
 generateplots = ExtendableFEM.default_generateplots(Example212_PeriodicBoundary2D, "example212.png") #hide
 function runtests()                                                                                  #hide
-    sol, plt = main()                                                                                #hide
+    sol, _ = main()                                                                                  #hide
     @test abs(maximum(view(sol[1])) - 1.3447465095618172) < 1.0e-3                                   #hide
+    sol2, _ = main(threads = 4)                                                                      #hide
+    @test sol.entries ≈ sol2.entries                                                                 #hide
     return nothing                                                                                   #hide
 end                                                                                                  #hide
 

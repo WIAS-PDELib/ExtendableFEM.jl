@@ -1,9 +1,10 @@
 name = "ExtendableFEM"
 uuid = "a722555e-65e0-4074-a036-ca7ce79a4aed"
-version = "1.4"
+version = "1.5.0"
 authors = ["Christian Merdon <merdon@wias-berlin.de>", "Patrick Jaap <patrick.jaap@wias-berlin.de>"]
 
 [deps]
+ChunkSplitters = "ae650224-84b6-46f8-82ea-d812ca08434e"
 CommonSolve = "38540f10-b2f7-11e9-35d8-d573e4eb0ff2"
 DiffResults = "163ba53b-c6d8-5494-b064-1a9d43ac40c5"
 DocStringExtensions = "ffbed154-4ef7-542d-bbb7-c09d3a79fcae"
@@ -18,12 +19,14 @@ Printf = "de0858da-6303-5e67-8744-51eddeeeb8d7"
 SciMLBase = "0bca4576-84f4-4d90-8ffe-ffa030f20462"
 SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
 SparseDiffTools = "47a9eef4-7e08-11e9-0b38-333d64bd3804"
+StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 Symbolics = "0c5d862f-8b57-4792-8d23-62f2024744c7"
 TimerOutputs = "a759f4b9-e2f1-59dc-863e-4aeb61b1ea8f"
 UnicodePlots = "b8865327-cd53-5732-bb35-84acbb429228"
 
 [compat]
 Aqua = "0.8"
+ChunkSplitters = "3.1.2"
 CommonSolve = "0.2"
 DiffResults = "1"
 DocStringExtensions = "0.8,0.9"

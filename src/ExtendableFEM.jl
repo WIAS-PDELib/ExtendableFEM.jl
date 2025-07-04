@@ -5,6 +5,7 @@ $(read(joinpath(@__DIR__, "..", "README.md"), String))
 """
 module ExtendableFEM
 
+using ChunkSplitters: chunks
 using CommonSolve: CommonSolve
 using DiffResults: DiffResults
 using DocStringExtensions: DocStringExtensions, TYPEDEF, TYPEDSIGNATURES
@@ -68,6 +69,7 @@ using LinearSolve: LinearSolve, LinearProblem, UMFPACKFactorization, deleteat!,
 using Printf: Printf, @printf, @sprintf
 using SparseArrays: SparseArrays, AbstractSparseArray, SparseMatrixCSC, findnz, nnz,
     nzrange, rowvals, sparse, SparseVector
+using StaticArrays: @MArray
 using SparseDiffTools: SparseDiffTools, ForwardColorJacCache,
     forwarddiff_color_jacobian!, matrix_colors
 using Symbolics: Symbolics
