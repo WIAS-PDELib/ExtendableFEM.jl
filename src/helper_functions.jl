@@ -359,17 +359,9 @@ function _get_periodic_coupling_matrix(
     bfaces_of_interest = filter(face -> boundary_regions[face] in b_from, 1:n_boundary_faces)
     n_bface_of_interest = length(bfaces_of_interest)
 
-    # we loop ober the n_boundary_faces in parallel:
-    # create chunks to split this range for the threads
-    if parallel
-        chuck_length = Int(ceil(n_bface_of_interest / threads))
-    else
-        chuck_length = n_bface_of_interest
-    end
-    chunks = Iterators.partition(bfaces_of_interest, chuck_length)
-
     # loop over boundary face indices in a chunk: we need this index for dofs_on_boundary
     function compute_chunk_result(chunk)
+
 
         @info "start $chunk"
 
@@ -432,10 +424,14 @@ function _get_periodic_coupling_matrix(
         return result
     end
 
-    @info "start $(length(chunks)) tasks..."
+    # we loop ober the n_boundary_faces in parallel:
+    # create chunks to split this range for the threads
+    bface_chunks = chunks(bfaces_of_interest, n = parallel ? threads : 1)
+
+    @info "start $(length(bface_chunks)) tasks..."
 
     # show start all chunks in parallel
-    tasks = map(chunks) do chunk
+    tasks = map(bface_chunks) do chunk
         Threads.@spawn compute_chunk_result(chunk)
     end
 
