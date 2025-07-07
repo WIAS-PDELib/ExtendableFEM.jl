@@ -358,6 +358,13 @@ function _get_periodic_coupling_matrix(
         append!(searchareas, view(faces_to, 1:nfaces_to))
     end
 
+    # throw error if no search area had been found for a bface
+    for source in 1:num_sources(searchareas)
+        if num_targets(searchareas, source) == 0
+            throw("bface $source has no valid search area on the opposite side of the grid. Are from/to regions and give_opposite! function correct?")
+        end
+    end
+
     # loop over boundary face indices: we need this index for dofs_on_boundary
     for i_boundary_face in 1:n_boundary_faces
 
