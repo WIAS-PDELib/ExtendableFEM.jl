@@ -380,7 +380,8 @@ function _get_periodic_coupling_matrix(
         # to be sure
         fill!(fe_vector.entries, 0.0)
 
-        local fe_vector_target = FEVector(our_FES)
+        local entries = SparseVector{Float64, Int64}(our_FES.ndofs, Int64[], Float64[])
+        local fe_vector_target = FEVector(our_FES; entries)
 
         local n = length(fe_vector.entries)
         local result = ExtendableSparseMatrix(n, n)
@@ -397,7 +398,8 @@ function _get_periodic_coupling_matrix(
                 end
 
                 # reset
-                fill!(fe_vector_target.entries, 0.0)
+                empty!(fe_vector_target.entries.nzind)
+                empty!(fe_vector_target.entries.nzval)
 
                 # activate one entry
                 fe_vector.entries[local_dof] = 1.0
@@ -419,7 +421,7 @@ function _get_periodic_coupling_matrix(
                 fe_vector.entries[local_dof] = 0.0
 
                 # set entries
-                for (i, target_entry) in enumerate(fe_vector_target.entries)
+                for (i, target_entry) in zip(findnz(fe_vector_target.entries)...)
                     if abs(target_entry) > sparsity_tol
                         result[local_dof, i] = target_entry
                     end

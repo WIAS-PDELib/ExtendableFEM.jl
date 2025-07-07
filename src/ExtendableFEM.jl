@@ -67,7 +67,7 @@ using LinearAlgebra: LinearAlgebra, copyto!, isposdef, mul!, norm
 using LinearSolve: LinearSolve, LinearProblem, UMFPACKFactorization, deleteat!,
     init, solve
 using Printf: Printf, @printf
-using SparseArrays: SparseArrays, AbstractSparseArray, SparseMatrixCSC, findnz, nnz,
+using SparseArrays: SparseArrays, AbstractSparseArray, SparseMatrixCSC, findnz, nnz, SparseVector,
     nzrange, rowvals, sparse
 using SparseDiffTools: SparseDiffTools, ForwardColorJacCache,
     forwarddiff_color_jacobian!, matrix_colors
