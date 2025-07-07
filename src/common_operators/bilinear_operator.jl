@@ -380,7 +380,7 @@ function build_assembler!(A::AbstractMatrix, O::BilinearOperator{Tv}, FE_test, F
         regions = O.parameters[:regions]
         visit_region = zeros(Bool, maximum(itemregions))
         if length(regions) > 0
-            visit_region[O.regions] = true
+            visit_region[regions] .= true
         else
             visit_region .= true
         end
