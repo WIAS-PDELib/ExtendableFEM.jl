@@ -116,6 +116,13 @@ alias for (u, Identity)
 id(u) = (u, Identity)
 
 """
+	id(u, c::Int)
+
+alias for (u, IdentityComponent{c})
+"""
+id(u, c::Int) = (u, IdentityComponent{c})
+
+"""
 	curl1(u)
 
 alias for (u, CurlScalar)
