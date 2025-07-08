@@ -7,7 +7,7 @@ module ExtendableFEM
 
 using CommonSolve: CommonSolve
 using DiffResults: DiffResults
-using DocStringExtensions: DocStringExtensions, TYPEDEF, TYPEDSIGNATURES, TYPEDFIELDS
+using DocStringExtensions: DocStringExtensions, TYPEDEF, TYPEDSIGNATURES
 using ExtendableFEMBase: ExtendableFEMBase, AbstractFiniteElement,
     AbstractFunctionOperator, AbstractH1FiniteElement,
     AbstractHdivFiniteElement, BEdgeDofs, BFaceDofs,
