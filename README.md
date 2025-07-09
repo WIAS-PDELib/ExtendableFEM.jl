@@ -62,5 +62,4 @@ plot(id(u), sol; Plotter = PyPlot)
 If you use ExtendableFEM.jl in your research, please cite [this Zenodo record](https://zenodo.org/doi/10.5281/zenodo.10563834).
 
 ## License
-
-ExtendableFEM.jl is licensed under the MIT License. See [LICENSE](LICENSE) for details.
+ExtendableFEM.jl is licensed under the MIT License. See [LICENSE](https://github.com/WIAS-PDELib/ExtendableFEM.jl/blob/master/LICENSE) for details.
