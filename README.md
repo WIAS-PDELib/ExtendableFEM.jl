@@ -4,54 +4,62 @@
 [![DOI](https://zenodo.org/badge/668345991.svg)](https://zenodo.org/doi/10.5281/zenodo.10563834)
 [![code style: runic](https://img.shields.io/badge/code_style-%E1%9A%B1%E1%9A%A2%E1%9A%BE%E1%9B%81%E1%9A%B2-black)](https://github.com/fredrikekre/Runic.jl)
 
-# ExtendableFEM
-High Level API Finite Element Methods based on [ExtendableGrids.jl](https://github.com/WIAS-PDELib/ExtendableGrids.jl) (for grid management)
-and [ExtendableFEMBase.jl](https://github.com/WIAS-PDELib/ExtendableFEMBase.jl) (for finite element basis functions and dof management). 
-It offers a ProblemDescription interface, that basically involves assigning Unknowns and Operators. Such operators usually stem from a weak formulation of the problem and mainly consist of three types that can be customized via kernel functions:
+**ExtendableFEM.jl** is a high-level, extensible finite element method (FEM) library for Julia, supporting flexible problem descriptions, custom operators, and advanced grid management.
 
-- BilinearOperator,
-- LinearOperator,
-- NonlinearOperator (that automatically assemble Newton's method by automatic differentiation)
+## Features
 
-### Quick Example
+- High-level, extensible API for solving PDE problems by finite element methods
+- Flexible `ProblemDescription` interface for assigning unknowns and operators
+- Supports custom kernel functions for bilinear, linear, and nonlinear forms
+- Automatic assembly and Newton's method for NonlinearOperators
+- Builds upon [ExtendableGrids.jl](https://github.com/WIAS-PDELib/ExtendableGrids.jl) and low level structures from [ExtendableFEMBase.jl](https://github.com/WIAS-PDELib/ExtendableFEMBase.jl)
 
-The following minimal example demonstrates how to setup a Poisson problem.
+## Quick Example
+
+The following minimal example demonstrates how to set up and solve a Poisson problem:
 
 ```julia
 using ExtendableFEM
 using ExtendableGrids
 
-# build/load any grid (here: a uniform-refined 2D unit square into triangles)
+# Build a uniform-refined 2D unit square grid with triangles
 xgrid = uniform_refine(grid_unitsquare(Triangle2D), 4)
 
-# create empty PDE description
+# Create a new PDE description
 PD = ProblemDescription()
 
-# create and assign unknown
+# Define and assign the unknown
 u = Unknown("u"; name = "potential")
 assign_unknown!(PD, u)
 
-# assign Laplace operator
+# Assign Laplace operator (diffusion term)
 assign_operator!(PD, BilinearOperator([grad(u)]; factor = 1e-3))
 
-# assign right-hand side data
+# Assign right-hand side data
 function f!(fval, qpinfo)
     x = qpinfo.x # global coordinates of quadrature point
     fval[1] = x[1] * x[2]
 end
 assign_operator!(PD, LinearOperator(f!, [id(u)]))
 
-# assign boundary data (here: u = 0)
+# Assign Dirichlet boundary data (u = 0)
 assign_operator!(PD, HomogeneousBoundaryData(u; regions = 1:4))
 
-# discretise = choose FESpace
+# Discretize: choose finite element space
 FEType = H1Pk{1,2,3} # cubic H1-conforming element with 1 component in 2D
 FES = FESpace{FEType}(xgrid)
 
-# solve
-sol = solve!(Problem, [FES])
+# Solve the problem
+sol = solve!(PD, [FES])
 
-# plot
+# Plot the solution
 using PyPlot
 plot(id(u), sol; Plotter = PyPlot)
 ```
+
+## Citing
+
+If you use ExtendableFEM.jl in your research, please cite [this Zenodo record](https://zenodo.org/doi/10.5281/zenodo.10563834).
+
+## License
+ExtendableFEM.jl is licensed under the MIT License. See [LICENSE](https://github.com/WIAS-PDELib/ExtendableFEM.jl/blob/master/LICENSE) for details.

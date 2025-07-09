@@ -1,30 +1,32 @@
 # Time-dependent Solvers
 
-For time-dependent (non-stationary) problems the user currently has these options:
-- fully manual option: add custom time derivatives to the problem (i.e. a mass matrix as a BilinearOperator and necessary LinearOperators for evaluating the previous time step(s), if more than one previous time step needs to be remembered, their memorization must be handled manually, e.g. by registering further unknowns)
-- fully automatic option: reframe the ProblemDescription as an ODE problem and evolve it via DifferentialEquations with ExtendableFEMDiffEQExt.jl extension (see below)
+This section describes how to solve time-dependent (non-stationary) PDEs using the high-level API.
 
-Several time-dependent examples are available where both options are implemented, see e.g. Examples103 (Burger's equation)
-and Example205 (Heat equation).
+## Approaches to Time-dependent Problems
 
+- **Manual approach:**
+    - Add custom time-derivative terms to the problem (e.g., a mass matrix as a `BilinearOperator` and `LinearOperator`s for previous time steps).
+    - If more than one previous time step is needed (e.g., for BDF2 or multi-step methods), you must manage the storage and update of previous solutions manually.
+- **Automatic approach:**
+    - Reframe the `ProblemDescription` as an ODE problem and solve it using [DifferentialEquations.jl](https://diffeq.sciml.ai/stable/) via the `ExtendableFEMDiffEQExt.jl` extension.
+
+Several time-dependent examples are available, including both approaches. See, for example, [Example103 (Burgers' equation)](https://wias-pdelib.github.io/ExtendableFEM.jl/stable/examples/) and [Example205 (Heat equation)](https://wias-pdelib.github.io/ExtendableFEM.jl/stable/examples/).
 
 ## Using SciMLBase.ODEProblem and DifferentialEquations.jl
 
-It is possible to reframe the ProblemDescription for the spatial differential operator of the PDE
-as the right-hand side of an ODEProblem. Here, the ProblemDescription contains
-the right-hand side description of the ODE
+You can reframe the spatial part of your PDE as the right-hand side of an `ODEProblem`. The `ProblemDescription` then describes the spatial operators and right-hand side:
+
 ```math
 \begin{aligned}
 M u_t(t) & = b(u(t)) - A(u(t)) u(t)
 \end{aligned}
 ```
-where A and b correspond to the assembled (linearized) spatial operator and the right-hand side operators
-in the ProblemDescription. Note, that A comes with a minus sign. The matrix M is the mass matrix
-and can be customized somewhat (as long as it stays constant). The operators in the ProblemDescription
-might depend on time (if their kernels use qpinfo.time) and will be reassembled in each time step. To avoid
-this single operator reassemblies can be switched off by using the store = true argument. The full matrix
-reassembly can be skipped if constant_matrix = true is used in the SolverConfiguration.
 
+where:
+- `A` and `b` are the assembled (linearized) spatial operator and right-hand side operators in the `ProblemDescription` (note: `A` comes with a minus sign).
+- `M` is the mass matrix, which can be customized (as long as it remains constant).
+- Operators in the `ProblemDescription` may depend on time (e.g., if their kernels use `qpinfo.time`) and will be reassembled at each time step.
+- To avoid unnecessary reassembly, use `store = true` for operators that do not change in time, or `constant_matrix = true` in the `SolverConfiguration` to skip full matrix reassembly.
 
 ```@autodocs
 Modules = [ExtendableFEM]
@@ -33,15 +35,12 @@ Order   = [:type, :function]
 ```
 
 !!! note
+    When using DifferentialEquations.jl, set `autodiff=false` in the solver options, as automatic differentiation of the generated ODEProblem with respect to time is not currently supported.
 
-    The solvers of DifferentialEquations should be run with the autodiff=false option
-    as it is currently not possible to differentiate the right-hand side of the generated
-    ODEProblem with respect to time.
+## Example: 2D Heat Equation (extracted from Example205)
 
-## Example : 2D Heat equation
+The following `ProblemDescription` yields the space discretization of the heat equation (including homogeneous boundary conditions; equivalent to the Poisson equation):
 
-The following ProblemDescription yields the space discretisation of the
-heat equation (including homogeneous boundary conditions and equivalent to the Poisson equation).
 ```julia
 PD = ProblemDescription("Heat Equation")
 u = Unknown("u"; name = "temperature")
@@ -49,9 +48,16 @@ assign_unknown!(PD, u)
 assign_operator!(PD, BilinearOperator([grad(u)]; store = true, kwargs...))
 assign_operator!(PD, HomogeneousBoundaryData(u))
 ```
-Given a finite element space FES and an initial FEVector sol for the unknown, the
-ODEProblem for some time interval (0,T) can be generated and solved via
+
+Given a finite element space `FES` and an initial `FEVector` `sol` for the unknown, the `ODEProblem` for a time interval `(0, T)` can be generated and solved as follows:
+
 ```julia
 prob = generate_ODEProblem(PD, FES, (0, T); init = sol)
-DifferentialEquations.solve(prob, Rosenbrock23(autodiff = false), dt = 1e-3, dtmin = 1e-6, adaptive = true)
+DifferentialEquations.solve(prob, ImplicitEuler(autodiff = false), dt = 1e-3, dtmin = 1e-6, adaptive = true)
 ```
+
+## Tips
+
+- For more advanced time-stepping schemes, manage previous solutions and time-derivative terms manually in the `ProblemDescription`.
+- See the [examples](https://wias-pdelib.github.io/ExtendableFEM.jl/stable/examples/) for practical implementations of time-dependent problems.
+- For further details on the ODE interface, see the [ExtendableFEMDiffEQExt.jl documentation](https://github.com/WIAS-PDELib/ExtendableFEMDiffEQExt.jl).

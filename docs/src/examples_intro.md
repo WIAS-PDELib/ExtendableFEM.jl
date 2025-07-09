@@ -1,29 +1,29 @@
-# About the examples
+# About the Examples
 
-The examples have been designed with the following issues in mind:
-- they run from the Julia REPL
-- each example is a Julia module named similar to the basename of the example file.
-- an example can be used as the starting point for a project 
-- some examples define test cases for the test suite
-- ExampleXYZ with X = A can be considered advanced and uses low-level structures
-  and/or demonstrates customisation features or experimental features
-- the default output of the main function is printed on the website and can be
-  used to check if the code runs as expected (unfortunately REPL messages are not recorded)
-- printed assembly and solving times (especially in a first iteration) can be much larger due to first-run compilation times,
-  the printouts in the documentation are taken from a second run after compilations are done
+The examples in this package are designed to be practical, reproducible, and educational. They demonstrate a wide range of finite element applications and PDE model problems.
 
+## Design Principles
 
-## Running the examples
+- All examples can be run directly from the Julia REPL.
+- Each example is a Julia module named after the file.
+- Examples can serve as templates for your own projects.
+- Many examples include test cases for automated verification.
 
-In order to run `ExampleXXX`, perform the following steps:
+## Running the Examples
 
-- Download the example file (e.g. via the source code link at the top)
-- Make sure all used packages are installed in your Julia environment
-- In the REPL: 
-```
-julia> include("ExampleXXX.jl")`
+To run an example (e.g., `Example212_PeriodicBoundary2D`):
 
-julia> ExampleXXX.main()
-```
-- Some examples offer visual output via the optional argument Plotter = PyPlot or Plotter = GLMakie
-(provided the package PyPlot/GLMakie is installed and loaded)
+1. Download the example file (see the source code link at the top of the example page).
+2. Ensure all required packages are installed in your Julia environment.
+3. In the Julia REPL:
+
+    ```julia
+    julia> include("Example212_PeriodicBoundary2D.jl")
+    julia> Example212_PeriodicBoundary2D.main()
+    ```
+
+4. Some examples offer visual output via the optional argument `Plotter = PyPlot` or `Plotter = GLMakie` (provided the package is installed and loaded):
+
+    ```julia
+    julia> Example212_PeriodicBoundary2D.main(Plotter = PyPlot)
+    ```

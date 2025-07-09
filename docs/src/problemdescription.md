@@ -1,13 +1,15 @@
-
 # Problem Description
 
+The `ProblemDescription` is the central object for defining finite element problems in a high-level, flexible, and modular way. It encodes the weak form of your PDE, including unknowns, operators, and boundary or interface conditions, usually without requiring discretization details at this stage, but region numbers (for boundary conditions, etc.) may be referenced.
 
-Central object is the ProblemDescription which is given as a weak form of your problem and usually does not need any information on the discretisation at this point (but of course can depend on region numbers).
 
 ```@docs
 ProblemDescription
 ```
-## Constructors and assign functions
+
+## Constructors and Assignment Functions
+
+Use the following functions to construct and modify a `ProblemDescription`:
 
 ```@autodocs
 Modules = [ExtendableFEM]
@@ -15,10 +17,9 @@ Pages = ["problemdescription.jl"]
 Order   = [:function]
 ```
 
-
 ## Unknowns
 
-An Unknown is an identifies that encodes a physical quantity in the ProblemDescription.
+An `Unknown` represents a physical quantity (e.g., velocity, pressure, temperature) in the `ProblemDescription`. Unknowns are used to tag solution components and to specify which variables operators act on.
 
 ```@autodocs
 Modules = [ExtendableFEM]
@@ -26,55 +27,71 @@ Pages = ["unknowns.jl"]
 Order   = [:type, :function]
 ```
 
-
 ## Operators
 
-Operator is a quite general concept and is everything that makes modifications
-to the system matrix, hence classical representations of weak discretisations of differential operators,
-penalisations for boundary conditions or constraints, or stabilisation terms.
+Operators define how terms contribute to the system matrix or right-hand side. They can represent weak forms of differential operators, stabilization terms, constraints, or boundary conditions.
 
-### Types of operators
+### Types of Operators
 
-The three most important operator classes are:
-- NonlinearOperator (e.g. the convection term in a Navier-Stokes problem)
-- BilinearOperator (e.g. the Laplacian in a Poisson problem)
-- LinearOperator (e.g. the right-hand side in a Poisson or Navier-Stokes problem)
+The main operator classes are:
+- `NonlinearOperator` (e.g., nonlinear convection in Navier–Stokes)
+- `BilinearOperator` (e.g., Laplacian in Poisson)
+- `LinearOperator` (e.g., right-hand side in Poisson or Navier–Stokes)
 
-To assign boundary conditions or global constraints there are three possibilities:
-- InterpolateBoundaryData
-- HomogeneousData
-- FixDofs
-- CombineDofs
-
-
-
+For boundary conditions or global constraints, use:
+- `InterpolateBoundaryData`
+- `HomogeneousBoundaryData`
+- `FixDofs`
+- `CombineDofs`
 
 ### Entities and Regions
 
-Each operator assembles on certain entities of the mesh, the default is a cell-wise
-assembly. Most operators have the entities kwarg to changes that. Restrictions to subsets
-of the entities can be made via the regions kwarg.
+Each operator assembles on certain mesh entities. The default is cell-wise assembly, but this can be changed via the `entities` keyword. Restrict assembly to subsets of entities using the `regions` keyword.
 
 | Entities         | Description                                                      |
 | :--------------- | :--------------------------------------------------------------- |
-| AT_NODES         | interpolate at vertices of the mesh (only for H1-conforming FEM) |
-| ON_CELLS         | assemble/interpolate on the cells of the mesh                  |
-| ON_FACES         | assemble/interpolate on all faces of the mesh                  |
-| ON_IFACES        | assemble/interpolate on the interior faces of the mesh         |
-| ON_BFACES        | assemble/interpolate on the boundary faces of the mesh         |
-| ON_EDGES (*)     | assemble/interpolate on all edges of the mesh (in 3D)          |
-| ON_BEDGES (*)    | assemble/interpolate on the boundary edges of the mesh (in 3D) |
+| AT_NODES         | Interpolate at mesh vertices (only for H1-conforming FEM)        |
+| ON_CELLS         | Assemble/interpolate on mesh cells                               |
+| ON_FACES         | Assemble/interpolate on all mesh faces                           |
+| ON_IFACES        | Assemble/interpolate on interior mesh faces                      |
+| ON_BFACES        | Assemble/interpolate on boundary mesh faces                      |
+| ON_EDGES (*)     | Assemble/interpolate on all mesh edges (3D only, experimental)   |
+| ON_BEDGES (*)    | Assemble/interpolate on boundary mesh edges (3D only, experimental) |
 
 !!! note
-    (*) = only reasonable in 3D and still experimental, might have some issues
-
+    (*) = Only reasonable in 3D and still experimental; may have some issues.
 
 ### Function Operators
 
-The definition of operators often involves paris of an Unknown and a FunctionOperator (or an alias as listed above). FunctionOperators are something like Identity, Gradient etc. (see [here](https://wias-pdelib.github.io/ExtendableFEMBase.jl/dev/functionoperators/) for a complete list). Additional FunctionOperators for the evaluation of discontinuous operators on faces available (needed in particular for defining operators in  DG context or face terms in a posteriori error estimators):
+Function operators specify the mathematical operation to be applied to an unknown within an operator term. Each operator is defined as a pair of an `Unknown` (or integer index) and a `FunctionOperator` (such as `Identity`, `Gradient`, etc.), e.g., `(u, Identity)` or `(u, Gradient)`.
 
-```@autodocs
-Modules = [ExtendableFEM]
-Pages = ["jump_operators.jl"]
-Order   = [:type, :function]
-```
+See the [full list of function operators](https://wias-pdelib.github.io/ExtendableFEMBase.jl/dev/functionoperators/).
+
+For convenience and readability, common operator pairs have short aliases:
+- `id(u)` for `(u, Identity)`
+- `grad(u)` for `(u, Gradient)`
+- `div(u)` for `(u, Divergence)`
+- `curl1(u)` for `(u, CurlScalar)`
+- `curl2(u)` for `(u, Curl2D)`
+- `curl3(u)` for `(u, Curl3D)`
+- `laplace(u)` or `Δ(u)` for `(u, Laplacian)`
+- `hessian(u)` for `(u, Hessian)`
+- `normalflux(u)` for `(u, NormalFlux)`
+- `tangentialflux(u)` for `(u, TangentFlux)`
+- `tangentialgrad(u)` for `(u, TangentialGradient)`
+- `symgrad_voigt(u, factor)` for `(u, SymmetricGradient{factor})` in Voigt notation
+- `εV(u, factor)` as a unicode alias for `symgrad_voigt(u, factor)`
+- `grid(u)` for `(u, "grid")` (triggers gridplot in plot)
+- `dofgrid(u)` for `(u, "dofgrid")` (triggers gridplot for the dofgrid in plot)
+- `apply(u, FO)` for `(u, FO)` for any function operator type
+
+Additional function operators for evaluating discontinuous quantities on faces (such as `jump`, `average`, `this`, `other`) are available.
+
+For convenience, these discontinuous operator pairs also have short aliases:
+- `jump((u, FO))` for `(u, Jump{FO})` (jump across a face)
+- `average((u, FO))` for `(u, Average{FO})` (average across a face)
+- `this((u, FO))` for `(u, Left{FO})` (value on the left side of a face)
+- `other((u, FO))` for `(u, Right{FO})` (value on the right side of a face)
+
+Here, `FO` can be any standard function operator (e.g., `Identity`, `Gradient`, etc.).
+Of course, also something like `jump(id(u))` or `jump(grad(u))` works.

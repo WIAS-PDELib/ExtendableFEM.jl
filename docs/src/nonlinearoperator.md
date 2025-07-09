@@ -1,19 +1,12 @@
 
 # NonlinearOperator
 
-A nonlinear operator automatically assembles all necessary terms for the
-Newton method. Other linearisations of a nonlinear operator can be
-constructed with special constructors for BilinearOperator or LinearOperator.
+`NonlinearOperator` provides a high-level interface for defining nonlinear forms in finite element problems. It automatically assembles all terms required for Newton's method, including the residual and Jacobian, using user-supplied kernel functions. For alternative linearizations, use `BilinearOperator` or `LinearOperator` with appropriate kernels.
+
 
 ## Constructor
 
-To describe a NonlinearOperator we have to specify a kernel function. 
-These functions are 'flat' in the sense that the input and output vector 
-contain the components of the test-function values and derivatives
-as specified by `oa_test` and `oa_args` respectively.
-The assembly of the local matrix will be done internally 
-by multiplying the subvectors of result with its test-function counterparts.
-For a more detailed explanation of this see the following
+To define a `NonlinearOperator`, provide a kernel function. The kernel receives flat input and output vectors corresponding to the operator evaluations specified by `oa_test` and `oa_args`.
 
 ```@autodocs
 Modules = [ExtendableFEM]

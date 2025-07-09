@@ -1,7 +1,8 @@
 # Item Integrators
 
-Item integrators compute certain quantities of the Solution, like a posteriori errors estimators, norms, drag/lift coefficients or other statistics.
+`ItemIntegrator` provides a flexible interface for computing derived quantities from finite element solutions. These include a posteriori error estimators, norms, physical quantities (e.g., drag/lift coefficients), and other statistics that are computed by integrating over mesh entities (cells, faces, etc.).
 
+## API Reference
 
 ```@autodocs
 Modules = [ExtendableFEM]
@@ -9,17 +10,14 @@ Pages = ["common_operators/item_integrator.jl"]
 Order   = [:type, :function]
 ```
 
-
 ## ItemIntegratorDG
 
-ItemIntegratorDG is intended for quantities that involve jumps of discontinuous quantities
-on faces whose assembly requires evaluation of all degrees of freedom on the neighbouring cells,
-e.g. gradient jumps for H1 conforming functions or jumps of broken FESpaces.
-In this case the assembly loop triggers
-integration along the boundary of the cells.
+`ItemIntegratorDG` is intended for quantities that involve jumps or averages of discontinuous quantities on faces, requiring access to all degrees of freedom on neighboring cells. This is essential for DG methods and certain error estimators.
 
 ```@autodocs
 Modules = [ExtendableFEM]
 Pages = ["common_operators/item_integrator_dg.jl"]
 Order   = [:type, :function]
 ```
+
+See the [examples](https://wias-pdelib.github.io/ExtendableFEM.jl/stable/examples/) for some practical use cases.

@@ -39,23 +39,24 @@ end
 
 
 """
-````
-function CallbackOperator(
-	callback!::Function,
-	u_args = [];
-	kwargs...)
-````
+$(TYPEDSIGNATURES)
 
-Generates an operator that simply passes the matrix and rhs to
-a user-specified call back function. The callback function needs to be conform
-to the interface
+Creates an operator that delegates matrix and right-hand side assembly to a user-supplied callback function.
 
-	callback!(A, b, args; assemble_matrix = true, assemble_rhs = true, time = 0, kwargs...)
+# Arguments
+- `callback!::Function`: User-defined function called during assembly. Must have the signature:
+  `callback!(A, b, args; assemble_matrix=true, assemble_rhs=true, time=0, kwargs...)`
+  where:
+    - `A`: Matrix to assemble into (may be `nothing` if only the RHS is assembled).
+    - `b`: Right-hand side vector (may be `nothing` if only the matrix is assembled).
+    - `args`: Vector of solution blocks (typically `FEVectorBlock`s or similar).
+    - `assemble_matrix`, `assemble_rhs`: Booleans indicating which objects to assemble.
+    - `time`: Current time (for time-dependent problems).
+    - `kwargs...`: Additional keyword arguments.
 
-The u_args argument can be used to specify the arguments of the solution that should be
-passed as args (a vector of FEVectorBlocks) to the callback.
+- `u_args`: (optional) Array of `Unknown`s or integer indices specifying which solution blocks are passed as `args` to the callback. Defaults to an empty array.
 
-Keyword arguments:
+# Keyword arguments:
 $(_myprint(default_cbop_kwargs()))
 
 """

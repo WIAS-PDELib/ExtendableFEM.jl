@@ -1,5 +1,12 @@
 # CHANGES
 
+
+## v1.4.0
+
+### Changed
+  - improved docstrings, documentation
+  - improved print_convergencehistory and show functions
+
 ## v1.3.0 June 17, 2025
 
 ### Added

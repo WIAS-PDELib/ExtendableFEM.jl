@@ -1,15 +1,24 @@
-# Other packages
+# Postprocessing and Visualization
 
-A lot of functionality is already provided by the bases packages, e.g.:
-- [ExtendableGrids.jl](https://github.com/WIAS-PDELib/ExtendableGrids.jl) offers an interface to [WriteVTK.jl](https://github.com/jipolanco/WriteVTK.jl) which can be used, e.g. in combination with nodevalues interpolations or (piecewise constant) item integrator results. There is also the CellFinder that can be used to find the right cell for a certain point of the domain.
-- [ExtendableFEMBase.jl](https://github.com/WIAS-PDELib/ExtendableFEMBase.jl) offers a PointEvaluator and a SegmentIntegrator to evaluate solutions at arbitrary points of the domain or integrating along 1D line intersections with the cells of the triangulation. It also provides some basic unicode plots.
-- [GridVisualize.jl](https://github.com/WIAS-PDELib/GridVisualize.jl) provides grid and scalar piecewise linear function plotting for various plotting backends on simplicial grids in one, two or three space dimensions. The main supported backends are PyPlot, GLMakie and PlutoVista.
+A variety of postprocessing and visualization tools are available, both within this package and through related packages in the ecosystem. These tools enable you to analyze, visualize, and export finite element solutions and derived quantities.
 
+## Related Packages
+
+- [ExtendableGrids.jl](https://github.com/WIAS-PDELib/ExtendableGrids.jl):
+    - Interface to [WriteVTK.jl](https://github.com/jipolanco/WriteVTK.jl) for exporting results to VTK format (for use with ParaView, VisIt, etc.).
+    - `CellFinder` utility for locating the cell containing a given point.
+- [ExtendableFEMBase.jl](https://github.com/WIAS-PDELib/ExtendableFEMBase.jl):
+    - Node value interpolations.
+    - `PointEvaluator` for evaluating solutions at arbitrary points in the domain.
+    - `SegmentIntegrator` for integrating along 1D line intersections with the mesh.
+    - Basic unicode plotting for quick inspection of results.
+- [GridVisualize.jl](https://github.com/WIAS-PDELib/GridVisualize.jl):
+    - Grid and scalar function plotting for simplicial grids in 1D, 2D, and 3D.
+    - Supports multiple backends, e.g., PyPlot, GLMakie, PlutoVista.
 
 ## Plots and Tables
 
-Some convenient plotting shortcuts are avaiables via these functions:
-
+This package provides some convenient plotting and table-generation functions for visualizing and summarizing results:
 
 ```@autodocs
 Modules = [ExtendableFEM]

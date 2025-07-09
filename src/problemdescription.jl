@@ -1,11 +1,16 @@
 """
-````
-struct ProblemDescription
-````
+$(TYPEDEF)
 
-Structure holding data for a problem description with the following fields:
+A structure representing a finite element problem description, including unknowns and operators.
 
-$(TYPEDFIELDS)
+# Fields
+- `name::String`: name of the problem (used in printouts and logs). Default: `"My Problem"`.
+- `unknowns::Vector{Unknown}`: List of unknowns involved in the problem.
+- `operators::Vector{AbstractOperator}`: List of operators (e.g., bilinear forms, linear forms, boundary conditions) that define the problem.
+
+# Usage
+Create a `ProblemDescription` using the default constructor, then assign unknowns and operators using `assign_unknown!` and `assign_operator!`.
+
 """
 mutable struct ProblemDescription
     """
@@ -24,11 +29,15 @@ mutable struct ProblemDescription
 end
 
 """
-````
-ProblemDescription(name = "My problem")
-````
+$(TYPEDSIGNATURES)
 
-Generates an empty ProblemDescription with the given name.
+Create an empty `ProblemDescription` with the given name.
+
+# Arguments
+- `name::String`: (optional) Name of the problem (used in printouts and logs). Default: `"My problem"`.
+
+# Returns
+- A `ProblemDescription` instance with the specified name and empty unknown/operator lists.
 
 """
 function ProblemDescription(name = "My problem")
@@ -37,12 +46,20 @@ end
 
 
 """
-````
-assign_unknown!(PD::ProblemDescription, u::Unknown)
-````
+$(TYPEDSIGNATURES)
 
-Assigns the Unknown u to the ProblemDescription PD
-and returns its position in the unknowns array of the ProblemDescription.
+Add an `Unknown` to a `ProblemDescription`, if not already present.
+
+# Arguments
+- `PD::ProblemDescription`: The problem description to which the unknown should be added.
+- `u::Unknown`: The unknown to add.
+
+# Returns
+- The index (position) of the unknown in the `unknowns` array of `PD`.
+
+# Notes
+- If the unknown is already present, a warning is issued and its existing position is returned.
+
 
 """
 function assign_unknown!(PD::ProblemDescription, u::Unknown)
@@ -57,12 +74,16 @@ end
 
 
 """
-````
-assign_operator!(PD::ProblemDescription, o::AbstractOperator)
-````
+$(TYPEDSIGNATURES)
 
-Assigns the AbstractOperator o to the ProblemDescription PD
-and returns its position in the operators array of the ProblemDescription.
+Adds an operator to a `ProblemDescription`.
+
+# Arguments
+- `PD::ProblemDescription`: The problem description to which the operator should be added.
+- `o::AbstractOperator`: The operator to add.
+
+# Returns
+- The index (position) of the operator in the `operators` array of `PD`.
 
 """
 function assign_operator!(PD::ProblemDescription, o::AbstractOperator)
@@ -72,13 +93,14 @@ end
 
 
 """
-````
-replace_operator!(PD::ProblemDescription, j::Int, o::AbstractOperator)
-````
+$(TYPEDSIGNATURES)
 
-Replaces the j-th operator of the ProblemDescription PD by the new operator o.
-Here, j is the position in operator array returned by the assign_operator! function.
-Nothing is returned (as the new operator gets position j).
+Replace an operator in a `ProblemDescription` at a specified position.
+
+# Arguments
+- `PD::ProblemDescription`: The problem description in which to replace the operator.
+- `j::Int`: The index (position) of the operator to replace.
+- `o::AbstractOperator`: The new operator to insert.
 
 """
 function replace_operator!(PD::ProblemDescription, j, o::AbstractOperator)
@@ -91,21 +113,23 @@ end
 #end
 
 function Base.show(io::IO, PD::ProblemDescription)
-    println(io, "\nPDE-DESCRIPTION")
-    println(io, "    • name = $(PD.name)")
-    println(io, "\n  <<<UNKNOWNS>>>")
-    for u in PD.unknowns
-        print(io, "    • $u")
+    println(io, "\nPDE PROBLEM DESCRIPTION")
+    println(io, "  Name: $(PD.name)")
+    println(io, "  Unknowns ($(length(PD.unknowns))):")
+    if isempty(PD.unknowns)
+        println(io, "    (none)")
+    else
+        for (i, u) in enumerate(PD.unknowns)
+            println(io, "    [$i] $u")
+        end
     end
-
-    println(io, "\n  <<<OPERATORS>>>")
-    for o in PD.operators
-        println(io, "    • $(o)")
+    println(io, "  Operators ($(length(PD.operators))):")
+    if isempty(PD.operators)
+        println(io, "    (none)")
+    else
+        for (i, o) in enumerate(PD.operators)
+            println(io, "    [$i] $o")
+        end
     end
-
-    #println(io, " reductions =")
-    #for o in PD.reduction_operators
-    #    println(io, "    • $o")
-    #end
     return
 end
