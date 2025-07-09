@@ -1,7 +1,7 @@
 # Stationary Solvers
 
 This section describes how to solve stationary (time-independent) PDEs using the high-level API provided by this package. Both monolithic (single system) and block-iterative (subproblem) approaches are supported.
-For time-dependent problems, see the [time-dependent solvers section](./timedep_solvers.md).
+For time-dependent problems, there is an extra section.
 
 ## Meshes and FESpaces
 

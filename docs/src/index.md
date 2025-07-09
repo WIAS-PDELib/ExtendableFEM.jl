@@ -96,7 +96,7 @@ If you use ExtendableFEM.jl in your research, please cite [this Zenodo record](h
 
 ## License
 
-ExtendableFEM.jl is licensed under the MIT License. See [LICENSE](https://github.com/WIAS-PDELib/ExtendableFEM.jl/blob/main/LICENSE) for details.
+ExtendableFEM.jl is licensed under the MIT License. See [LICENSE](https://github.com/WIAS-PDELib/ExtendableFEM.jl/blob/master/LICENSE) for details.
 
 ## References
 
