@@ -55,9 +55,3 @@ Given a finite element space `FES` and an initial `FEVector` `sol` for the unkno
 prob = generate_ODEProblem(PD, FES, (0, T); init = sol)
 DifferentialEquations.solve(prob, ImplicitEuler(autodiff = false), dt = 1e-3, dtmin = 1e-6, adaptive = true)
 ```
-
-## Tips
-
-- For more advanced time-stepping schemes, manage previous solutions and time-derivative terms manually in the `ProblemDescription`.
-- See the [examples](https://wias-pdelib.github.io/ExtendableFEM.jl/stable/examples/) for practical implementations of time-dependent problems.
-- For further details on the ODE interface, see the [ExtendableFEMDiffEQExt.jl documentation](https://github.com/WIAS-PDELib/ExtendableFEMDiffEQExt.jl).

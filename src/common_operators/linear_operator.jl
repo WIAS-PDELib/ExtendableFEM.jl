@@ -171,9 +171,6 @@ This wraps an explicit vector `b` (which can be an `AbstractVector` or a block-s
 - `b`: The vector to use as the right-hand side. Can be an `AbstractVector` or an `FEVector` with multiple blocks.
 - `u_test`: Array specifying which unknowns or blocks the vector should be assigned to.
 
-# Keyword Arguments
-$(_myprint(default_linop_kwargs()))
-
 """
 function LinearOperator(b, u_test; kwargs...)
     parameters = Dict{Symbol, Any}(k => v[1] for (k, v) in default_linop_kwargs())
@@ -192,9 +189,6 @@ This wraps an explicit matrix `A` (which can be an `AbstractMatrix` or a block-s
 - `A`: The matrix to use (can be an `AbstractMatrix` or a `FEMatrix` with multiple blocks).
 - `u_test`: Array specifying which unknowns or blocks the result should be assigned to.
 - `u_args`: Array specifying which unknowns or blocks are used as arguments (i.e., which solution coefficients are multiplied by `A`).
-
-# Keyword Arguments
-$(_myprint(default_linop_kwargs()))
 
 """
 function LinearOperator(A::AbstractMatrix, u_test::Array{<:Union{Unknown, Int}, 1}, u_args::Array{<:Union{Unknown, Int}, 1}; kwargs...)

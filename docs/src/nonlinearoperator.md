@@ -1,7 +1,7 @@
 
 # NonlinearOperator
 
-`NonlinearOperator` provides a high-level interface for defining nonlinear forms in finite element problems. It automatically assembles all terms required for Newton's method, including the residual and Jacobian, using user-supplied kernel functions. For alternative linearizations, use `BilinearOperator` or `LinearOperator` with appropriate kernels.
+`NonlinearOperator` provides a high-level interface for defining nonlinear forms in finite element problems. It automatically assembles all terms required for Newton's method, including the residual and Jacobian, using user-supplied kernel functions. For alternative linearizations, use [`BilinearOperator`](@ref "BilinearOperator") or [`LinearOperator`](@ref "LinearOperator") with appropriate kernels.
 
 
 ## Constructor
