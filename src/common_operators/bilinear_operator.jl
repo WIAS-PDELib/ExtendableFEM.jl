@@ -108,9 +108,7 @@ Constructs a bilinear operator from a user-supplied matrix `A`, which can be a s
 - `A::AbstractMatrix`: The matrix representing the bilinear form, e.g., a sparse matrix.
 - `u_test::Vector{<:Union{Unknown, Int}}`: Identifiers or indices for the test functions.
 - `u_ansatz::Vector{<:Union{Unknown, Int}}` (optional): Identifiers or indices for the ansatz (trial) functions. Defaults to `u_test`.
-
-# Keyword Arguments
-$(ExtendableFEMBase._myprint(default_blfop_kwargs()))
+- `u_args::Vector{<:Union{Unknown, Int}}` (optional): Identifiers or indices for unknowns on which the matrix depends in a nonlinear way (this tells the solver which solution blocks trigger reassembly).
 
 # Returns
 A `BilinearOperatorFromMatrix` object that can be used in the assembly process.

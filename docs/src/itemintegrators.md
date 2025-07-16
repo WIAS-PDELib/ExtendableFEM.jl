@@ -20,4 +20,4 @@ Pages = ["common_operators/item_integrator_dg.jl"]
 Order   = [:type, :function]
 ```
 
-See the [examples](https://wias-pdelib.github.io/ExtendableFEM.jl/stable/examples/) for some practical use cases.
+See, e.g., Example207, Example210 or Example245 for some practical use cases.

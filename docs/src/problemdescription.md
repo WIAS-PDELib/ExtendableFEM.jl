@@ -34,15 +34,15 @@ Operators define how terms contribute to the system matrix or right-hand side. T
 ### Types of Operators
 
 The main operator classes are:
-- `NonlinearOperator` (e.g., nonlinear convection in Navier–Stokes)
-- `BilinearOperator` (e.g., Laplacian in Poisson)
-- `LinearOperator` (e.g., right-hand side in Poisson or Navier–Stokes)
+- [NonlinearOperator](@ref) (e.g., nonlinear convection in Navier–Stokes)
+- [BilinearOperator](@ref) (e.g., Laplacian in Poisson)
+- [LinearOperator](@ref) (e.g., right-hand side in Poisson or Navier–Stokes)
 
 For boundary conditions or global constraints, use:
-- `InterpolateBoundaryData`
-- `HomogeneousBoundaryData`
-- `FixDofs`
-- `CombineDofs`
+- [InterpolateBoundaryData](@ref)
+- [HomogeneousData](@ref)
+- [FixDofs](@ref)
+- [CombineDofs](@ref)
 
 ### Entities and Regions
 
@@ -55,8 +55,8 @@ Each operator assembles on certain mesh entities. The default is cell-wise assem
 | ON_FACES         | Assemble/interpolate on all mesh faces                           |
 | ON_IFACES        | Assemble/interpolate on interior mesh faces                      |
 | ON_BFACES        | Assemble/interpolate on boundary mesh faces                      |
-| ON_EDGES (*)     | Assemble/interpolate on all mesh edges (3D only, experimental)   |
-| ON_BEDGES (*)    | Assemble/interpolate on boundary mesh edges (3D only, experimental) |
+| ON_EDGES (*)     | Assemble/interpolate on all mesh edges   |
+| ON_BEDGES (*)    | Assemble/interpolate on boundary mesh edges |
 
 !!! note
     (*) = Only reasonable in 3D and still experimental; may have some issues.

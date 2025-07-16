@@ -29,13 +29,24 @@ using Test #hide
 ## define variables
 u = Unknown("u"; name = "potential")
 
-## define data functions
-function f!(fval, qpinfo)
+## default right-hand side f(x,y) = xy
+function default_f!(fval, qpinfo)
     fval[1] = qpinfo.x[1] * qpinfo.x[2]
     return nothing
 end
 
-function main(; μ = 1.0, nrefs = 4, order = 2, Plotter = nothing, parallel = false, npart = parallel ? 8 : 1, kwargs...)
+@info "This example solve the 2D Poisson problem -μΔu = f.
+    To run it call Example201_PoissonProblem.main(; kwargs...) from the Julia REPL.
+
+    Most important kwargs:
+    μ       - diffusion coefficient (default: 1.0)
+    f!      - right-hand side function (default: (fval, qpinfo) -> (fval[1] = qpinfo.x[1] * qpinfo.x[2]))
+    nrefs   - number of uniform grid refinements (default: 4)
+    order   - polynomial order of the finite element space (default: 2)
+    Plotter - plotting backend (e.g. GLMakie, PyPlot, default: nothing)
+    parallel- enable parallel assembly (default: false)
+    npart   - number of partitions for parallel run (default: 8 if parallel, else 1)"
+function main(; μ = 1.0, nrefs = 4, order = 2, Plotter = nothing, parallel = false, f! = default_f!, npart = parallel ? 8 : 1, kwargs...)
     ## problem description
     PD = ProblemDescription()
     assign_unknown!(PD, u)
