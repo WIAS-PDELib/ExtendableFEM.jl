@@ -244,8 +244,9 @@ function _get_periodic_coupling_matrix(
     # to be sure
     fill!(fe_vector.entries, 0.0)
 
-    # FE vector for interpolation
-    fe_vector_target = FEVector(FES)
+    # FE target vector for interpolation with sparse entries
+    fe_vector_target = FEVector(FES; entries = SparseVector{Float64, Int64}(FES.ndofs, Int64[], Float64[]))
+
 
     # resulting sparse matrix
     n = length(fe_vector.entries)
@@ -358,6 +359,13 @@ function _get_periodic_coupling_matrix(
         append!(searchareas, view(faces_to, 1:nfaces_to))
     end
 
+    # throw error if no search area had been found for a bface
+    for source in 1:num_sources(searchareas)
+        if num_targets(searchareas, source) == 0
+            throw("bface $source has no valid search area on the opposite side of the grid. Are from/to regions and give_opposite! function correct?")
+        end
+    end
+
     # loop over boundary face indices: we need this index for dofs_on_boundary
     for i_boundary_face in 1:n_boundary_faces
 
@@ -372,7 +380,8 @@ function _get_periodic_coupling_matrix(
                 end
 
                 # reset
-                fill!(fe_vector_target.entries, 0.0)
+                empty!(fe_vector_target.entries.nzind)
+                empty!(fe_vector_target.entries.nzval)
 
                 # activate one entry
                 fe_vector.entries[local_dof] = 1.0
@@ -394,7 +403,7 @@ function _get_periodic_coupling_matrix(
                 fe_vector.entries[local_dof] = 0.0
 
                 # set entries
-                for (i, target_entry) in enumerate(fe_vector_target.entries)
+                for (i, target_entry) in zip(findnz(fe_vector_target.entries)...)
                     if abs(target_entry) > sparsity_tol
                         result[local_dof, i] = target_entry
                     end
