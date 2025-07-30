@@ -32,7 +32,7 @@ using ExtendableFEMBase: ExtendableFEMBase, AbstractFiniteElement,
     initialize!, integrate, integrate!,
     integrate_segment!, lazy_interpolate!, nodevalues,
     nodevalues!, nodevalues_subset!, nodevalues_view,
-    norms, unicode_gridplot, unicode_scalarplot,
+    unicode_gridplot, unicode_scalarplot,
     update_basis!, SymmetricGradient
 using ExtendableGrids: ExtendableGrids, AT_NODES, AbstractElementGeometry,
     Adjacency, AssemblyType, BEdgeNodes, BFaceFaces,
@@ -62,9 +62,8 @@ using ExtendableSparse: ExtendableSparse, ExtendableSparseMatrix, flush!,
 using ForwardDiff: ForwardDiff
 using GridVisualize: GridVisualize, GridVisualizer, gridplot!, reveal, save,
     scalarplot!, vectorplot!
-using LinearAlgebra: LinearAlgebra, copyto!, isposdef, mul!, norm
-using LinearSolve: LinearSolve, LinearProblem, UMFPACKFactorization, deleteat!,
-    init, solve
+using LinearAlgebra: LinearAlgebra, copyto!, mul!, norm
+using LinearSolve: LinearSolve, LinearProblem, UMFPACKFactorization, deleteat!, solve
 using Printf: Printf, @printf, @sprintf
 using SparseArrays: SparseArrays, AbstractSparseArray, SparseMatrixCSC, findnz, nnz,
     nzrange, rowvals, sparse, SparseVector

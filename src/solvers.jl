@@ -70,6 +70,9 @@ module SolverDetails
 
     using TimerOutputs: @timeit
     using Printf: @printf
+    using ExtendableFEMBase: norms
+    using LinearAlgebra: isposdef
+    using LinearSolve: init
 
     function check_nonlinear(PD, unknowns)
         for op in PD.operators
