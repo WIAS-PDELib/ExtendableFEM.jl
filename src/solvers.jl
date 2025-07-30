@@ -68,6 +68,9 @@ end
 """
 module SolverDetails
 
+    using TimerOutputs: @timeit
+    using Printf: @printf
+
     function check_nonlinear(PD, unknowns)
         for op in PD.operators
             nl_dependencies = depends_nonlinearly_on(op)
@@ -81,7 +84,7 @@ module SolverDetails
     end
 
     ## assemble operators
-    function assembly!(A, b, sol, SC, PD, kwargs...)
+    function assembly!(A, b, sol, SC, PD, timer, kwargs...)
         if !SC.parameters[:constant_rhs]
             fill!(b.entries, 0)
         end
@@ -106,7 +109,7 @@ module SolverDetails
         return flush!(A.entries)
     end
 
-    function init_linsolve!(SC, linsolve, method_linear, abstol, reltol)
+    function init_linsolve!(SC, linsolve, method_linear, timer, abstol, reltol)
         if linsolve === nothing
             if SC.parameters[:verbosity] > 0
                 @info ".... initializing linear solver ($(method_linear))\n"
@@ -180,21 +183,21 @@ module SolverDetails
                 @printf "%.3e\t" nlres
                 @printf "converged\n"
             end
-            break
+            return true
         elseif isnan(nlres)
             if SC.parameters[:verbosity] > -1
                 @printf " END\t"
                 @printf "%.3e\t" nlres
                 @printf "not converged\n"
             end
-            break
+            return true
         elseif (j == maxits + 1) && !(is_linear)
             if SC.parameters[:verbosity] > -1
                 @printf " END\t"
                 @printf "\t\t%.3e\t" linres
                 @printf "maxiterations reached\n"
             end
-            break
+            return true
         else
             if SC.parameters[:verbosity] > -1
                 if is_linear
@@ -210,7 +213,7 @@ module SolverDetails
             end
         end
 
-        return nothing
+        return false
     end
 
     function prepare_solution!(sol, Δx, freedofs, unknowns)
@@ -351,14 +354,14 @@ function CommonSolve.solve(PD::ProblemDescription, FES::Union{<:FESpace, Vector{
         if is_linear && j == 2
             nlres = linres
         else
-            @timeit timer "assembly" SolverDetails.assembly!(A, b, sol, SC, PD, kwargs...)
+            @timeit timer "assembly" SolverDetails.assembly!(A, b, sol, SC, PD, timer, kwargs...)
 
             ## show spy
             SolverDetails.show_spy!(A, SC)
 
             ## init solver
             @timeit timer "linear solver" begin
-                linsolve = init_linsolve!(SC, linsolve, method_linear, abstol, reltol)
+                linsolve = init_linsolve!(SC, linsolve, method_linear, timer, abstol, reltol)
             end
 
             ## compute nonlinear residual
@@ -368,7 +371,9 @@ function CommonSolve.solve(PD::ProblemDescription, FES::Union{<:FESpace, Vector{
         end
 
 
-        SolverDetails.print_stats!(stats, nlres, nltol, SC, j, maxits, is_linear, linres)
+        if SolverDetails.print_stats!(stats, nlres, nltol, SC, j, maxits, is_linear, linres)
+            break
+        end
 
         @timeit timer "linear solver" begin
 
