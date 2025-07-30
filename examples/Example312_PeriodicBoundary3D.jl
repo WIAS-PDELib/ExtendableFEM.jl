@@ -22,6 +22,7 @@ using UnicodePlots
 using StaticArrays
 using LinearAlgebra
 using Test #hide
+using SparseArrays
 
 const reg_left = 1
 const reg_right = 2
@@ -168,13 +169,36 @@ function main(;
             y[1] = width - x[1]
             return nothing
         end
-        coupling_matrix = get_periodic_coupling_matrix(FES, reg_left, reg_right, give_opposite!)
+        @time coupling_matrix = get_periodic_coupling_matrix(FES, reg_right, reg_left, give_opposite!)
         display(coupling_matrix)
-        assign_operator!(PD, CombineDofs(u, u, coupling_matrix; kwargs...))
+
+        function remove_empty_columns_and_add_diagonal(csc_matrix)
+            I, J, V = findnz(csc_matrix)
+            unique_cols = unique(J)
+
+            return (csc_matrix - LinearAlgebra.I)[:, unique_cols]
+        end
+
+        B = remove_empty_columns_and_add_diagonal(coupling_matrix)
+        # assign_operator!(PD, CombineDofs(u, u, coupling_matrix; kwargs...))
     end
 
     ## solve
-    sol = solve(PD, FES; kwargs...)
+    @time sol, SC = solve(PD, FES; return_config = true, kwargs...)
+
+    A = SC.A.entries
+    b = SC.b.entries
+
+    n, m = size(B)
+
+
+    @time begin
+        A = [A B; B' spzeros(m, m)]
+        b = [b..., zeros(m)...]
+
+        x = A \ b
+        sol.entries .= x[1:n]
+    end
 
     displace_mesh!(xgrid, sol[u])
     plt = plot([grid(u)], sol; Plotter, do_vector_plots = false, width = 1200, height = 800, title = "displaced mesh", scene3d = :LScene)

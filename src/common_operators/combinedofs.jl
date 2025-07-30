@@ -106,10 +106,16 @@ function build_assembler!(CD::CombineDofs{UT, CT}, FE::Array{<:FEVectorBlock, 1}
         penalty = CD.parameters[:penalty]
 
         function assemble!(A::AbstractSparseArray{T}, b::AbstractVector{T}, assemble_matrix::Bool, assemble_rhs::Bool, kwargs...) where {T}
+
+            t = TimerOutput()
+
             if assemble_matrix
+
+                I, J, V = findnz(A)
+
                 # go through each constrained dof and update the FE adjacency info
                 # of the coupled dofs
-                for dof_i in fixed_dofs
+                @timeit t "for dof_i" for dof_i in fixed_dofs
                     # this col-view is efficient
                     coupling_i = @views coupling_matrix[:, dof_i]
 
@@ -120,14 +126,17 @@ function build_assembler!(CD::CombineDofs{UT, CT}, FE::Array{<:FEVectorBlock, 1}
                     coupled_dofs_i, weights_i = findnz(coupling_i)
 
                     # parse through sourcerow and add the contents to the coupled dofs
-                    for col in 1:size(A, 2)
+                    @timeit t "for col" for col in 1:size(A, 2)
                         r = findindex(A.cscmatrix, sourcerow, col)
                         if r > 0
                             val = A.cscmatrix.nzval[r]
                             if abs(val) > 1.0e-15
                                 for (dof_k, weight_ik) in zip(coupled_dofs_i, weights_i)
                                     targetrow = dof_k + offsetX
-                                    _addnz(A, targetrow, col, val, weight_ik)
+                                    # _addnz(A, targetrow, col, val, weight_ik)
+                                    push!(I, targetrow)
+                                    push!(J, col)
+                                    push!(V, val * weight_ik)
                                 end
                             end
                         end
@@ -136,7 +145,7 @@ function build_assembler!(CD::CombineDofs{UT, CT}, FE::Array{<:FEVectorBlock, 1}
 
                 # replace the geometric coupling rows based
                 # on the original coupling matrix
-                for dof_i in fixed_dofs
+                @timeit t "for dof_i 2" for dof_i in fixed_dofs
                     coupling_i = coupling_matrix[:, dof_i]
 
                     # get the coupled dofs of dof_i and the corresponding weights
@@ -144,13 +153,22 @@ function build_assembler!(CD::CombineDofs{UT, CT}, FE::Array{<:FEVectorBlock, 1}
                     sourcerow = dof_i + offsetX
 
                     # replace sourcerow with coupling linear combination
-                    _addnz(A, sourcerow, sourcerow, -1.0, penalty)
-                    for (dof_j, weight_ij) in zip(coupled_dofs_i, weights_i)
+                    # _addnz(A, sourcerow, sourcerow, -1.0, penalty)
+                    push!(I, sourcerow)
+                    push!(J, sourcerow)
+                    push!(V, -1.0 * penalty)
+                    @timeit t "linear combination" for (dof_j, weight_ij) in zip(coupled_dofs_i, weights_i)
                         # weights for ∑ⱼ wⱼdofⱼ - dofᵢ = 0
-                        _addnz(A, sourcerow, dof_j + offsetY, weight_ij, penalty)
+                        # _addnz(A, sourcerow, dof_j + offsetY, weight_ij, penalty)
+                        push!(I, sourcerow)
+                        push!(J, dof_j + offsetY)
+                        push!(V, weight_ij * penalty)
                     end
                 end
-                flush!(A)
+
+                A.cscmatrix = sparse(I,J,V)
+
+                # flush!(A)
             end
 
             if assemble_rhs
@@ -174,6 +192,8 @@ function build_assembler!(CD::CombineDofs{UT, CT}, FE::Array{<:FEVectorBlock, 1}
                     b[dof_i + offsetX] = 0.0
                 end
             end
+
+            show(t)
 
             return nothing
         end

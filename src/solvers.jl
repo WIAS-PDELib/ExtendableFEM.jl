@@ -319,22 +319,64 @@ function CommonSolve.solve(PD::ProblemDescription, FES::Union{<:FESpace, Vector{
             end
         end
 
-        @timeit timer "linear solver" begin
-            if !SC.parameters[:constant_matrix] || !SC.parameters[:initialized]
-                if length(freedofs) > 0
-                    linsolve.A = A.entries.cscmatrix[freedofs, freedofs]
-                else
-                    linsolve.A = A.entries.cscmatrix
+        @timeit timer "Lagrange restrictions" begin
+
+            ## assemble restrctions
+
+            if !SC.parameters[:initialized]
+                for restriction in PD.restrictions
+                    @timeit timer "$(restriction.parameters[:name])" assemble!(restriction, sol, SC; time = SC.parameters[:time], kwargs...)
                 end
             end
+        end
+
+        @timeit timer "linear solver" begin
+
+            ## start with the assembed matrix containing all assembled operators
+            if !SC.parameters[:constant_matrix] || !SC.parameters[:initialized]
+                if length(freedofs) > 0
+                    A_unrestricted = A.entries.cscmatrix[freedofs, freedofs]
+                else
+                    A_unrestricted = A.entries.cscmatrix
+                end
+            end
+
 
             # we solve for A Δx = r
             # and update x = sol - Δx
             if length(freedofs) > 0
-                linsolve.b = residual.entries[freedofs]
+                b_unrestricted = residual.entries[freedofs]
             else
-                linsolve.b = residual.entries
+                b_unrestricted = residual.entries
             end
+
+            ## add possible Lagrange restrictions
+            restriction_matrices = [length(freedofs) > 0 ? re.parameters[:matrix][freedofs, :] : re.parameters[:matrix] for re in PD.restrctions ]
+            restriction_rhs = [length(freedofs) > 0 ? re.parameters[:rhs][freedofs] : re.parameters[:rhs] for re in PD.restrctions ]
+
+            ## substract/add Bᵀsol for residual stuff
+
+            block_sizes = [size(A_unrestricted, 2), [ size(B, 2) for B in restriction_matrices ]...]
+
+            total_size = sum(block_sizes)
+            Tv = eltype(A_unrestricted)
+
+            ## create block matrix
+            A_block = BlockMatrix(spzeros(Tv, total_size, total_size), block_sizes, block_sizes)
+            A_block[Block(1, 1)] = A_unrestricted
+
+            b_block = BlockVector(zeros(Tv, total_size), block_sizes)
+            b_block[Block(1)] = b_unrestricted
+
+            for i in eachindex(length(PD.restrctions))
+                A_block[Block(1, i + 1)] = restriction_matrices[i]
+                A_block[Block(i + 1, 1)] = transpose(restriction_matrices[i])
+                b_block[Block(i + 1)] = restriction_rhs[i]
+            end
+
+            linsolve.A = sparse(A_block)
+            linsolve.b = sparse(b_block)
+
             SC.parameters[:initialized] = true
 
             ## solve
