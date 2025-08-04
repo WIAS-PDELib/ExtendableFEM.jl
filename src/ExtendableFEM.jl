@@ -8,6 +8,10 @@ module ExtendableFEM
 using ChunkSplitters: chunks
 using BlockArrays: BlockMatrix, BlockVector, Block, blocks, axes, mortar
 using CommonSolve: CommonSolve
+using DifferentiationInterface: DifferentiationInterface,
+    AutoSparse,
+    AutoForwardDiff,
+    prepare_jacobian
 using DiffResults: DiffResults
 using DocStringExtensions: DocStringExtensions, TYPEDEF, TYPEDSIGNATURES
 using ExtendableFEMBase: ExtendableFEMBase, AbstractFiniteElement,
@@ -71,9 +75,9 @@ using LinearSolve: LinearSolve, LinearProblem, UMFPACKFactorization, deleteat!,
 using Printf: Printf, @printf, @sprintf
 using SparseArrays: SparseArrays, AbstractSparseArray, SparseMatrixCSC, findnz, nnz,
     nzrange, rowvals, sparse, SparseVector, spzeros, qr, rank
+using SparseConnectivityTracer: SparseConnectivityTracer, TracerSparsityDetector
+using SparseMatrixColorings: GreedyColoringAlgorithm #, sparsity_pattern
 using StaticArrays: @MArray
-using SparseDiffTools: SparseDiffTools, ForwardColorJacCache,
-    forwarddiff_color_jacobian!, matrix_colors
 using Symbolics: Symbolics
 using SciMLBase: SciMLBase
 using TimerOutputs: TimerOutput, print_timer, @timeit
