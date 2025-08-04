@@ -229,7 +229,6 @@ function build_assembler!(A::AbstractMatrix, b::AbstractVector, O::NonlinearOper
         Kj = Array{KernelEvaluator, 1}([])
 
         sparse_jacobians = O.parameters[:sparse_jacobians]
-        sparsity_pattern = O.parameters[:sparse_jacobians_pattern]
         use_autodiff = O.jacobian === nothing
         for EG in EGs
             ## prepare parameters
@@ -237,9 +236,14 @@ function build_assembler!(A::AbstractMatrix, b::AbstractVector, O::NonlinearOper
             kernel_params = (result, input) -> (O.kernel(result, input, QPj))
             input_args = zeros(Tv, op_offsets_args[end] + O.parameters[:extra_inputsize])
             result_kernel = zeros(Tv, op_offsets_test[end])
+            if O.parameters[:sparse_jacobians_pattern] === nothing
+                sparsity_detector = TracerSparsityDetector()
+            else
+                sparsity_detector = KnownJacobianSparsityDetector(O.parameters[:sparse_jacobians_pattern])
+            end
             sparse_forward_backend = AutoSparse(
                 O.parameters[:autodiff_backend];
-                sparsity_detector = TracerSparsityDetector(),
+                sparsity_detector = sparsity_detector,
                 coloring_algorithm = GreedyColoringAlgorithm()
             )
             jac_prep = prepare_jacobian(kernel_params, result_kernel, sparse_forward_backend, input_args)
@@ -287,9 +291,17 @@ function build_assembler!(A::AbstractMatrix, b::AbstractVector, O::NonlinearOper
             value = K.result_kernel
             jac_prep = K.jac_prep
             jac_backend = K.jac_backend
-            # todo: get sparse jacobians to work (need to extract sparsity pattern)
             sparse_jacobians = false
-            jac = zeros(Tv, length(value), length(input_args))
+            if sparse_jacobians
+                if O.parameters[:sparse_jacobians_pattern] === nothing
+                    jac_sparsity_pattern = DifferentiationInterface.sparsity_pattern(jac_prep)
+                else
+                    jac_sparsity_pattern = O.parameters[:sparse_jacobians_pattern]
+                end
+                jac = Tv.(sparse(sparsity_pattern))
+            else
+                jac = zeros(Tv, length(value), length(input_args))
+            end
             kernel_params = K.kernel
             params.time = time
 

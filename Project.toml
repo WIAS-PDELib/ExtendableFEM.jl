@@ -4,6 +4,7 @@ version = "1.7.0"
 authors = ["Christian Merdon <merdon@wias-berlin.de>", "Patrick Jaap <patrick.jaap@wias-berlin.de>"]
 
 [deps]
+ADTypes = "47edcb42-4c32-4615-8424-f2b9edc5f35b"
 BlockArrays = "8e7c35d0-a365-5155-bbbb-fb81a777f24e"
 ChunkSplitters = "ae650224-84b6-46f8-82ea-d812ca08434e"
 CommonSolve = "38540f10-b2f7-11e9-35d8-d573e4eb0ff2"
@@ -29,6 +30,7 @@ TimerOutputs = "a759f4b9-e2f1-59dc-863e-4aeb61b1ea8f"
 UnicodePlots = "b8865327-cd53-5732-bb35-84acbb429228"
 
 [compat]
+ADTypes = "1.16.0"
 Aqua = "0.8"
 BlockArrays = "1.7.0"
 ChunkSplitters = "3.1.2"
