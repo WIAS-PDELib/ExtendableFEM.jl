@@ -1,5 +1,13 @@
 # CHANGES
 
+## v1.5.0
+
+### Added
+  - new parameter `autodiff_backend` for NonlinearOperator to change differentiation backend
+
+### Changed
+  - sparsity patterns of local jacobians are now resolved by SparseConnectivityTracer
+  - local jacobians are now prepared by DifferentiationInterface 
 
 ## v1.4.0
 

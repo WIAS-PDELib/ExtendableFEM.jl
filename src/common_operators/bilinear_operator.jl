@@ -410,7 +410,8 @@ function build_assembler!(A::AbstractMatrix, O::BilinearOperator{Tv}, FE_test, F
         coupling_matrix::Matrix{Bool} = ones(Bool, nansatz, ntest)
         if use_sparsity_pattern
             kernel_params = (result, input) -> (O.kernel(result, input, O.QP_infos[1]))
-            sparsity_pattern = SparseMatrixCSC{Float64, Int}(Symbolics.jacobian_sparsity(kernel_params, zeros(Tv, op_offsets_test[end]), zeros(Tv, op_offsets_ansatz[end])))
+            detector = TracerSparsityDetector()
+            sparsity_pattern = jacobian_sparsity(kernel_params, zeros(Tv, op_offsets_test[end]), zeros(Tv, op_offsets_ansatz[end]), detector)
 
             ## find out which test and ansatz functions couple
             for id in 1:nansatz
@@ -779,7 +780,8 @@ function build_assembler!(A, O::BilinearOperator{Tv}, FE_test, FE_ansatz; time =
         coupling_matrix::Matrix{Bool} = ones(Bool, nansatz, ntest)
         if use_sparsity_pattern
             kernel_params = (result, input) -> (O.kernel(result, input, O.QP_infos[1]))
-            sparsity_pattern = SparseMatrixCSC{Float64, Int}(Symbolics.jacobian_sparsity(kernel_params, zeros(Tv, op_offsets_test[end]), zeros(Tv, op_offsets_ansatz[end])))
+            detector = TracerSparsityDetector()
+            sparsity_pattern = jacobian_sparsity(kernel_params, zeros(Tv, op_offsets_test[end]), zeros(Tv, op_offsets_ansatz[end]), detector)
 
             ## find out which test and ansatz functions couple
             for id in 1:nansatz
