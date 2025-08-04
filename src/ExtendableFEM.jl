@@ -75,9 +75,9 @@ using LinearSolve: LinearSolve, LinearProblem, UMFPACKFactorization, deleteat!,
     init, solve
 using Printf: Printf, @printf, @sprintf
 using SciMLBase: SciMLBase
+using SparseConnectivityTracer: SparseConnectivityTracer, TracerSparsityDetector, jacobian_sparsity
 using SparseArrays: SparseArrays, AbstractSparseArray, SparseMatrixCSC, findnz, nnz,
     nzrange, rowvals, sparse, SparseVector, spzeros, qr, rank
-using SparseConnectivityTracer: SparseConnectivityTracer, TracerSparsityDetector
 using SparseMatrixColorings: GreedyColoringAlgorithm, sparsity_pattern
 using StaticArrays: @MArray
 using Symbolics: Symbolics
