@@ -289,7 +289,7 @@ function build_assembler!(A::AbstractMatrix, b::AbstractVector, O::NonlinearOper
             jac_backend = K.jac_backend
             # todo: get sparse jacobians to work (need to extract sparsity pattern)
             sparse_jacobians = false
-            jac = zeros(Tv, length(input_args), length(value))
+            jac = zeros(Tv, length(value), length(input_args))
             kernel_params = K.kernel
             params.time = time
 
