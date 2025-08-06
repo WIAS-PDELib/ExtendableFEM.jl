@@ -130,6 +130,7 @@ end
 function main(;
         order = 1,
         periodic = true,
+        use_LM_restrictions = true,
         Plotter = nothing,
         force = 1.0,
         h = 1.0e-4,
@@ -169,8 +170,12 @@ function main(;
             return nothing
         end
         coupling_matrix = get_periodic_coupling_matrix(FES, reg_left, reg_right, give_opposite!)
-        display(coupling_matrix)
-        assign_operator!(PD, CombineDofs(u, u, coupling_matrix; kwargs...))
+        # display(coupling_matrix)
+        if use_LM_restrictions
+            assign_restriction!(PD, CoupledDofsRestriction(coupling_matrix))
+        else
+            assign_operator!(PD, CombineDofs(u, u, coupling_matrix; kwargs...))
+        end
     end
 
     ## solve
@@ -185,8 +190,10 @@ end
 
 generateplots = ExtendableFEM.default_generateplots(Example312_PeriodicBoundary3D, "example312.png") #hide
 function runtests()                                                                                  #hide
-    sol, plt = main()                                                                                #hide
-    @test abs(maximum(view(sol[1])) - 1.8004602502175202) < 2.0e-3                                  #hide
+    sol, plt = main(use_LM_restrictions = true)                                                      #hide
+    @test abs(maximum(view(sol[1])) - 1.8004602502175202) < 2.0e-3                                   #hide
+    sol2, plt = main(use_LM_restrictions = false)                                                    #hide
+    @test sol.entries ≈ sol2.entries                                                                 #hide
     return nothing                                                                                   #hide
 end                                                                                                  #hide
 
