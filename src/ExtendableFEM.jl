@@ -67,7 +67,7 @@ using LinearSolve: LinearSolve, LinearProblem, UMFPACKFactorization, deleteat!,
     init, solve
 using Printf: Printf, @printf, @sprintf
 using SparseArrays: SparseArrays, AbstractSparseArray, findnz, nnz,
-    nzrange, rowvals, sparse
+    nzrange, rowvals, sparse, SparseVector
 using ADTypes: ADTypes, KnownJacobianSparsityDetector
 using SparseConnectivityTracer: SparseConnectivityTracer, TracerSparsityDetector, jacobian_sparsity
 using DifferentiationInterface: DifferentiationInterface,

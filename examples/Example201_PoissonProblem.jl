@@ -29,13 +29,13 @@ using Test #hide
 ## define variables
 u = Unknown("u"; name = "potential")
 
-## define data functions
-function f!(fval, qpinfo)
+## default right-hand side f(x,y) = xy
+function default_f!(fval, qpinfo)
     fval[1] = qpinfo.x[1] * qpinfo.x[2]
     return nothing
 end
 
-function main(; μ = 1.0, nrefs = 4, order = 2, Plotter = nothing, parallel = false, npart = parallel ? 8 : 1, kwargs...)
+function main(; μ = 1.0, nrefs = 4, order = 2, Plotter = nothing, parallel = false, f! = default_f!, npart = parallel ? 8 : 1, kwargs...)
     ## problem description
     PD = ProblemDescription()
     assign_unknown!(PD, u)

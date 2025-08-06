@@ -1,7 +1,7 @@
 name = "ExtendableFEM"
 uuid = "a722555e-65e0-4074-a036-ca7ce79a4aed"
+version = "1.5"
 authors = ["Christian Merdon <merdon@wias-berlin.de>", "Patrick Jaap <patrick.jaap@wias-berlin.de>"]
-version = "1.5.0"
 
 [deps]
 ADTypes = "47edcb42-4c32-4615-8424-f2b9edc5f35b"
@@ -33,7 +33,7 @@ DifferentiationInterface = "0.7.4"
 DocStringExtensions = "0.8,0.9"
 ExampleJuggler = "2.2.1"
 ExplicitImports = "1"
-ExtendableFEMBase = "1"
+ExtendableFEMBase = "1.3.0"
 ExtendableGrids = "1.10.3"
 ExtendableSparse = "1.5.3"
 ForwardDiff = "0.10.35,1"

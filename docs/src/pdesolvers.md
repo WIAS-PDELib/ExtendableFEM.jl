@@ -13,7 +13,7 @@ To solve a `ProblemDescription`, you must provide discretization information:
     ```julia
     FESpace{FEType}(grid::ExtendableGrid)
     ```
-    where `FEType` is the finite element type. See the [list of available FETypes](https://wias-pdelib.github.io/ExtendableFEMBase.jl/dev/fems/) in the [ExtendableFEMBase.jl documentation](https://wias-pdelib.github.io/ExtendableFEMBase.jl/dev/).
+    where `FEType` is the finite element type. See the [list of available FETypes](https://wias-pdelib.github.io/ExtendableFEMBase.jl/stable/fems/) in the [ExtendableFEMBase.jl documentation](https://wias-pdelib.github.io/ExtendableFEMBase.jl/stable/).
 
 ## Monolithic Solve
 
