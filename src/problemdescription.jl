@@ -96,7 +96,18 @@ function assign_operator!(PD::ProblemDescription, o::AbstractOperator)
     return length(PD.operators)
 end
 
+"""
+$(TYPEDSIGNATURES)
 
+Adds a restrction to a `ProblemDescription`.
+
+# Arguments
+- `PD::ProblemDescription`: The problem description to which the operator should be added.
+- `r::AbstractRestriction`: The restriction to add.
+
+# Returns
+- The index (position) of the restriction in the `restrictions` array of `PD`.
+"""
 function assign_restriction!(PD::ProblemDescription, r::AbstractRestriction)
     push!(PD.restrictions, r)
     return length(PD.restrictions)

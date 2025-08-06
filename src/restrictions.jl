@@ -16,7 +16,7 @@ function is_timedependent(R::AbstractRestriction)
     return false
 end
 
-function assemble!(R::AbstractRestriction, A, b, sol, SC; kwargs...)
+function assemble!(R::AbstractRestriction, SC; kwargs...)
     ## assembles internal restriction matrix in R
     return nothing
 end

@@ -3,12 +3,24 @@ struct CoupledDofsRestriction{TM} <: AbstractRestriction
     parameters::Dict{Symbol, Any}
 end
 
+
+"""
+    CoupledDofsRestriction(matrix::AbstractMatrix)
+
+    Creates an restriction that couples dofs together.
+
+    The coupling is stored in a CSC Matrix `matrix`, s.t.,
+
+    dofᵢ = Σⱼ Aⱼᵢ dofⱼ (col-wise)
+
+    The matrix can be obtained from, e.g., `get_periodic_coupling_matrix`.
+"""
 function CoupledDofsRestriction(matrix::AbstractMatrix)
     return CoupledDofsRestriction(matrix, Dict{Symbol, Any}(:name => "CoupledDofsRestriction"))
 end
 
 
-function assemble!(R::CoupledDofsRestriction, A, b, sol, SC; kwargs...)
+function assemble!(R::CoupledDofsRestriction, SC; kwargs...)
 
     # extract all col indices
     _, J, _ = findnz(R.coupling_matrix)

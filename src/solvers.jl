@@ -227,7 +227,7 @@ function solve_linear_system!(A, b, sol, soltemp, residual, linsolve, unknowns, 
         ## assemble restrctions
         if !SC.parameters[:initialized]
             for restriction in PD.restrictions
-                @timeit timer "$(restriction.parameters[:name])" assemble!(restriction, A, b, sol, SC; kwargs...)
+                @timeit timer "$(restriction.parameters[:name])" assemble!(restriction, SC; kwargs...)
             end
         end
     end
