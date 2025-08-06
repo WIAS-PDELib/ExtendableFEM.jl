@@ -221,27 +221,92 @@ Solves the linear system and updates the solution vector. This includes:
 - Computing the residual
 - Updating the solution with optional damping
 """
-function solve_linear_system!(A, b, sol, soltemp, residual, linsolve, unknowns, freedofs, damping, PD, SC, stats, is_linear, timer)
-    # Update system matrix if needed
-    if !SC.parameters[:constant_matrix] || !SC.parameters[:initialized]
-        if length(freedofs) > 0
-            linsolve.A = A.entries.cscmatrix[freedofs, freedofs]
-        else
-            linsolve.A = A.entries.cscmatrix
+function solve_linear_system!(A, b, sol, soltemp, residual, linsolve, unknowns, freedofs, damping, PD, SC, stats, is_linear, timer, kwargs...)
+
+    @timeit timer "Lagrange restrictions" begin
+        ## assemble restrctions
+        if !SC.parameters[:initialized]
+            for restriction in PD.restrictions
+                @timeit timer "$(restriction.parameters[:name])" assemble!(restriction, A, b, sol, SC; kwargs...)
+            end
         end
     end
 
-    # Set right-hand side
-    if length(freedofs) > 0
-        linsolve.b = residual.entries[freedofs]
-    else
-        linsolve.b = residual.entries
-    end
-    SC.parameters[:initialized] = true
+    @timeit timer "linear solver" begin
+        ## start with the assembled matrix containing all assembled operators
+        if !SC.parameters[:constant_matrix] || !SC.parameters[:initialized]
+            if length(freedofs) > 0
+                A_unrestricted = A.entries.cscmatrix[freedofs, freedofs]
+            else
+                A_unrestricted = A.entries.cscmatrix
+            end
+        end
 
-    # Solve linear system
-    push!(stats[:matrix_nnz], nnz(linsolve.A))
-    @timeit timer "solve! call" Δx = LinearSolve.solve!(linsolve)
+        # we solve for A Δx = r
+        # and update x = sol - Δx
+        if length(freedofs) > 0
+            b_unrestricted = residual.entries[freedofs]
+        else
+            b_unrestricted = residual.entries
+        end
+
+        @timeit timer "LM restrictions" begin
+            ## add possible Lagrange restrictions
+            @timeit timer "prepare" begin
+                restriction_matrices = [length(freedofs) > 0 ? re.parameters[:matrix][freedofs, :] : re.parameters[:matrix] for re in PD.restrictions ]
+                restriction_rhs = [length(freedofs) > 0 ? re.parameters[:rhs][freedofs] : re.parameters[:rhs] for re in PD.restrictions ]
+
+                ## we need to add the (initial) solution to the rhs, since we work with the residual equation
+                for (B, rhs) in zip(restriction_matrices, restriction_rhs)
+                    rhs .+= B'sol.entries
+                end
+            end
+
+
+            @timeit timer "compute blocks" begin
+                # block sizes for the block matrix
+                block_sizes = [size(A_unrestricted, 2), [ size(B, 2) for B in restriction_matrices ]...]
+
+                total_size = sum(block_sizes)
+                Tv = eltype(A_unrestricted)
+
+                ## create block matrix
+                A_block = BlockMatrix(spzeros(Tv, total_size, total_size), block_sizes, block_sizes)
+                A_block[Block(1, 1)] = A_unrestricted
+
+                b_block = BlockVector(zeros(Tv, total_size), block_sizes)
+                b_block[Block(1)] = b_unrestricted
+
+                u_unrestricted = linsolve.u
+                u_block = BlockVector(zeros(Tv, total_size), block_sizes)
+                u_block[Block(1)] = u_unrestricted
+
+                for i in eachindex(PD.restrictions)
+                    A_block[Block(1, i + 1)] = restriction_matrices[i]
+                    A_block[Block(i + 1, 1)] = transpose(restriction_matrices[i])
+                    b_block[Block(i + 1)] = restriction_rhs[i]
+
+                end
+            end
+
+            @timeit timer "convert" begin
+
+                linsolve.A = sparse(A_block) # convert to CSC Matrix
+                linsolve.b = Vector(b_block) # convert to dense vector
+                linsolve.u = Vector(u_block) # convert to dense vector
+
+            end
+        end
+
+        SC.parameters[:initialized] = true
+
+        # Solve linear system
+        push!(stats[:matrix_nnz], nnz(linsolve.A))
+        @timeit timer "solve! call" blocked_Δx = LinearSolve.solve!(linsolve)
+
+        # extract the solution / dismiss the lagrange multipliers
+        @views Δx = blocked_Δx[1:length(b_unrestricted)]
+    end
 
     # Compute solution update
     @timeit timer "update solution" begin
@@ -570,12 +635,12 @@ function CommonSolve.solve(PD::ProblemDescription, FES::Union{<:FESpace, Vector{
 
         linsolve = SC.linsolver
 
-        @timeit timer "linear solver" begin
-            linres = solve_linear_system!(
-                A, b, sol, soltemp, residual, linsolve, unknowns,
-                freedofs, damping, PD, SC, stats, is_linear, timer
-            )
-        end
+
+        linres = solve_linear_system!(
+            A, b, sol, soltemp, residual, linsolve, unknowns,
+            freedofs, damping, PD, SC, stats, is_linear, timer
+        )
+
         if SC.parameters[:verbosity] > -1
             if is_linear
                 @printf "%.3e\t" linres

@@ -5,6 +5,7 @@ $(read(joinpath(@__DIR__, "..", "README.md"), String))
 """
 module ExtendableFEM
 
+using BlockArrays: BlockMatrix, BlockVector, Block, BlockedMatrix, BlockedVector
 using ChunkSplitters: chunks
 using CommonSolve: CommonSolve
 using DiffResults: DiffResults
@@ -60,6 +61,7 @@ using ExtendableGrids: ExtendableGrids, AT_NODES, AbstractElementGeometry,
 using ExtendableSparse: ExtendableSparse, ExtendableSparseMatrix, flush!,
     MTExtendableSparseMatrixCSC, findindex,
     rawupdateindex!
+using FillArrays: Zeros
 using ForwardDiff: ForwardDiff
 using GridVisualize: GridVisualize, GridVisualizer, gridplot!, reveal, save,
     scalarplot!, vectorplot!
@@ -68,8 +70,8 @@ using LinearSolve: LinearSolve, LinearProblem, UMFPACKFactorization, deleteat!,
     init, solve
 using Printf: Printf, @printf, @sprintf
 using SparseArrays: SparseArrays, AbstractSparseArray, SparseMatrixCSC, findnz, nnz,
-    nzrange, rowvals, sparse, SparseVector
-using StaticArrays: @MArray
+    nzrange, rowvals, sparse, SparseVector, spzeros
+    using StaticArrays: @MArray
 using SparseDiffTools: SparseDiffTools, ForwardColorJacCache,
     forwarddiff_color_jacobian!, matrix_colors
 using Symbolics: Symbolics
@@ -123,11 +125,16 @@ include("common_operators/reduction_operator.jl")
 #export AbstractReductionOperator
 #export FixbyInterpolation
 
+include("restrictions.jl")
+include("common_restrictions/coupled_dofs_restriction.jl")
+export CoupledDofsRestriction
+
 include("problemdescription.jl")
 export ProblemDescription
 export assign_unknown!
 export assign_operator!
 export replace_operator!
+export assign_restriction!
 
 include("helper_functions.jl")
 export get_periodic_coupling_info
