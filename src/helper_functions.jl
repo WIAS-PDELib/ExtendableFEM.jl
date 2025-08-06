@@ -209,6 +209,15 @@ function get_periodic_coupling_matrix(
     return _get_periodic_coupling_matrix(FES, xgrid, b_from, b_to, give_opposite!; kwargs...)
 end
 
+# merge matrix B into A, overriding the entries of A if an entry is both present in A and B
+function merge!(A::ExtendableSparseMatrix, B::ExtendableSparseMatrix)
+    rows, cols, values = findnz(B)
+    for (row, col, value) in zip(rows, cols, values)
+        A[row, col] = value
+    end
+    return nothing
+end
+
 function _get_periodic_coupling_matrix(
         FES::FESpace{Tv},
         xgrid::ExtendableGrid{TvG, TiG},
@@ -216,7 +225,9 @@ function _get_periodic_coupling_matrix(
         b_to,
         give_opposite!::Function;
         mask = :auto,
-        sparsity_tol = 1.0e-12
+        sparsity_tol = 1.0e-12,
+        parallel = true,
+        threads = Threads.nthreads()
     ) where {Tv, TvG, TiG}
 
     @info "Computing periodic coupling matrix. This may take a while."
@@ -238,19 +249,6 @@ function _get_periodic_coupling_matrix(
 
     # FE basis dofs on each boundary face
     dofs_on_boundary = FES[BFaceDofs]
-
-    # fe vector used for interpolation
-    fe_vector = FEVector(FES)
-    # to be sure
-    fill!(fe_vector.entries, 0.0)
-
-    # FE target vector for interpolation with sparse entries
-    fe_vector_target = FEVector(FES; entries = SparseVector{Float64, Int64}(FES.ndofs, Int64[], Float64[]))
-
-
-    # resulting sparse matrix
-    n = length(fe_vector.entries)
-    result = ExtendableSparseMatrix(n, n)
 
     # face numbers of the boundary faces
     face_numbers_of_bfaces = xgrid[BFaceFaces]
@@ -306,8 +304,6 @@ function _get_periodic_coupling_matrix(
         end
         return
     end
-
-    eval_point, set_start = interpolate_on_boundaryfaces(fe_vector, xgrid, give_opposite!)
 
     # precompute approximate search region for each boundary face in b_from
     searchareas = ExtendableGrids.VariableTargetAdjacency(TiG)
@@ -366,13 +362,35 @@ function _get_periodic_coupling_matrix(
         end
     end
 
-    # loop over boundary face indices: we need this index for dofs_on_boundary
-    for i_boundary_face in 1:n_boundary_faces
+    # we are only interest in global bface numbers on the "from" boundary
+    bfaces_of_interest = filter(face -> boundary_regions[face] in b_from, 1:n_boundary_faces)
+    n_bface_of_interest = length(bfaces_of_interest)
 
-        # for each boundary face: check if in b_from
-        if boundary_regions[i_boundary_face] in b_from
+    # loop over boundary face indices in a chunk: we need this index for dofs_on_boundary
+    function compute_chunk_result(chunk)
 
-            local_dofs = @views dofs_on_boundary[:, i_boundary_face]
+
+        @info "start $chunk"
+
+        # prepare data for this chunk
+
+        # we need our own copy of the FE Space to avoid data race in the pre-computed interpolators
+        our_FES = deepcopy(FES)
+        local fe_vector = FEVector(our_FES)
+        # to be sure
+        fill!(fe_vector.entries, 0.0)
+
+        local entries = SparseVector{Float64, Int64}(our_FES.ndofs, Int64[], Float64[])
+        local fe_vector_target = FEVector(our_FES; entries)
+
+        local n = length(fe_vector.entries)
+        local result = ExtendableSparseMatrix(n, n)
+
+        local eval_point, _ = interpolate_on_boundaryfaces(fe_vector, xgrid, give_opposite!)
+
+        for i_boundary_face in chunk
+
+            local local_dofs = @views dofs_on_boundary[:, i_boundary_face]
             for local_dof in local_dofs
                 # compute number of component
                 if mask[1 + ((local_dof - 1) ÷ coffset)] == 0.0
@@ -388,7 +406,7 @@ function _get_periodic_coupling_matrix(
 
                 # interpolate on the opposite boundary using x_trafo = give_opposite
 
-                j = findfirst(==(face_numbers_of_bfaces[i_boundary_face]), faces_in_b_from)
+                local j = findfirst(==(face_numbers_of_bfaces[i_boundary_face]), faces_in_b_from)
                 if j <= 0
                     throw("face $(face_numbers_of_bfaces[i_boundary_face]) is not on source boundary. Are the from/to regions and the give_opposite function correct?")
                 end
@@ -410,6 +428,32 @@ function _get_periodic_coupling_matrix(
                 end
             end
         end
+        @info "finish $chunk"
+
+        return result
+    end
+
+    # we loop ober the n_boundary_faces in parallel:
+    # create chunks to split this range for the threads
+    bface_chunks = chunks(bfaces_of_interest, n = parallel ? threads : 1)
+
+    @info "start $(length(bface_chunks)) tasks..."
+
+    # show start all chunks in parallel
+    tasks = map(bface_chunks) do chunk
+        Threads.@spawn compute_chunk_result(chunk)
+    end
+
+    @info "done..."
+    # wait for all chunks to finish and get results
+    results = fetch.(tasks)
+
+    @info "fetched results ..."
+
+    # merge all matrices
+    result = results[begin]
+    for res_i in results[(begin + 1):end]
+        merge!(result, res_i)
     end
 
     sp_result = sparse(result)
