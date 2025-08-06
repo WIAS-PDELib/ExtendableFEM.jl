@@ -32,7 +32,7 @@ function assemble!(R::CoupledDofsRestriction, SC; kwargs...)
     B = (R.coupling_matrix - LinearAlgebra.I)[:, unique_cols]
 
     R.parameters[:matrix] = B
-    return R.parameters[:rhs] = Zeros(length(unique_cols))
+    R.parameters[:rhs] = Zeros(length(unique_cols))
 
     return nothing
 end

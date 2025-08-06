@@ -5,8 +5,8 @@ $(read(joinpath(@__DIR__, "..", "README.md"), String))
 """
 module ExtendableFEM
 
-using BlockArrays: BlockMatrix, BlockVector, Block
 using ChunkSplitters: chunks
+using BlockArrays: BlockMatrix, BlockVector, Block, blocks, axes
 using CommonSolve: CommonSolve
 using DiffResults: DiffResults
 using DocStringExtensions: DocStringExtensions, TYPEDEF, TYPEDSIGNATURES
@@ -61,6 +61,7 @@ using ExtendableGrids: ExtendableGrids, AT_NODES, AbstractElementGeometry,
 using ExtendableSparse: ExtendableSparse, ExtendableSparseMatrix, flush!,
     MTExtendableSparseMatrixCSC, findindex,
     rawupdateindex!
+using FillArrays: Zeros
 using ForwardDiff: ForwardDiff
 using GridVisualize: GridVisualize, GridVisualizer, gridplot!, reveal, save,
     scalarplot!, vectorplot!
