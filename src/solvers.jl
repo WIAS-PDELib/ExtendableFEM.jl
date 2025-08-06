@@ -250,51 +250,72 @@ function solve_linear_system!(A, b, sol, soltemp, residual, linsolve, unknowns, 
             b_unrestricted = residual.entries
         end
 
-        @timeit timer "LM restrictions" begin
-            ## add possible Lagrange restrictions
-            @timeit timer "prepare" begin
-                restriction_matrices = [length(freedofs) > 0 ? re.parameters[:matrix][freedofs, :] : re.parameters[:matrix] for re in PD.restrictions ]
-                restriction_rhs = [length(freedofs) > 0 ? re.parameters[:rhs][freedofs] : re.parameters[:rhs] for re in PD.restrictions ]
+        if length(PD.restrictions) == 0
+            linsolve.A = A_unrestricted
+            linsolve.b = b_unrestricted
+        else
 
-                ## we need to add the (initial) solution to the rhs, since we work with the residual equation
-                for (B, rhs) in zip(restriction_matrices, restriction_rhs)
-                    rhs .+= B'sol.entries
+            @timeit timer "LM restrictions" begin
+                ## add possible Lagrange restrictions
+                @timeit timer "prepare" begin
+                    restriction_matrices = [length(freedofs) > 0 ? re.parameters[:matrix][freedofs, :] : re.parameters[:matrix] for re in PD.restrictions ]
+                    restriction_rhs = [length(freedofs) > 0 ? re.parameters[:rhs][freedofs] : re.parameters[:rhs] for re in PD.restrictions ]
+
+                    ## we need to add the (initial) solution to the rhs, since we work with the residual equation
+                    for (B, rhs) in zip(restriction_matrices, restriction_rhs)
+                        rhs .+= B'sol.entries
+                    end
                 end
-            end
 
+                @timeit timer "set blocks" begin
+                    # block sizes for the block matrix
+                    block_sizes = [size(A_unrestricted, 2), [ size(B, 2) for B in restriction_matrices ]...]
 
-            @timeit timer "compute blocks" begin
-                # block sizes for the block matrix
-                block_sizes = [size(A_unrestricted, 2), [ size(B, 2) for B in restriction_matrices ]...]
+                    total_size = sum(block_sizes)
+                    Tv = eltype(A_unrestricted)
 
-                total_size = sum(block_sizes)
-                Tv = eltype(A_unrestricted)
+                    ## create block matrix
+                    A_block = BlockMatrix(spzeros(Tv, total_size, total_size), block_sizes, block_sizes)
+                    A_block[Block(1, 1)] = A_unrestricted
 
-                ## create block matrix
-                A_block = BlockMatrix(spzeros(Tv, total_size, total_size), block_sizes, block_sizes)
-                A_block[Block(1, 1)] = A_unrestricted
+                    b_block = BlockVector(zeros(Tv, total_size), block_sizes)
+                    b_block[Block(1)] = b_unrestricted
 
-                b_block = BlockVector(zeros(Tv, total_size), block_sizes)
-                b_block[Block(1)] = b_unrestricted
+                    u_unrestricted = linsolve.u
+                    u_block = BlockVector(zeros(Tv, total_size), block_sizes)
+                    u_block[Block(1)] = u_unrestricted
 
-                u_unrestricted = linsolve.u
-                u_block = BlockVector(zeros(Tv, total_size), block_sizes)
-                u_block[Block(1)] = u_unrestricted
+                    for i in eachindex(PD.restrictions)
+                        A_block[Block(1, i + 1)] = restriction_matrices[i]
+                        A_block[Block(i + 1, 1)] = transpose(restriction_matrices[i])
+                        b_block[Block(i + 1)] = restriction_rhs[i]
 
-                for i in eachindex(PD.restrictions)
-                    A_block[Block(1, i + 1)] = restriction_matrices[i]
-                    A_block[Block(i + 1, 1)] = transpose(restriction_matrices[i])
-                    b_block[Block(i + 1)] = restriction_rhs[i]
-
+                    end
                 end
-            end
 
-            @timeit timer "convert" begin
+                @timeit timer "convert" begin
 
-                linsolve.A = sparse(A_block) # convert to CSC Matrix
-                linsolve.b = Vector(b_block) # convert to dense vector
-                linsolve.u = Vector(u_block) # convert to dense vector
+                    linsolve.b = Vector(b_block) # convert to dense vector
+                    linsolve.u = Vector(u_block) # convert to dense vector
 
+                    # linsolve.A = sparse(A_block) # convert to CSC Matrix is very slow https://github.com/JuliaArrays/BlockArrays.jl/issues/78
+                    # do it manually:
+                    A_flat = spzeros(size(A_block))
+
+                    lasts_i = [0, axes(A_block)[1].lasts...] # add zero
+                    lasts_j = [0, axes(A_block)[2].lasts...] # add zero
+
+                    (ni, nj) = size(blocks(A_block))
+
+                    for i in 1:ni, j in 1:nj
+                        range_i = (lasts_i[i] + 1):lasts_i[i + 1]
+                        range_j = (lasts_j[j] + 1):lasts_j[j + 1]
+
+                        # write each block directly in the resulting matrix
+                        A_flat[range_i, range_j] = A_block[Block(i, j)]
+                    end
+                    linsolve.A = A_flat
+                end
             end
         end
 
