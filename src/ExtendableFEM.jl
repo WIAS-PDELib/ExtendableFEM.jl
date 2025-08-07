@@ -66,11 +66,13 @@ using LinearAlgebra: LinearAlgebra, copyto!, isposdef, mul!, norm
 using LinearSolve: LinearSolve, LinearProblem, UMFPACKFactorization, deleteat!,
     init, solve
 using Printf: Printf, @printf, @sprintf
-using SparseArrays: SparseArrays, AbstractSparseArray, SparseMatrixCSC, findnz, nnz,
+using SparseArrays: SparseArrays, AbstractSparseArray, findnz, nnz,
     nzrange, rowvals, sparse, SparseVector
-using SparseDiffTools: SparseDiffTools, ForwardColorJacCache,
-    forwarddiff_color_jacobian!, matrix_colors
-using Symbolics: Symbolics
+using ADTypes: ADTypes, KnownJacobianSparsityDetector
+using SparseConnectivityTracer: SparseConnectivityTracer, TracerSparsityDetector, jacobian_sparsity
+using DifferentiationInterface: DifferentiationInterface,
+    AutoSparse, AutoForwardDiff, prepare_jacobian
+using SparseMatrixColorings: GreedyColoringAlgorithm, sparsity_pattern
 using SciMLBase: SciMLBase
 using TimerOutputs: TimerOutput, print_timer, @timeit
 using UnicodePlots: UnicodePlots
