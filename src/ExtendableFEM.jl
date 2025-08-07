@@ -71,9 +71,7 @@ using SparseArrays: SparseArrays, AbstractSparseArray, findnz, nnz,
 using ADTypes: ADTypes, KnownJacobianSparsityDetector
 using SparseConnectivityTracer: SparseConnectivityTracer, TracerSparsityDetector, jacobian_sparsity
 using DifferentiationInterface: DifferentiationInterface,
-    AutoSparse,
-    AutoForwardDiff,
-    prepare_jacobian
+    AutoSparse, AutoForwardDiff, prepare_jacobian
 using SparseMatrixColorings: GreedyColoringAlgorithm, sparsity_pattern
 using SciMLBase: SciMLBase
 using TimerOutputs: TimerOutput, print_timer, @timeit

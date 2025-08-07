@@ -291,18 +291,17 @@ function build_assembler!(A::AbstractMatrix, b::AbstractVector, O::NonlinearOper
             value = K.result_kernel
             jac_prep = K.jac_prep
             jac_backend = K.jac_backend
-            sparse_jacobians = false
-            if sparse_jacobians
+            kernel_params = K.kernel
+            if O.parameters[:sparse_jacobians]
                 if O.parameters[:sparse_jacobians_pattern] === nothing
-                    jac_sparsity_pattern = DifferentiationInterface.sparsity_pattern(jac_prep)
+                    jac_sparsity_pattern = sparsity_pattern(jac_prep)
                 else
                     jac_sparsity_pattern = O.parameters[:sparse_jacobians_pattern]
                 end
-                jac = Tv.(sparse(sparsity_pattern))
+                jac = Tv.(sparse(jac_sparsity_pattern))
             else
                 jac = zeros(Tv, length(value), length(input_args))
             end
-            kernel_params = K.kernel
             params.time = time
 
             ndofs_test::Array{Int, 1} = [get_ndofs(ON_CELLS, FE, EG) for FE in FETypes_test]
