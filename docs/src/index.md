@@ -23,7 +23,8 @@
 - [GridVisualize.jl](https://github.com/WIAS-PDELib/GridVisualize.jl)
 - [DocStringExtensions.jl](https://github.com/JuliaDocs/DocStringExtensions.jl)
 - [ForwardDiff.jl](https://github.com/JuliaDiff/ForwardDiff.jl)
-- [DiffResults.jl](https://github.com/JuliaDiff/DiffResults.jl)
+- [DifferentiationInterface.jl](https://github.com/JuliaDiff/DifferentiationInterface.jl)
+- [SparseConnectivityTracer.jl](https://github.com/adrhill/SparseConnectivityTracer.jl)
 
 ## Getting Started
 

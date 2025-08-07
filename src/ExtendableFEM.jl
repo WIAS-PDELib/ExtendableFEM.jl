@@ -10,9 +10,7 @@ using ChunkSplitters: chunks
 using BlockArrays: BlockMatrix, BlockVector, Block, blocks, axes, mortar
 using CommonSolve: CommonSolve
 using DifferentiationInterface: DifferentiationInterface,
-    AutoSparse,
-    AutoForwardDiff,
-    prepare_jacobian
+    AutoSparse, AutoForwardDiff, prepare_jacobian
 using DiffResults: DiffResults
 using DocStringExtensions: DocStringExtensions, TYPEDEF, TYPEDSIGNATURES
 using ExtendableFEMBase: ExtendableFEMBase, AbstractFiniteElement,
