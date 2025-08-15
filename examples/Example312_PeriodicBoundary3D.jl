@@ -136,6 +136,7 @@ function main(;
         width = 6.0,
         height = 0.2,
         depth = 1,
+        threads = 1,
         kwargs...
     )
 
@@ -168,8 +169,7 @@ function main(;
             y[1] = width - x[1]
             return nothing
         end
-        coupling_matrix = get_periodic_coupling_matrix(FES, reg_left, reg_right, give_opposite!)
-        display(coupling_matrix)
+        @time coupling_matrix = get_periodic_coupling_matrix(FES, reg_left, reg_right, give_opposite!; parallel = threads > 1, threads)
         assign_operator!(PD, CombineDofs(u, u, coupling_matrix; kwargs...))
     end
 
@@ -185,8 +185,10 @@ end
 
 generateplots = ExtendableFEM.default_generateplots(Example312_PeriodicBoundary3D, "example312.png") #hide
 function runtests()                                                                                  #hide
-    sol, plt = main()                                                                                #hide
-    @test abs(maximum(view(sol[1])) - 1.8004602502175202) < 2.0e-3                                  #hide
+    sol, _ = main()                                                                                  #hide
+    @test abs(maximum(view(sol[1])) - 1.8004602502175202) < 2.0e-3                                   #hide
+    sol2, _ = main(threads = 4)                                                                      #hide
+    @test sol.entries ≈ sol2.entries                                                                                 #hide
     return nothing                                                                                   #hide
 end                                                                                                  #hide
 
