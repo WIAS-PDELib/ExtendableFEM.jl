@@ -1,5 +1,10 @@
 # CHANGES
 
+## v1.5.0
+
+### Added
+
+  - `compute_periodic_coupling_matrix` can be computed thread parallel
 
 ## v1.4.0
 
