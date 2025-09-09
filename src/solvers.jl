@@ -332,7 +332,9 @@ function solve_linear_system!(A, b, sol, soltemp, residual, linsolve, unknowns, 
 
         # Solve linear system
         push!(stats[:matrix_nnz], nnz(linsolve.A))
-        @timeit timer "solve! call" blocked_Δx = LinearSolve.solve!(linsolve)
+        @timeit timer "solve! call" begin
+            blocked_Δx = LinearSolve.solve!(linsolve)
+        end
 
         # extract the solution / dismiss the lagrange multipliers
         @views Δx = blocked_Δx[1:length(b_unrestricted)]
@@ -341,7 +343,7 @@ function solve_linear_system!(A, b, sol, soltemp, residual, linsolve, unknowns, 
     # Compute solution update
     @timeit timer "update solution" begin
         if length(freedofs) > 0
-            x = sol.entries[freedofs] - Δx.u
+            x = sol.entries[freedofs] - Δx
         else
             x = zero(Δx)
             offset = 0
@@ -430,15 +432,16 @@ function solve_coupled_system!(A, b, sol, residual, linsolve, unknowns, damping,
     SC.parameters[:initialized] = true
 
     ## solve
-    Δx = LinearSolve.solve!(linsolve)
+    result = LinearSolve.solve!(linsolve)
+    Δx = result.u
 
-    # x = sol.entries - Δx.u ... in the entry ranges of the present unknowns
-    x = zero(Δx.u)
+    # x = sol.entries - Δx ... in the entry ranges of the present unknowns
+    x = zero(Δx)
     offset = 0
     for u in unknowns
         ndofs_u = length(view(sol[u]))
         x_range = (offset + 1):(offset + ndofs_u)
-        x[x_range] .= view(sol[u]) .- view(Δx.u, x_range)
+        x[x_range] .= view(sol[u]) .- view(Δx, x_range)
         offset += ndofs_u
     end
 
