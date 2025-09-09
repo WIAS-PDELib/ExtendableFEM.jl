@@ -233,8 +233,12 @@ function solve_linear_system!(A, b, sol, soltemp, residual, linsolve, unknowns, 
     end
 
     @timeit timer "linear solver" begin
+
+        # does the linsolve object need a (new) matrix?
+        linsolve_needs_matrix = !SC.parameters[:constant_matrix] || !SC.parameters[:initialized]
+
         ## start with the assembled matrix containing all assembled operators
-        if !SC.parameters[:constant_matrix] || !SC.parameters[:initialized]
+        if linsolve_needs_matrix
             if length(freedofs) > 0
                 A_unrestricted = A.entries.cscmatrix[freedofs, freedofs]
             else
@@ -251,10 +255,11 @@ function solve_linear_system!(A, b, sol, soltemp, residual, linsolve, unknowns, 
         end
 
         if length(PD.restrictions) == 0
-            linsolve.A = A_unrestricted
+            if linsolve_needs_matrix
+                linsolve.A = A_unrestricted
+            end
             linsolve.b = b_unrestricted
         else
-
             # add possible Lagrange restrictions
             restriction_matrices = [length(freedofs) > 0 ? re.parameters[:matrix][freedofs, :] : re.parameters[:matrix] for re in PD.restrictions ]
             restriction_rhs = [length(freedofs) > 0 ? re.parameters[:rhs][freedofs] : re.parameters[:rhs] for re in PD.restrictions ]
@@ -276,8 +281,10 @@ function solve_linear_system!(A, b, sol, soltemp, residual, linsolve, unknowns, 
                 Tv = eltype(A_unrestricted)
 
                 ## create block matrix
-                A_block = BlockMatrix(spzeros(Tv, total_size, total_size), block_sizes, block_sizes)
-                A_block[Block(1, 1)] = A_unrestricted
+                if linsolve_needs_matrix
+                    A_block = BlockMatrix(spzeros(Tv, total_size, total_size), block_sizes, block_sizes)
+                    A_block[Block(1, 1)] = A_unrestricted
+                end
 
                 b_block = BlockVector(zeros(Tv, total_size), block_sizes)
                 b_block[Block(1)] = b_unrestricted
@@ -287,8 +294,10 @@ function solve_linear_system!(A, b, sol, soltemp, residual, linsolve, unknowns, 
                 u_block[Block(1)] = u_unrestricted
 
                 for i in eachindex(PD.restrictions)
-                    A_block[Block(1, i + 1)] = restriction_matrices[i]
-                    A_block[Block(i + 1, 1)] = transpose(restriction_matrices[i])
+                    if linsolve_needs_matrix
+                        A_block[Block(1, i + 1)] = restriction_matrices[i]
+                        A_block[Block(i + 1, 1)] = transpose(restriction_matrices[i])
+                    end
                     b_block[Block(i + 1)] = restriction_rhs[i]
 
                 end
@@ -296,23 +305,26 @@ function solve_linear_system!(A, b, sol, soltemp, residual, linsolve, unknowns, 
                 linsolve.b = Vector(b_block) # convert to dense vector
                 linsolve.u = Vector(u_block) # convert to dense vector
 
-                # linsolve.A = sparse(A_block) # convert to CSC Matrix is very slow https://github.com/JuliaArrays/BlockArrays.jl/issues/78
-                # do it manually:
-                A_flat = spzeros(size(A_block))
+                if linsolve_needs_matrix
 
-                lasts_row = [0, axes(A_block)[1].lasts...] # add leading zero
-                lasts_col = [0, axes(A_block)[2].lasts...] # add leading zero
+                    # linsolve.A = sparse(A_block) # convert to CSC Matrix is very slow https://github.com/JuliaArrays/BlockArrays.jl/issues/78
+                    # do it manually:
+                    A_flat = spzeros(size(A_block))
 
-                (n_row, n_col) = size(blocks(A_block))
+                    lasts_row = [0, axes(A_block)[1].lasts...] # add leading zero
+                    lasts_col = [0, axes(A_block)[2].lasts...] # add leading zero
 
-                for i in 1:n_row, j in 1:n_col
-                    range_row = (lasts_row[i] + 1):lasts_row[i + 1]
-                    range_col = (lasts_col[j] + 1):lasts_col[j + 1]
+                    (n_row, n_col) = size(blocks(A_block))
 
-                    # write each block directly in the resulting matrix
-                    A_flat[range_row, range_col] = A_block[Block(i, j)]
+                    for i in 1:n_row, j in 1:n_col
+                        range_row = (lasts_row[i] + 1):lasts_row[i + 1]
+                        range_col = (lasts_col[j] + 1):lasts_col[j + 1]
+
+                        # write each block directly in the resulting matrix
+                        A_flat[range_row, range_col] = A_block[Block(i, j)]
+                    end
+                    linsolve.A = A_flat
                 end
-                linsolve.A = A_flat
             end
         end
 
