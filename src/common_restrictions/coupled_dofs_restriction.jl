@@ -20,7 +20,7 @@ function CoupledDofsRestriction(matrix::AbstractMatrix)
 end
 
 
-function assemble!(R::CoupledDofsRestriction, SC; kwargs...)
+function assemble!(R::CoupledDofsRestriction, sol, SC; kwargs...)
 
     # extract all col indices
     _, J, _ = findnz(R.coupling_matrix)

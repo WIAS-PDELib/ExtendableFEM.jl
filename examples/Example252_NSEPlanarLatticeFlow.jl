@@ -83,7 +83,14 @@ function exact_error!(result, u, qpinfo)
     return result .= result .^ 2
 end
 
-function main(; μ = 0.001, nrefs = 5, reconstruct = true, Plotter = nothing, kwargs...)
+function main(;
+        μ = 0.001,
+        nrefs = 5,
+        reconstruct = true,
+        Plotter = nothing,
+        use_LM_restrictions = true,
+        kwargs...
+    )
 
     ## problem description
     PD = ProblemDescription()
@@ -96,6 +103,11 @@ function main(; μ = 0.001, nrefs = 5, reconstruct = true, Plotter = nothing, kw
     assign_operator!(PD, NonlinearOperator(kernel_nonlinear!, [id_u, grad(u), id(p)]; params = [μ], kwargs...))
     assign_operator!(PD, LinearOperator(f!(μ), [id_u]; kwargs...))
     assign_operator!(PD, InterpolateBoundaryData(u, u!; regions = 1:4))
+    if use_LM_restrictions
+        assign_restriction!(PD, MeanValueRestriction(p; value = 0))
+    else
+        assign_operator!(PD, FixDofs(p; dofs = [1]))
+    end
 
     ## grid
     xgrid = uniform_refine(grid_unitsquare(Triangle2D), nrefs)
@@ -106,10 +118,12 @@ function main(; μ = 0.001, nrefs = 5, reconstruct = true, Plotter = nothing, kw
     ## solve
     sol = solve(PD, FES; kwargs...)
 
-    ## move integral mean of pressure
-    pintegrate = ItemIntegrator([id(p)])
-    pmean = sum(evaluate(pintegrate, sol)) / sum(xgrid[CellVolumes])
-    view(sol[p]) .-= pmean
+    if !use_LM_restrictions
+        ## move integral mean of pressure
+        pintegrate = ItemIntegrator([id(p)])
+        pmean = sum(evaluate(pintegrate, sol)) / sum(xgrid[CellVolumes])
+        view(sol[p]) .-= pmean
+    end
 
     ## error calculation
     ErrorIntegratorExact = ItemIntegrator(exact_error!, [id(u), id(p)]; quadorder = 4, params = [μ], kwargs...)
@@ -127,7 +141,9 @@ end
 
 generateplots = ExtendableFEM.default_generateplots(Example252_NSEPlanarLatticeFlow, "example252.png") #hide
 function runtests() #hide
-    L2errorU, plt = main(; nrefs = 4) #hide
+    L2errorU, _ = main(; use_LM_restrictions = false, nrefs = 4) #hide
+    @test L2errorU ≈ 0.010616923333947861 #hide
+    L2errorU, _ = main(; use_LM_restrictions = true, nrefs = 4) #hide
     @test L2errorU ≈ 0.010616923333947861 #hide
     return nothing #hide
 end #hide

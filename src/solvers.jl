@@ -227,7 +227,7 @@ function solve_linear_system!(A, b, sol, soltemp, residual, linsolve, unknowns, 
         ## assemble restrctions
         if !SC.parameters[:initialized]
             for restriction in PD.restrictions
-                @timeit timer "$(restriction.parameters[:name])" assemble!(restriction, SC; kwargs...)
+                @timeit timer "$(restriction.parameters[:name])" assemble!(restriction, sol, SC; kwargs...)
             end
         end
     end
@@ -287,9 +287,9 @@ function solve_linear_system!(A, b, sol, soltemp, residual, linsolve, unknowns, 
                 end
 
                 b_block = BlockVector(zeros(Tv, total_size), block_sizes)
-                b_block[Block(1)] = b_unrestricted
 
-                u_unrestricted = linsolve.u
+                b_block[Block(1)] = b_unrestricted
+                u_unrestricted = @views linsolve.u[1:block_sizes[1]]
                 u_block = BlockVector(zeros(Tv, total_size), block_sizes)
                 u_block[Block(1)] = u_unrestricted
 
@@ -333,7 +333,8 @@ function solve_linear_system!(A, b, sol, soltemp, residual, linsolve, unknowns, 
         # Solve linear system
         push!(stats[:matrix_nnz], nnz(linsolve.A))
         @timeit timer "solve! call" begin
-            blocked_Δx = LinearSolve.solve!(linsolve)
+            blocked_result = LinearSolve.solve!(linsolve)
+            blocked_Δx = blocked_result.u
         end
 
         # extract the solution / dismiss the lagrange multipliers

@@ -128,6 +128,8 @@ include("common_operators/reduction_operator.jl")
 include("restrictions.jl")
 include("common_restrictions/coupled_dofs_restriction.jl")
 export CoupledDofsRestriction
+include("common_restrictions/mean_value_restriction.jl")
+export MeanValueRestriction
 
 include("problemdescription.jl")
 export ProblemDescription
