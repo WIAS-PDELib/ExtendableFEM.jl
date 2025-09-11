@@ -1,0 +1,131 @@
+#=
+
+# 225 : Obstacle Problem Proximal Galerkin
+([source code](@__SOURCE_URL__))
+
+This example computes the solution ``u`` of the nonlinear obstacle problem that seeks the minimiser of the energy functional
+```math
+\begin{aligned}
+	E(u) = \frac{1}{2} \int_\Omega \lvert \nabla u \rvert^2 dx - \int_\Omega f u dx
+\end{aligned}
+```
+with some right-hand side ``f`` within the set of admissible functions that lie above an obstacle  ``\chi``
+```math
+\begin{aligned}
+	\mathcal{K} := \lbrace u \in H^1_0(\Omega) : u \geq \chi \rbrace.
+\end{aligned}
+```
+
+The obstacle constraint is realised via a penalty term
+```math
+\begin{aligned}
+	\frac{1}{\epsilon} \| \min(0, u - \chi) \|^2_{L^2}
+\end{aligned}
+```
+that is added to the energy above and is automatically differentiated for a Newton scheme.
+The computed solution for the default parameters looks like this:
+
+![](example227.png)
+=#
+
+module Example227_ObstacleProblemPG
+
+using ExtendableFEM
+using ExtendableGrids
+using Test #hide
+
+## define obstacle and penalty kernel
+const b = 9 // 20
+const d = sqrt(1 // 4 - b^2)
+function χ(x)
+    r = sqrt(x[1]^2 + x[2]^2)
+    if r <= b
+        return sqrt(1 // 4 - r^2)
+    else
+        return d + b^2 / d - b * r / d
+    end
+end
+
+function R!(result, input, qpinfo)
+    amphi1 = input - χ(qpinfo.x)
+    return result[1] = (amphi1) * (ln(amphi1) - 1)
+end
+function ∇R!(result, input, qpinfo)
+    return result[1] = χ(qpinfo.x) + exp(input[1])
+end
+
+function kernel_blf!(result, input, qpinfo)
+    α = qpinfo.params[1]
+    result .= α .* input
+    return nothing
+end
+
+function kernel_lf!(result, input, qpinfo)
+    result .= input
+    return nothing
+end
+
+function main(; Plotter = nothing, nrefs = 6, α_0 = 1.0, order = 1, parallel = false, npart = 8, kwargs...)
+
+    ## choose initial mesh
+    xgrid = uniform_refine(grid_unitsquare(Triangle2D; scale = (2, 2), shift = (-0.5, -0.5)), nrefs)
+    if parallel
+        xgrid = partition(xgrid, RecursiveMetisPartitioning(npart = npart))
+    end
+
+    ## problem description
+    PD = ProblemDescription()
+    u = Unknown("u"; name = "u")
+    ψ = Unknown("ψ"; name = "ψ")
+
+    ## create finite element space
+    FES = [FESpace{H1Pk{1, 2, order}}(xgrid), FESpace{H1Pk{1, 2, order}}(xgrid)]
+
+    ## init proximal parameter
+    params = [α_0]
+    assign_unknown!(PD, u)
+    assign_unknown!(PD, ψ)
+    assign_operator!(PD, BilinearOperator(kernel_blf!, [grad(u)]; params = params, parallel = parallel, kwargs...))
+    assign_operator!(PD, LinearOperator([id(u)], [(id(ψ))]; transposed_copy = 1, store = true, parallel = parallel, kwargs...))
+    #assign_operator!(PD, LinearOperator(kernel_lf!, [id(u)], [id(ψ)]; parallel = parallel, factor = 1, kwargs...))
+    assign_operator!(PD, NonlinearOperator(∇R!, [id(ψ)], [id(ψ)]; parallel = parallel, factor = -1, bonus_quadorder = 5, kwargs...))
+    assign_operator!(PD, HomogeneousBoundaryData(u; regions = 1:4, kwargs...))
+
+
+    ## add coupling matrix
+    M = FEMatrix(FES[1], FES[2])
+    b = FEVector(FES[1])
+    assemble!(M, BilinearOperator([id(1)], [id(1)]))
+    assign_operator!(PD, LinearOperator(b, [u]; factor = 1, kwargs...))
+
+
+    ## solve
+    sol = FEVector(FES; tags = PD.unknowns)
+    SC = nothing
+    r = 1.1 #3//2
+    q = 1.1 #3//2
+    for k in 1:1
+        ## set b vector
+        b.entries .= M.entries * view(sol[ψ])
+        view(sol[ψ]) .= 0
+
+        ## solve nonlinear problem
+        sol, SC = solve(PD, FES, SC; init = sol, maxiterations = 10, return_config = true, kwargs...)
+        params[1] = min(max(r^(q^k) - params[1]), 10^2)
+        @info "Step $k: α = $(params[1])", sol
+    end
+
+
+    ## plot
+    plt = plot([id(u), id(ψ)], sol; Plotter = Plotter, ncols = 3)
+
+    return sol, plt
+end
+
+generateplots = ExtendableFEM.default_generateplots(Example227_ObstacleProblemPG, "example227.png") #hide
+function runtests() #hide
+    sol, plt = main(; μ = 1.0, nrefs = 2, order = 2) #hide
+    @test maximum(sol.entries) ≈ 0.0033496680638875204 #hide
+    return nothing #hide
+end #hide
+end # module
