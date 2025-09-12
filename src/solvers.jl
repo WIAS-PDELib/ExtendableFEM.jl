@@ -261,7 +261,7 @@ function solve_linear_system!(A, b, sol, soltemp, residual, linsolve, unknowns, 
         else
             # add possible Lagrange restrictions
             restriction_matrices = [length(freedofs) > 0 ? re.parameters[:matrix][freedofs, :] : re.parameters[:matrix] for re in PD.restrictions ]
-            restriction_rhs = [length(freedofs) > 0 ? re.parameters[:rhs][freedofs] : re.parameters[:rhs] for re in PD.restrictions ]
+            restriction_rhs = deepcopy([length(freedofs) > 0 ? re.parameters[:rhs][freedofs] : re.parameters[:rhs] for re in PD.restrictions ])
 
             # block sizes for the block matrix
             block_sizes = [size(A_unrestricted, 2), [ size(B, 2) for B in restriction_matrices ]...]
