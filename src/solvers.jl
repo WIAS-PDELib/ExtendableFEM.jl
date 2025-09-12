@@ -36,11 +36,10 @@ end
 Compute the nonlinear residual for the current solution.
 """
 function compute_nonlinear_residual!(residual, A, b, sol, unknowns, PD, SC, freedofs)
-    fill!(residual.entries, 0)
+    residual.entries .= b.entries
     for j in 1:length(b), k in 1:length(b)
-        addblock_matmul!(residual[j], A[j, k], sol[unknowns[k]])
+        addblock_matmul!(residual[j], A[j, k], sol[unknowns[k]], factor = -1)
     end
-    residual.entries .-= b.entries
 
     for op in PD.operators
         residual.entries[fixed_dofs(op)] .= 0
@@ -274,7 +273,7 @@ function solve_linear_system!(A, b, sol, soltemp, residual, linsolve, unknowns, 
 
                 ## we need to add the (initial) solution to the rhs, since we work with the residual equation
                 for (B, rhs) in zip(restriction_matrices, restriction_rhs)
-                    rhs .+= B'sol.entries
+                    rhs .-= B'sol.entries
                 end
 
                 total_size = sum(block_sizes)
@@ -344,14 +343,14 @@ function solve_linear_system!(A, b, sol, soltemp, residual, linsolve, unknowns, 
     # Compute solution update
     @timeit timer "update solution" begin
         if length(freedofs) > 0
-            x = sol.entries[freedofs] - Δx
+            x = sol.entries[freedofs] + Δx
         else
             x = zero(Δx)
             offset = 0
             for u in unknowns
                 ndofs_u = length(view(sol[u]))
                 x_range = (offset + 1):(offset + ndofs_u)
-                x[x_range] .= view(sol[u]) .- view(Δx, x_range)
+                x[x_range] .= view(sol[u]) .+ view(Δx, x_range)
                 offset += ndofs_u
             end
         end
@@ -359,13 +358,13 @@ function solve_linear_system!(A, b, sol, soltemp, residual, linsolve, unknowns, 
 
     # Check linear residual
     @timeit timer "linear residual computation" begin
+        residual.entries .= b.entries
         if length(freedofs) > 0
             soltemp.entries[freedofs] .= x
-            residual.entries .= A.entries.cscmatrix * soltemp.entries
+            residual.entries .-= A.entries.cscmatrix * soltemp.entries
         else
-            residual.entries .= A.entries.cscmatrix * x
+            residual.entries .-= A.entries.cscmatrix * x
         end
-        residual.entries .-= b.entries
         for op in PD.operators
             for dof in fixed_dofs(op)
                 if dof <= length(residual.entries)
