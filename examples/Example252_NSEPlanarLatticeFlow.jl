@@ -118,10 +118,12 @@ function main(;
     ## solve
     sol = solve(PD, FES; kwargs...)
 
-    if !use_LM_restrictions
+    pintegrate = ItemIntegrator([id(p)])
+    pmean = sum(evaluate(pintegrate, sol)) / sum(xgrid[CellVolumes])
+    if use_LM_restrictions
+        @show pmean
+    else
         ## move integral mean of pressure
-        pintegrate = ItemIntegrator([id(p)])
-        pmean = sum(evaluate(pintegrate, sol)) / sum(xgrid[CellVolumes])
         view(sol[p]) .-= pmean
     end
 
