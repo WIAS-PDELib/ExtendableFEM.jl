@@ -26,6 +26,11 @@ mutable struct ProblemDescription
     """
     operators::Array{AbstractOperator, 1}
     #reduction_operators::Array{AbstractReductionOperator,1}
+
+    """
+    A vector of Lagrange restrictions that are involved in the problem.
+    """
+    restrictions::Vector{AbstractRestriction}
 end
 
 """
@@ -41,7 +46,7 @@ Create an empty `ProblemDescription` with the given name.
 
 """
 function ProblemDescription(name = "My problem")
-    return ProblemDescription(name, Array{Unknown, 1}(undef, 0), Array{AbstractOperator, 1}(undef, 0))
+    return ProblemDescription(name, [], [], [])
 end
 
 
@@ -89,6 +94,23 @@ Adds an operator to a `ProblemDescription`.
 function assign_operator!(PD::ProblemDescription, o::AbstractOperator)
     push!(PD.operators, o)
     return length(PD.operators)
+end
+
+"""
+$(TYPEDSIGNATURES)
+
+Adds a restrction to a `ProblemDescription`.
+
+# Arguments
+- `PD::ProblemDescription`: The problem description to which the operator should be added.
+- `r::AbstractRestriction`: The restriction to add.
+
+# Returns
+- The index (position) of the restriction in the `restrictions` array of `PD`.
+"""
+function assign_restriction!(PD::ProblemDescription, r::AbstractRestriction)
+    push!(PD.restrictions, r)
+    return length(PD.restrictions)
 end
 
 

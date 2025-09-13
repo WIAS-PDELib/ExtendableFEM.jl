@@ -82,6 +82,7 @@ function make_all(; with_examples::Bool = true, modules = :all, run_examples::Bo
                 "nonlinearoperator.md",
                 "bilinearoperator.md",
                 "linearoperator.md",
+                "restrictions.md",
                 "interpolateboundarydata.md",
                 "homogeneousdata.md",
                 "fixdofs.md",
