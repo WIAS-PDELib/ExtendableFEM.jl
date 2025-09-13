@@ -9,12 +9,23 @@ end
 """
 $(TYPEDSIGNATURES)
 
-Restrict the mean value of a scalar unknown to a certain value.
+Construct a mean value restriction for a scalar unknown.
 
-An additional operator can be applied to the unknown before the mean value is restricted.
+This restriction enforces that the mean value of the given unknown
+(or rather the testing of an underlying LinearOperator) matches a specified value.  
+Optionally, an operator can be applied to the unknown before computing the mean,
+and a custom kernel function for the underlying `LinearOperator` can be provided.
+
+# Arguments
+- `u::Unknown`: The unknown whose mean value is to be restricted.
+- `kernel`: Kernel function for the linear operator (default: `ExtendableFEMBase.constant_one_kernel`).
+- `value::T`: The target mean value (default: `0`).
+- `operator`: Operator to apply to the unknown before restriction (default: `Identity`).
+- `Tv`: Value type for the restriction (default: `Float64`).
+
 """
-function MeanValueRestriction(u::Unknown; value::T = 0, operator = Identity, Tv = Float64) where {T}
-    linear_operator = LinearOperator([(u, operator)]; store = true, Tv)
+function MeanValueRestriction(u::Unknown; kernel = ExtendableFEMBase.constant_one_kernel, value::T = 0, operator = Identity, Tv = Float64) where {T}
+    linear_operator = LinearOperator(kernel, [(u, operator)]; store = true, Tv)
     return MeanValueRestriction{T, Tv}(u, value, linear_operator, Dict{Symbol, Any}(:name => "MeanValueRestriction"))
 end
 
