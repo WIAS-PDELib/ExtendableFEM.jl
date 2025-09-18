@@ -253,6 +253,9 @@ function solve_linear_system!(A, b, sol, soltemp, residual, linsolve, unknowns, 
             b_unrestricted = residual.entries
         end
 
+        ## restrictions only involve the blocks coressponding to the unknowns and not necessarily the full sol.entries
+        sol_freedofs = CatView([view(sol[u]) for u in unknowns]...)
+
         if length(PD.restrictions) == 0
             if linsolve_needs_matrix
                 linsolve.A = A_unrestricted
@@ -273,7 +276,7 @@ function solve_linear_system!(A, b, sol, soltemp, residual, linsolve, unknowns, 
 
                 ## we need to add the (initial) solution to the rhs, since we work with the residual equation
                 for (B, rhs) in zip(restriction_matrices, restriction_rhs)
-                    rhs .-= B'sol.entries
+                    rhs .-= B'sol_freedofs
                 end
 
                 total_size = sum(block_sizes)

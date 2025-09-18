@@ -7,6 +7,7 @@ module ExtendableFEM
 
 using ChunkSplitters: chunks
 using BlockArrays: BlockMatrix, BlockVector, Block, blocks, axes
+using CatViews: CatView
 using CommonSolve: CommonSolve
 using DiffResults: DiffResults
 using DocStringExtensions: DocStringExtensions, TYPEDEF, TYPEDSIGNATURES
