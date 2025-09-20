@@ -127,6 +127,8 @@ include("common_operators/reduction_operator.jl")
 #export FixbyInterpolation
 
 include("restrictions.jl")
+include("common_restrictions/boundarydata_restriction.jl")
+export BoundaryDataRestriction
 include("common_restrictions/coupled_dofs_restriction.jl")
 export CoupledDofsRestriction
 include("common_restrictions/mean_value_restriction.jl")
