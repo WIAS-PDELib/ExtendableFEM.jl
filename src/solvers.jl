@@ -254,7 +254,7 @@ function solve_linear_system!(A, b, sol, soltemp, residual, linsolve, unknowns, 
         end
 
         ## restrictions only involve the blocks coressponding to the unknowns and not necessarily the full sol.entries
-        sol_freedofs = CatView([view(sol[u]) for u in unknowns]...)
+        sol_freedofs = mortar([view(sol[u]) for u in unknowns])
 
         if length(PD.restrictions) == 0
             if linsolve_needs_matrix
@@ -263,8 +263,8 @@ function solve_linear_system!(A, b, sol, soltemp, residual, linsolve, unknowns, 
             linsolve.b = b_unrestricted
         else
             # add possible Lagrange restrictions
-            restriction_matrices = [length(freedofs) > 0 ? re.parameters[:matrix][freedofs, :] : re.parameters[:matrix] for re in PD.restrictions ]
-            restriction_rhs = deepcopy([length(freedofs) > 0 ? re.parameters[:rhs][freedofs] : re.parameters[:rhs] for re in PD.restrictions ])
+            restriction_matrices = [length(freedofs) > 0 ? view(restriction_matrix(re), freedofs, :) : restriction_matrix(re) for re in PD.restrictions ]
+            restriction_rhss = deepcopy([length(freedofs) > 0 ? view(restriction_rhs(re), freedofs) : restriction_rhs(re) for re in PD.restrictions ])
 
             # block sizes for the block matrix
             block_sizes = [size(A_unrestricted, 2), [ size(B, 2) for B in restriction_matrices ]...]
@@ -275,7 +275,7 @@ function solve_linear_system!(A, b, sol, soltemp, residual, linsolve, unknowns, 
             @timeit timer "LM restrictions (nLMs = $nLMs)" begin
 
                 ## we need to add the (initial) solution to the rhs, since we work with the residual equation
-                for (B, rhs) in zip(restriction_matrices, restriction_rhs)
+                for (B, rhs) in zip(restriction_matrices, restriction_rhss)
                     rhs .-= B'sol_freedofs
                 end
 
@@ -300,7 +300,7 @@ function solve_linear_system!(A, b, sol, soltemp, residual, linsolve, unknowns, 
                         A_block[Block(1, i + 1)] = restriction_matrices[i]
                         A_block[Block(i + 1, 1)] = transpose(restriction_matrices[i])
                     end
-                    b_block[Block(i + 1)] = restriction_rhs[i]
+                    b_block[Block(i + 1)] = restriction_rhss[i]
 
                 end
 
@@ -370,6 +370,13 @@ function solve_linear_system!(A, b, sol, soltemp, residual, linsolve, unknowns, 
         end
         for op in PD.operators
             for dof in fixed_dofs(op)
+                if dof <= length(residual.entries)
+                    residual.entries[dof] = 0
+                end
+            end
+        end
+        for rs in PD.restrictions
+            for dof in fixed_dofs(rs)
                 if dof <= length(residual.entries)
                     residual.entries[dof] = 0
                 end

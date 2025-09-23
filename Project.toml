@@ -5,7 +5,6 @@ authors = ["Christian Merdon <merdon@wias-berlin.de>", "Patrick Jaap <patrick.ja
 
 [deps]
 BlockArrays = "8e7c35d0-a365-5155-bbbb-fb81a777f24e"
-CatViews = "81a5f4ea-a946-549a-aa7e-2a7f63a27d31"
 ChunkSplitters = "ae650224-84b6-46f8-82ea-d812ca08434e"
 CommonSolve = "38540f10-b2f7-11e9-35d8-d573e4eb0ff2"
 DiffResults = "163ba53b-c6d8-5494-b064-1a9d43ac40c5"
@@ -30,7 +29,6 @@ UnicodePlots = "b8865327-cd53-5732-bb35-84acbb429228"
 [compat]
 Aqua = "0.8"
 BlockArrays = "1.7.0"
-CatViews = "1.0.0"
 ChunkSplitters = "3.1.2"
 CommonSolve = "0.2"
 DiffResults = "1"

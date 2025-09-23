@@ -42,6 +42,7 @@ function assemble!(R::BoundaryDataRestriction, sol, SC; kwargs...)
     n = length(SC.b.entries)
     R.parameters[:matrix] = sparse(fixeddofs, 1:nvals, ones(nvals), n, nvals)
     R.parameters[:rhs] = fixedvals
+    R.parameters[:fixed_dofs] = fixeddofs
 
     return nothing
 end

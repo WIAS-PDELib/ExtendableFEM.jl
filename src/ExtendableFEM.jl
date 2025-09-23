@@ -6,8 +6,7 @@ $(read(joinpath(@__DIR__, "..", "README.md"), String))
 module ExtendableFEM
 
 using ChunkSplitters: chunks
-using BlockArrays: BlockMatrix, BlockVector, Block, blocks, axes
-using CatViews: CatView
+using BlockArrays: BlockMatrix, BlockVector, Block, blocks, axes, mortar
 using CommonSolve: CommonSolve
 using DiffResults: DiffResults
 using DocStringExtensions: DocStringExtensions, TYPEDEF, TYPEDSIGNATURES
@@ -127,12 +126,9 @@ include("common_operators/reduction_operator.jl")
 #export FixbyInterpolation
 
 include("restrictions.jl")
-include("common_restrictions/boundarydata_restriction.jl")
-export BoundaryDataRestriction
-include("common_restrictions/coupled_dofs_restriction.jl")
-export CoupledDofsRestriction
-include("common_restrictions/mean_value_restriction.jl")
-export MeanValueRestriction
+export restriction_matrix
+export restriction_rhs
+export fixed_dofs
 
 include("problemdescription.jl")
 export ProblemDescription
@@ -207,6 +203,15 @@ include("common_operators/fixdofs_operator.jl")
 export FixDofs
 include("common_operators/discface_interpolator.jl")
 export FaceInterpolator
+
+include("common_restrictions/boundarydata_restriction.jl")
+export BoundaryDataRestriction
+include("common_restrictions/coupled_dofs_restriction.jl")
+export CoupledDofsRestriction
+include("common_restrictions/linear_functional_restriction.jl")
+export LinearFunctionalRestriction
+export ZeroMeanValueRestriction
+export MassRestriction
 
 include("plots.jl")
 export plot_convergencehistory!

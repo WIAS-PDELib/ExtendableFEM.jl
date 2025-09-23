@@ -20,3 +20,7 @@ function assemble!(R::AbstractRestriction, SC; kwargs...)
     ## assembles internal restriction matrix in R
     return nothing
 end
+
+restriction_matrix(R::AbstractRestriction) = R.parameters[:matrix]
+restriction_rhs(R::AbstractRestriction) = R.parameters[:rhs]
+fixed_dofs(R::AbstractRestriction) = R.parameters[:fixed_dofs]

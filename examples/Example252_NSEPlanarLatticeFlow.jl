@@ -104,7 +104,7 @@ function main(;
     assign_operator!(PD, LinearOperator(f!(μ), [id_u]; kwargs...))
     assign_operator!(PD, InterpolateBoundaryData(u, u!; regions = 1:4))
     if use_LM_restrictions
-        assign_restriction!(PD, MeanValueRestriction(p; value = 0))
+        assign_restriction!(PD, ZeroMeanValueRestriction(p))
     else
         assign_operator!(PD, FixDofs(p; dofs = [1]))
     end

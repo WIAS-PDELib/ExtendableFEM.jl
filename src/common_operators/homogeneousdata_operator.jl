@@ -74,7 +74,6 @@ $(_myprint(default_homdata_kwargs()))
 
 """
 function HomogeneousBoundaryData(u; entities = ON_BFACES, kwargs...)
-    @info entities, kwargs
     return HomogeneousData(u; entities = entities, kwargs...)
 end
 
