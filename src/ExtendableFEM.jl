@@ -126,9 +126,6 @@ include("common_operators/reduction_operator.jl")
 #export FixbyInterpolation
 
 include("restrictions.jl")
-export restriction_matrix
-export restriction_rhs
-export fixed_dofs
 
 include("problemdescription.jl")
 export ProblemDescription
