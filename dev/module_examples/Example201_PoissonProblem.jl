@@ -35,13 +35,27 @@ function default_f!(fval, qpinfo)
     return nothing
 end
 
-function main(; μ = 1.0, nrefs = 4, order = 2, Plotter = nothing, parallel = false, f! = default_f!, npart = parallel ? 8 : 1, kwargs...)
+function main(;
+        μ = 1.0,
+        nrefs = 4,
+        order = 2,
+        f! = default_f!,
+        use_restriction = true,
+        parallel = false,
+        npart = parallel ? 8 : 1,
+        Plotter = nothing,
+        kwargs...
+    )
     ## problem description
     PD = ProblemDescription()
     assign_unknown!(PD, u)
     assign_operator!(PD, BilinearOperator([grad(u)]; parallel = parallel, factor = μ, kwargs...))
     assign_operator!(PD, LinearOperator(f!, [id(u)]; parallel = parallel, kwargs...))
-    assign_operator!(PD, HomogeneousBoundaryData(u; regions = 1:4))
+    if use_restriction
+        assign_restriction!(PD, BoundaryDataRestriction(u; regions = 1:4, value = 0))
+    else
+        assign_operator!(PD, HomogeneousBoundaryData(u; regions = 1:4))
+    end
 
     ## discretize
     xgrid = uniform_refine(grid_unitsquare(Triangle2D), nrefs)
@@ -65,6 +79,8 @@ function runtests() #hide
     @test sum(sol.entries) ≈ 1.1140313632246377 #hide
     sol_parallel, plt = main(; μ = 1.0, nrefs = 2, order = 2, parallel = true, npart = 2) #hide
     @assert sum((sol_parallel.entries .- sol.entries) .^ 2) ≈ 0.0 #hide
+    sol_restrict, plt = main(; μ = 1.0, nrefs = 2, use_restriction = false, parallel = false, order = 2, npart = 2) #hide
+    @assert sqrt(sum((sol_restrict.entries .- sol.entries) .^ 2)) < 1.0e-15 #hide
     return nothing #hide
 end #hide
 end # module
