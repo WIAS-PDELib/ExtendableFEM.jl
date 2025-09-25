@@ -1,6 +1,6 @@
 #=
 
-# 225 : Obstacle Problem LVPP
+# 227 : Obstacle Problem LVPP
 ([source code](@__SOURCE_URL__))
 
 This example computes the solution ``u`` of the nonlinear obstacle problem that seeks
@@ -65,8 +65,14 @@ function χ(x)
     end
 end
 
+## transformation of latent variable ψ to constrained variable u
 function ∇R!(result, input, qpinfo)
     return result[1] = χ(qpinfo.x) + exp(input[1])
+end
+
+## boundary data for latent variable ψ (such that ̃u := χ + ∇R(ψ) satisfies Dirichlet boundary conditions)
+function bnd_ψ!(result, qpinfo)
+    return result[1] = log(-χ(qpinfo.x))
 end
 
 function main(;
@@ -75,6 +81,7 @@ function main(;
         order = 1,
         parallel = false,
         npart = 8,
+        tol = 1.0e-12,
         Plotter = nothing,
         kwargs...
     )
@@ -114,6 +121,7 @@ function main(;
     assign_operator!(PD, BilinearOperator([id(u)], [(id(ψ))]; transposed_copy = 1, store = true, parallel = parallel, kwargs...))
     assign_operator!(PD, NonlinearOperator(∇R!, [id(ψ)], [id(ψ)]; parallel = parallel, factor = -1, kwargs...))
     assign_operator!(PD, HomogeneousBoundaryData(u; regions = 1:4, kwargs...))
+    assign_operator!(PD, InterpolateBoundaryData(ψ, bnd_ψ!; regions = 1:4, kwargs...))
     assign_operator!(PD, LinearOperator(b, [u]; kwargs...))
 
     ## solve
@@ -138,7 +146,7 @@ function main(;
         ## compute distance
         dist = norm(view(sol[u]) .- view(sol_prev[u]))
         @info "dist = $dist, niterations = $(niterations - 1)"
-        if dist < 1.0e-10
+        if dist < tol
             converged = true
         else
             # increase proximal parameter
