@@ -130,6 +130,7 @@ end
 function main(;
         order = 1,
         periodic = true,
+        use_LM_restrictions = true,
         Plotter = nothing,
         force = 1.0,
         h = 1.0e-4,
@@ -169,8 +170,12 @@ function main(;
             y[1] = width - x[1]
             return nothing
         end
-        @time coupling_matrix = get_periodic_coupling_matrix(FES, reg_left, reg_right, give_opposite!; parallel = threads > 1, threads)
-        assign_operator!(PD, CombineDofs(u, u, coupling_matrix; kwargs...))
+        @showtime coupling_matrix = get_periodic_coupling_matrix(FES, reg_left, reg_right, give_opposite!; parallel = threads > 1, threads)
+        if use_LM_restrictions
+            assign_restriction!(PD, CoupledDofsRestriction(coupling_matrix))
+        else
+            assign_operator!(PD, CombineDofs(u, u, coupling_matrix; kwargs...))
+        end
     end
 
     ## solve
@@ -185,10 +190,15 @@ end
 
 generateplots = ExtendableFEM.default_generateplots(Example312_PeriodicBoundary3D, "example312.png") #hide
 function runtests()                                                                                  #hide
-    sol, _ = main()                                                                                  #hide
-    @test abs(maximum(view(sol[1])) - 1.8004602502175202) < 2.0e-3                                   #hide
-    sol2, _ = main(threads = 4)                                                                      #hide
-    @test sol.entries ≈ sol2.entries                                                                                 #hide
+    sol1, _ = main(use_LM_restrictions = false, threads = 1)                                         #hide
+    @test abs(maximum(view(sol1[1])) - 1.8004602502175202) < 2.0e-3                                  #hide
+
+    sol2, _ = main(use_LM_restrictions = false, threads = 4)                                         #hide
+    @test sol1.entries ≈ sol2.entries                                                                #hide
+
+    sol3, _ = main(use_LM_restrictions = true, threads = 4)                                          #hide
+    @test sol1.entries ≈ sol3.entries                                                                #hide
+
     return nothing                                                                                   #hide
 end                                                                                                  #hide
 

@@ -5,6 +5,9 @@
 ### Added
 
   - `compute_periodic_coupling_matrix` can be computed thread parallel
+  - new "Restriction" objects using Lagrange multipliers internally
+  - user can apply linear `LinearFunctionalRestriction`, `ZeroMeanValueRestriction`, `MassRestriction`, `CoupledDofsRestriction` or `BoundaryDataRestriction` to the `ProblemDescription` by `apply_restriction!()`
+  - Incorporated new restriction objects in examples 201, 252, 312 and 212.
 
 ## v1.4.0
 

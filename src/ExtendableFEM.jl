@@ -6,6 +6,7 @@ $(read(joinpath(@__DIR__, "..", "README.md"), String))
 module ExtendableFEM
 
 using ChunkSplitters: chunks
+using BlockArrays: BlockMatrix, BlockVector, Block, blocks, axes, mortar
 using CommonSolve: CommonSolve
 using DiffResults: DiffResults
 using DocStringExtensions: DocStringExtensions, TYPEDEF, TYPEDSIGNATURES
@@ -60,6 +61,7 @@ using ExtendableGrids: ExtendableGrids, AT_NODES, AbstractElementGeometry,
 using ExtendableSparse: ExtendableSparse, ExtendableSparseMatrix, flush!,
     MTExtendableSparseMatrixCSC, findindex,
     rawupdateindex!
+using FillArrays: Zeros
 using ForwardDiff: ForwardDiff
 using GridVisualize: GridVisualize, GridVisualizer, gridplot!, reveal, save,
     scalarplot!, vectorplot!
@@ -68,7 +70,7 @@ using LinearSolve: LinearSolve, LinearProblem, UMFPACKFactorization, deleteat!,
     init, solve
 using Printf: Printf, @printf, @sprintf
 using SparseArrays: SparseArrays, AbstractSparseArray, SparseMatrixCSC, findnz, nnz,
-    nzrange, rowvals, sparse, SparseVector
+    nzrange, rowvals, sparse, SparseVector, spzeros
 using StaticArrays: @MArray
 using SparseDiffTools: SparseDiffTools, ForwardColorJacCache,
     forwarddiff_color_jacobian!, matrix_colors
@@ -123,11 +125,14 @@ include("common_operators/reduction_operator.jl")
 #export AbstractReductionOperator
 #export FixbyInterpolation
 
+include("restrictions.jl")
+
 include("problemdescription.jl")
 export ProblemDescription
 export assign_unknown!
 export assign_operator!
 export replace_operator!
+export assign_restriction!
 
 include("helper_functions.jl")
 export get_periodic_coupling_info
@@ -195,6 +200,15 @@ include("common_operators/fixdofs_operator.jl")
 export FixDofs
 include("common_operators/discface_interpolator.jl")
 export FaceInterpolator
+
+include("common_restrictions/boundarydata_restriction.jl")
+export BoundaryDataRestriction
+include("common_restrictions/coupled_dofs_restriction.jl")
+export CoupledDofsRestriction
+include("common_restrictions/linear_functional_restriction.jl")
+export LinearFunctionalRestriction
+export ZeroMeanValueRestriction
+export MassRestriction
 
 include("plots.jl")
 export plot_convergencehistory!

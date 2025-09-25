@@ -7,7 +7,7 @@ mutable struct HomogeneousData{UT, AT} <: AbstractOperator
 end
 
 fixed_dofs(O::HomogeneousData) = O.bdofs
-fixed_vals(O::HomogeneousData) = O.parameters[:value]
+fixed_vals(O::HomogeneousData) = O.parameters[:value] * ones(length(fixed_dofs(O)))
 
 
 default_homdata_kwargs() = Dict{Symbol, Tuple{Any, String}}(
@@ -143,6 +143,7 @@ function assemble!(O::HomogeneousData{UT, AT}, FES = O.FES; offset = 0, kwargs..
                 end
             end
         end
+        unique!(bdofs)
         if O.parameters[:verbosity] > 0
             @info "$(O.parameters[:name]) : penalizing $(length(bdofs)) dofs of '$(O.u.name)' ($AT, regions = $(O.parameters[:regions]))"
         end
