@@ -31,6 +31,7 @@ function make_all(; with_examples::Bool = true, modules = :all, run_examples::Bo
                 "Example220_ReactionConvectionDiffusion.jl",
                 "Example225_ObstacleProblem.jl",
                 "Example226_Thermoforming.jl",
+                "Example227_ObstacleProblemLVPP.jl",
                 "Example230_NonlinearElasticity.jl",
                 "Example235_StokesIteratedPenalty.jl",
                 "Example240_SVRTEnrichment.jl",
