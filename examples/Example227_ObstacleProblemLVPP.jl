@@ -19,25 +19,25 @@ with some right-hand side ``f`` within the set of admissible functions that lie 
 
 Opposite to Example225 the solution is computed by the latent variable proximal point (LVPP) method
 that solves the problem via a series of nonlinear mixed problems that guarantee the decay of the
-energy. Given ``\alpha_k`` and initial guess ``u_0`` and ``\psi_0``, the subproblem for ``k \geq 1``
+energy. Given ``\alpha_k`` and initial guesses ``u_0`` and ``\psi_0``, the subproblem for ``k \geq 1``
 seeks a solution ``u_{k} \in V := H^1_0(\Omega)`` and ``\psi_{k} \in W := L^\infty(\Omega)`` such that
 ```math
 \begin{aligned}
-\alpha_k (\nabla u_k, \nabla v) + (\psi_k, v) = (\alpha_k f + \psi_{k-1},v)
+\alpha_k (\nabla u_k, \nabla v)_{L^2} + (\psi_k, v)_{L^2} & = (\alpha_k f + \psi_{k-1},v)_{L^2}
 && \text{for all } v \in V\\
-(u_k, w) - (\varchi + \exp(\psi_k), w) & = 0 &&
-\text{for all } w \in W
+(u_k, w)_{L^2} - (\chi + \exp(\psi_k), w)_{L^2} & = 0
+&& \text{for all } w \in W
 \end{aligned}
 ```
 The parameter ``\alpha_k`` is initialized with ``\alpha_0 = 1`` and updated according to
-``\alpha_k = min(max(r^(q^k) - α), 10^3)`` with ``r = q = 1.5``. The problem for each ``k``
+``\alpha_k = \min(\max(r^(q^k) - α), 10^3)`` with ``r = q = 1.5``. The problem for each ``k``
 is solved by the Newton method. This implements Algorithm 3 in the reference below.
 
 
 !!! reference
 
-	''Proximal Galerkin: A Structure-Preserving Finite Element Method for Pointwise Bound Constraints''
-	Brendan Keith, Thomas M. Surowiec, Found Comput Math (2024)
+	''Proximal Galerkin: A Structure-Preserving Finite Element Method for Pointwise Bound Constraints'',
+	Brendan Keith, Thomas M. Surowiec, Found Comput Math (2024),
 	[>Link<](https://doi.org/10.1007/s10208-024-09681-8)
 
 
@@ -58,11 +58,7 @@ const b = 9 // 20
 const d = sqrt(1 // 4 - b^2)
 function χ(x)
     r = sqrt(x[1]^2 + x[2]^2)
-    if r <= b
-        return sqrt(1 // 4 - r^2)
-    else
-        return d + b^2 / d - b * r / d
-    end
+    return r <= b ? sqrt(1 // 4 - r^2) : d + b^2 / d - b * r / d
 end
 
 ## transformation of latent variable ψ to constrained variable u
@@ -148,8 +144,7 @@ function main(;
         @info "dist = $dist, niterations = $(niterations - 1)"
         if dist < tol
             converged = true
-        else
-            # increase proximal parameter
+        else ## increase proximal parameter
             α = min(max(r^(q^k) - α), 10^3)
         end
     end
