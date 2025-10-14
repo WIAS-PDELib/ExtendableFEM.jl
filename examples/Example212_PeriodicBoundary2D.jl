@@ -163,7 +163,8 @@ function main(;
         end
     end
 
-    sol = solve(PD, FES)
+    sol, SC = solve(PD, FES, return_config = true)
+    residual(SC) < 1.0e-10 || error("Residual is not zero!")
 
     plt = GridVisualizer(; Plotter, size = (1300, 800))
 

@@ -179,7 +179,8 @@ function main(;
     end
 
     ## solve
-    sol = solve(PD, FES; kwargs...)
+    sol, SC = solve(PD, FES; return_config = true, kwargs...)
+    residual(SC) < 1.0e-10 || error("Residual is not zero!")
 
     displace_mesh!(xgrid, sol[u])
     plt = plot([grid(u)], sol; Plotter, do_vector_plots = false, width = 1200, height = 800, title = "displaced mesh", scene3d = :LScene)
