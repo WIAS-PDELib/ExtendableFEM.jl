@@ -1,5 +1,15 @@
 # CHANGES
 
+## v1.6.0
+
+### Added
+
+  - `CoupledDofsRestriction` accepts now an array of multiple coupling matrices.
+
+### Fixed
+
+  - Periodic coupling with multiple redundant coupling matrices are now reduced to full rank to make the system uniquely solvable.
+
 ## v1.5.0
 
 ### Added

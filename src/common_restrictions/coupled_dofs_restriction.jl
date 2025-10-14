@@ -1,5 +1,5 @@
 struct CoupledDofsRestriction{TM} <: AbstractRestriction
-    coupling_matrix::TM
+    coupling_matrices::Vector{TM}
     parameters::Dict{Symbol, Any}
 end
 
@@ -7,7 +7,7 @@ end
 """
     CoupledDofsRestriction(matrix::AbstractMatrix)
 
-    Creates an restriction that couples dofs together.
+    Creates a restriction that couples dofs together.
 
     The coupling is stored in a CSC Matrix `matrix`, s.t.,
 
@@ -16,27 +16,41 @@ end
     The matrix can be obtained from, e.g., `get_periodic_coupling_matrix`.
 """
 function CoupledDofsRestriction(matrix::AbstractMatrix)
-    return CoupledDofsRestriction(matrix, Dict{Symbol, Any}(:name => "CoupledDofsRestriction"))
+    return CoupledDofsRestriction([matrix], Dict{Symbol, Any}(:name => "CoupledDofsRestriction"))
+end
+
+
+"""
+    CoupledDofsRestriction(matrices::Vector{AM}) where {AM <: AbstractMatrix}
+
+    Creates a `CoupledDofsRestriction` from multiple given coupling matrices.
+"""
+function CoupledDofsRestriction(matrices::Vector{AM}) where {AM <: AbstractMatrix}
+    return CoupledDofsRestriction(matrices, Dict{Symbol, Any}(:name => "CoupledDofsRestriction"))
 end
 
 
 function assemble!(R::CoupledDofsRestriction, sol, SC; kwargs...)
 
-    # extract all col indices
-    _, J, _ = findnz(R.coupling_matrix)
-
-    # remove duplicates
-    unique_cols = unique(J)
-
+    # extract all col indices and remove duplicates
     # subtract diagonal and shrink matrix to non-empty cols
-    B = (R.coupling_matrix - LinearAlgebra.I)[:, unique_cols]
+    Bs = [ (matrix - LinearAlgebra.I)[:, unique(findnz(matrix)[2])] for matrix in R.coupling_matrices ]
+
+    # combine all into one matrix
+    B = hcat(Bs...)
+
+    # eliminate redundant cols by QR:
+    qr_result = qr(B)
+
+    # pick minimal number of cols that are rank preserving
+    cols_of_interest = qr_result.pcol[1:rank(qr_result)]
+    B = B[:, cols_of_interest]
 
     R.parameters[:matrix] = B
-    R.parameters[:rhs] = Zeros(length(unique_cols))
+    R.parameters[:rhs] = Zeros(size(B, 2))
 
     # fixed dofs are all active rows of B
-    I, _, _ = findnz(B)
-    R.parameters[:fixed_dofs] = unique(I)
+    R.parameters[:fixed_dofs] = unique(findnz(B)[1])
 
     return nothing
 end
