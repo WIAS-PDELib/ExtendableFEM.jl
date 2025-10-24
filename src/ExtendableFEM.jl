@@ -70,7 +70,7 @@ using LinearSolve: LinearSolve, LinearProblem, UMFPACKFactorization, deleteat!,
     init, solve
 using Printf: Printf, @printf, @sprintf
 using SparseArrays: SparseArrays, AbstractSparseArray, SparseMatrixCSC, findnz, nnz,
-    nzrange, rowvals, sparse, SparseVector, spzeros
+    nzrange, rowvals, sparse, SparseVector, spzeros, qr, rank
 using StaticArrays: @MArray
 using SparseDiffTools: SparseDiffTools, ForwardColorJacCache,
     forwarddiff_color_jacobian!, matrix_colors

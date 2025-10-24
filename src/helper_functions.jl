@@ -371,7 +371,7 @@ function _get_periodic_coupling_matrix(
     # throw error if no search area had been found for a bface
     for source in 1:num_sources(searchareas)
         if num_targets(searchareas, source) == 0
-            throw("bface $source has no valid search area on the opposite side of the grid. Are from/to regions and give_opposite! function correct?")
+            throw("bface $source has no valid search area on the opposite side of the grid. Double check the provided from/to regions and your give_opposite! function")
         end
     end
 
@@ -499,7 +499,7 @@ For each x in the grid, the resulting y has to be in the grid, too: incorporate 
 Example: If b_from is at x[1] = 0 and the opposite boundary is at y[1] = 1, then give_opposite!(y,x) = y .= [ 1-x[1], x[2] ]
 
 The return value is a (𝑛 × 𝑛) sparse matrix 𝐴 (𝑛 is the total number of dofs) containing the periodic coupling information.
-The relation ship between the degrees of freedome is  dofᵢ = ∑ⱼ Aⱼᵢ ⋅ dofⱼ.
+The relation ship between the degrees of freedom is  dofᵢ = ∑ⱼ Aⱼᵢ ⋅ dofⱼ.
 It is guaranteed that
     i)  Aᵢⱼ=0 if dofᵢ is 𝑛𝑜𝑡 on the boundary b_from.
     ii) Aᵢⱼ=0 if the opposite of dofᵢ is not in the same grid cell as dofⱼ.
