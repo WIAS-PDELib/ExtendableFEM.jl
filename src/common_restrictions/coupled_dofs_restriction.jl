@@ -16,7 +16,13 @@ end
     The matrix can be obtained from, e.g., `get_periodic_coupling_matrix`.
 """
 function CoupledDofsRestriction(matrix::AbstractMatrix)
-    return CoupledDofsRestriction([matrix], Dict{Symbol, Any}(:name => "CoupledDofsRestriction"))
+    return CoupledDofsRestriction(
+        [matrix],
+        Dict{Symbol, Any}(
+            :name => "CoupledDofsRestriction",
+            :reduce_col_space => false
+        )
+    )
 end
 
 
@@ -24,9 +30,18 @@ end
     CoupledDofsRestriction(matrices::Vector{AM}) where {AM <: AbstractMatrix}
 
     Creates a `CoupledDofsRestriction` from multiple given coupling matrices.
+
+    By default, the column space of the matrices is reduced to be of full rank.
+    This can toggled by the `:reduce_col_space` parameter.
 """
 function CoupledDofsRestriction(matrices::Vector{AM}) where {AM <: AbstractMatrix}
-    return CoupledDofsRestriction(matrices, Dict{Symbol, Any}(:name => "CoupledDofsRestriction"))
+    return CoupledDofsRestriction(
+        matrices,
+        Dict{Symbol, Any}(
+            :name => "CoupledDofsRestriction",
+            :reduce_col_space => true
+        )
+    )
 end
 
 
@@ -39,12 +54,14 @@ function assemble!(R::CoupledDofsRestriction, sol, SC; kwargs...)
     # combine all into one matrix
     B = hcat(Bs...)
 
-    # eliminate redundant cols by QR:
-    qr_result = qr(B)
+    if R.parameters[:reduce_col_space]
+        # eliminate redundant cols by QR:
+        qr_result = qr(B)
 
-    # pick minimal number of cols that are rank preserving
-    cols_of_interest = qr_result.pcol[1:rank(qr_result)]
-    B = B[:, cols_of_interest]
+        # pick minimal number of cols that are rank preserving
+        cols_of_interest = qr_result.pcol[1:rank(qr_result)]
+        B = B[:, cols_of_interest]
+    end
 
     R.parameters[:matrix] = B
     R.parameters[:rhs] = Zeros(size(B, 2))
