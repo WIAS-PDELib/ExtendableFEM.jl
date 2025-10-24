@@ -799,7 +799,6 @@ function iterate_until_stationarity(
             for j in 1:1
                 time_total += @elapsed begin
                     # Assemble system and update timing/allocation info
-                    @show A b sol PD SC TimerOutput()
                     assembly_time, assembly_allocs = assemble_system!(A, b, sol, PD, SC, TimerOutput(); kwargs...)
                     time_assembly += assembly_time
                     allocs_assembly += assembly_allocs
