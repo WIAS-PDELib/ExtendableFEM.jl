@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Example285_CahnHilliard · ExtendableFEM.jl</title><meta name="title" content="Example285_CahnHilliard · ExtendableFEM.jl"/><meta property="og:title" content="Example285_CahnHilliard · ExtendableFEM.jl"/><meta property="twitter:title" content="Example285_CahnHilliard · ExtendableFEM.jl"/><meta name="description" content="Documentation for ExtendableFEM.jl."/><meta property="og:description" content="Documentation for ExtendableFEM.jl."/><meta property="twitter:description" content="Documentation for ExtendableFEM.jl."/><script data-outdated-warner src="../../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../search_index.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../../">ExtendableFEM.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../../">Home</a></li><li><a class="tocitem" href="../../package_index/">Index</a></li><li><span class="tocitem">Problem Description</span><ul><li><a class="tocitem" href="../../problemdescription/">Problem Description</a></li><li><a class="tocitem" href="../../tensordescription/">Tensor Description</a></li><li><a class="tocitem" href="../../nonlinearoperator/">NonlinearOperator</a></li><li><a class="tocitem" href="../../bilinearoperator/">BilinearOperator</a></li><li><a class="tocitem" href="../../linearoperator/">LinearOperator</a></li><li><a class="tocitem" href="../../restrictions/">Restrictions</a></li><li><a class="tocitem" href="../../interpolateboundarydata/">InterpolateBoundaryData</a></li><li><a class="tocitem" href="../../homogeneousdata/">HomogeneousData</a></li><li><a class="tocitem" href="../../fixdofs/">FixDofs</a></li><li><a class="tocitem" href="../../combinedofs/">CombineDofs</a></li><li><a class="tocitem" href="../../callbackoperator/">CallbackOperator</a></li><li><a class="tocitem" href="../../allindex/">Index</a></li></ul></li><li><span class="tocitem">Solving</span><ul><li><a class="tocitem" href="../../pdesolvers/">Stationary Solvers</a></li><li><a class="tocitem" href="../../pdesolvers_dt/">Time-dependent Solvers</a></li><li><a class="tocitem" href="../../parallel_assembly/">Parallel Assembly</a></li></ul></li><li><span class="tocitem">Postprocessing</span><ul><li><a class="tocitem" href="../../postprocessing/">Postprocessing and Visualization</a></li><li><a class="tocitem" href="../../itemintegrators/">Item Integrators</a></li><li><a class="tocitem" href="../../faceinterpolator/">Face Interpolator</a></li></ul></li><li><span class="tocitem">Examples</span><ul><li><a class="tocitem" href="../Example103_BurgersEquation/">Example103_BurgersEquation</a></li><li><a class="tocitem" href="../Example105_NonlinearPoissonEquation/">Example105_NonlinearPoissonEquation</a></li><li><a class="tocitem" href="../Example106_NonlinearDiffusion/">Example106_NonlinearDiffusion</a></li><li><a class="tocitem" href="../Example108_RobinBoundaryCondition/">Example108_RobinBoundaryCondition</a></li><li><a class="tocitem" href="../Example201_PoissonProblem/">Example201_PoissonProblem</a></li><li><a class="tocitem" href="../Example202_MixedPoissonProblem/">Example202_MixedPoissonProblem</a></li><li><a class="tocitem" href="../Example203_PoissonProblemDG/">Example203_PoissonProblemDG</a></li><li><a class="tocitem" href="../Example204_LaplaceEVProblem/">Example204_LaplaceEVProblem</a></li><li><a class="tocitem" href="../Example205_HeatEquation/">Example205_HeatEquation</a></li><li><a class="tocitem" href="../Example206_CoupledSubGridProblems/">Example206_CoupledSubGridProblems</a></li><li><a class="tocitem" href="../Example207_AdvectionUpwindDG/">Example207_AdvectionUpwindDG</a></li><li><a class="tocitem" href="../Example210_LshapeAdaptivePoissonProblem/">Example210_LshapeAdaptivePoissonProblem</a></li><li><a class="tocitem" href="../Example211_LshapeAdaptiveEQPoissonProblem/">Example211_LshapeAdaptiveEQPoissonProblem</a></li><li><a class="tocitem" href="../Example212_PeriodicBoundary2D/">Example212_PeriodicBoundary2D</a></li><li><a class="tocitem" href="../Example220_ReactionConvectionDiffusion/">Example220_ReactionConvectionDiffusion</a></li><li><a class="tocitem" href="../Example225_ObstacleProblem/">Example225_ObstacleProblem</a></li><li><a class="tocitem" href="../Example226_Thermoforming/">Example226_Thermoforming</a></li><li><a class="tocitem" href="../Example227_ObstacleProblemLVPP/">Example227_ObstacleProblemLVPP</a></li><li><a class="tocitem" href="../Example230_NonlinearElasticity/">Example230_NonlinearElasticity</a></li><li><a class="tocitem" href="../Example235_StokesIteratedPenalty/">Example235_StokesIteratedPenalty</a></li><li><a class="tocitem" href="../Example240_SVRTEnrichment/">Example240_SVRTEnrichment</a></li><li><a class="tocitem" href="../Example245_NSEFlowAroundCylinder/">Example245_NSEFlowAroundCylinder</a></li><li><a class="tocitem" href="../Example250_NSELidDrivenCavity/">Example250_NSELidDrivenCavity</a></li><li><a class="tocitem" href="../Example252_NSEPlanarLatticeFlow/">Example252_NSEPlanarLatticeFlow</a></li><li><a class="tocitem" href="../Example260_AxisymmetricNavierStokesProblem/">Example260_AxisymmetricNavierStokesProblem</a></li><li><a class="tocitem" href="../Example264_StokesDarcy/">Example264_StokesDarcy</a></li><li><a class="tocitem" href="../Example265_FlowTransport/">Example265_FlowTransport</a></li><li><a class="tocitem" href="../Example270_NaturalConvectionProblem/">Example270_NaturalConvectionProblem</a></li><li><a class="tocitem" href="../Example275_OptimalControlStokes/">Example275_OptimalControlStokes</a></li><li><a class="tocitem" href="../Example280_CompressibleStokes/">Example280_CompressibleStokes</a></li><li><a class="tocitem" href="../Example282_IncompressibleMHD/">Example282_IncompressibleMHD</a></li><li><a class="tocitem" href="../Example284_LevelSetMethod/">Example284_LevelSetMethod</a></li><li class="is-active"><a class="tocitem" href>Example285_CahnHilliard</a></li><li><a class="tocitem" href="../Example290_PoroElasticity/">Example290_PoroElasticity</a></li><li><a class="tocitem" href="../Example301_PoissonProblem/">Example301_PoissonProblem</a></li><li><a class="tocitem" href="../Example310_DivFreeBasis/">Example310_DivFreeBasis</a></li><li><a class="tocitem" href="../Example312_PeriodicBoundary3D/">Example312_PeriodicBoundary3D</a></li><li><a class="tocitem" href="../Example330_HyperElasticity/">Example330_HyperElasticity</a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Examples</a></li><li class="is-active"><a href>Example285_CahnHilliard</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Example285_CahnHilliard</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/WIAS-PDELib/ExtendableFEM.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/WIAS-PDELib/ExtendableFEM.jl/blob/master/docs/src/module_examples/Example285_CahnHilliard.md" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="285-:-Cahn-Hilliard-Equations"><a class="docs-heading-anchor" href="#285-:-Cahn-Hilliard-Equations">285 : Cahn-Hilliard Equations</a><a id="285-:-Cahn-Hilliard-Equations-1"></a><a class="docs-heading-anchor-permalink" href="#285-:-Cahn-Hilliard-Equations" title="Permalink"></a></h1><p>(<a href="../Example285_CahnHilliard.jl">source code</a>)</p><p>This example studies the mixed form of the Cahn-Hilliard equations that seeks <span>$(c,\mu)$</span> such that</p><p class="math-container">\[\begin{aligned}
+c_t - \mathbf{div} (M \nabla \mu) &amp; = 0\\
+\mu - \partial f / \partial c + \lambda \nabla^2c &amp; = 0.
+\end{aligned}\]</p><p>with <span>$f(c) = 100c^2(1-c)^2$</span>, constant parameters <span>$M$</span> and <span>$\lambda$</span> and (random) initial concentration as defined in the code below.</p><p>The computed solution at different timesteps for the default parameters and a randomized initial state look like this:</p><p><img src="../example285.png" alt/></p><pre><code class="language-julia hljs">module Example285_CahnHilliard
+
+using ExtendableFEM
+using ExtendableGrids
+using GridVisualize
+using ForwardDiff
+using Random
+Random.seed!(135791113)
+
+# parameters and initial condition
+const f = (c) -&gt; 100 * c^2 * (1 - c)^2
+const dfdc = (c) -&gt; ForwardDiff.derivative(f, c)
+
+function c0!(result, qpinfo)
+    result[1] = 0.63 + 0.02 * (0.5 - rand())
+    return nothing
+end
+
+# everything is wrapped in a main function
+function main(;
+        order = 2,                              # finite element order for c and μ
+        nref = 4,                               # refinement level
+        M = 1.0,
+        λ = 1.0e-2,
+        iterations_until_next_plot = 20,
+        τ = 5 / 1000000,                        # time step (for main evolution phase)
+        τ_increase = 1.1,                      # increase factor for τ after each plot
+        Plotter = nothing,                      # Plotter (e.g. PyPlot)
+        kwargs...,
+    )
+
+    # initial grid and final time
+    xgrid = uniform_refine(grid_unitsquare(Triangle2D), nref)
+
+    # define unknowns
+    c = Unknown(&quot;c&quot;; name = &quot;concentration&quot;, dim = 1)
+    μ = Unknown(&quot;μ&quot;; name = &quot;chemical potential&quot;, dim = 1)
+
+    # define main level set problem
+    PD = ProblemDescription(&quot;Cahn-Hilliard equation&quot;)
+    assign_unknown!(PD, c)
+    assign_unknown!(PD, μ)
+    assign_operator!(PD, BilinearOperator([grad(c)], [grad(μ)]; factor = M, store = true))
+    assign_operator!(PD, BilinearOperator([id(μ)]; store = true))
+    assign_operator!(PD, BilinearOperator([grad(μ)], [grad(c)]; factor = -λ, store = true))
+
+    # add nonlinear reaction part (= -df/dc times test function)
+    function kernel_dfdc!(result, input, qpinfo)
+        return result[1] = -dfdc(input[1])
+    end
+    assign_operator!(PD, NonlinearOperator(kernel_dfdc!, [id(μ)], [id(c)]; bonus_quadorder = 1))
+
+    # generate FESpace and solution vector and interpolate initial state
+    FES = FESpace{H1Pk{1, 2, order}}(xgrid)
+    sol = FEVector([FES, FES]; tags = PD.unknowns)
+    interpolate!(sol[c], c0!)
+
+    # init plot (if order &gt; 1, solution is upscaled to finer grid for plotting)
+    plt = GridVisualizer(; Plotter = Plotter, layout = (4, 3), clear = true, resolution = (900, 1200))
+    if order &gt; 1
+        xgrid_upscale = uniform_refine(xgrid, order - 1)
+        SolutionUpscaled = FEVector(FESpace{H1P1{1}}(xgrid_upscale))
+        lazy_interpolate!(SolutionUpscaled[1], sol)
+    else
+        xgrid_upscale = xgrid
+        SolutionUpscaled = sol
+    end
+    nodevals = nodevalues_view(SolutionUpscaled[1])
+    scalarplot!(plt[1, 1], xgrid_upscale, nodevals[1]; limits = (0.61, 0.65), xlabel = &quot;&quot;, ylabel = &quot;&quot;, levels = 1, title = &quot;c (t = 0)&quot;)
+
+    # prepare backward Euler time derivative
+    M = FEMatrix(FES)
+    b = FEVector(FES)
+    assemble!(M, BilinearOperator([id(1)]; factor = 1.0 / τ))
+    assign_operator!(PD, BilinearOperator(M, [c]; kwargs...))
+    assign_operator!(PD, LinearOperator(b, [c]; kwargs...))
+
+    # generate solver configuration
+    SC = SolverConfiguration(PD, [FES, FES]; init = sol, maxiterations = 50, target_residual = 1.0e-6, kwargs...)
+
+    # advance in time, plot from time to time
+    t = 0
+    for j in 1:11
+        # do some timesteps until next plot
+        for it in 1:iterations_until_next_plot
+            t += τ
+            # update time derivative
+            b.entries .= M.entries * view(sol[c])
+            ExtendableFEM.solve(PD, [FES, FES], SC; time = t)
+        end
+
+        # enlarge time step a little bit
+        τ *= τ_increase
+        M.entries.cscmatrix.nzval ./= τ_increase
+
+        # plot at current time
+        if order &gt; 1
+            lazy_interpolate!(SolutionUpscaled[1], sol)
+        end
+        scalarplot!(plt[1 + Int(floor((j) / 3)), 1 + (j) % 3], xgrid_upscale, nodevals[1]; xlabel = &quot;&quot;, ylabel = &quot;&quot;, limits = (-0.1, 1.1), levels = 1, title = &quot;c (t = $(Float32(t)))&quot;)
+    end
+
+    return sol, plt
+end
+
+end</code></pre><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../Example284_LevelSetMethod/">« Example284_LevelSetMethod</a><a class="docs-footer-nextpage" href="../Example290_PoroElasticity/">Example290_PoroElasticity »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.16.0 on <span class="colophon-date" title="Tuesday 18 November 2025 15:59">Tuesday 18 November 2025</span>. Using Julia version 1.12.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
