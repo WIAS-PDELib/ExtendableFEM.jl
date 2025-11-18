@@ -1,6 +1,6 @@
 # CHANGES
 
-## v1.6.0
+## v1.6.0 November 18, 2025
 
 ### Added
 
@@ -10,7 +10,7 @@
 
   - Periodic coupling with multiple redundant coupling matrices are now reduced to full rank to make the system uniquely solvable.
 
-## v1.5.0
+## v1.5.0 September 15, 2025
 
 ### Added
 
@@ -19,7 +19,7 @@
   - user can apply linear `LinearFunctionalRestriction`, `ZeroMeanValueRestriction`, `MassRestriction`, `CoupledDofsRestriction` or `BoundaryDataRestriction` to the `ProblemDescription` by `apply_restriction!()`
   - Incorporated new restriction objects in examples 201, 252, 312 and 212.
 
-## v1.4.0
+## v1.4.0 July 23, 2025
 
 ### Changed
   - improved docstrings, documentation
