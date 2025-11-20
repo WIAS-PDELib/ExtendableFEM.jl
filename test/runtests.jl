@@ -8,6 +8,7 @@ using Metis
 using Aqua
 using Triangulate
 using SimplexGridFactory
+using Symbolics
 
 
 include("test_dgblf.jl")

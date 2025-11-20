@@ -1,13 +1,16 @@
 """
-	ExtendableFEM
+ExtendableFEM
 
 $(read(joinpath(@__DIR__, "..", "README.md"), String))
 """
 module ExtendableFEM
 
+using ADTypes: ADTypes, KnownJacobianSparsityDetector
 using ChunkSplitters: chunks
 using BlockArrays: BlockMatrix, BlockVector, Block, blocks, axes, mortar
 using CommonSolve: CommonSolve
+using DifferentiationInterface: DifferentiationInterface,
+    AutoSparse, AutoForwardDiff, prepare_jacobian
 using DiffResults: DiffResults
 using DocStringExtensions: DocStringExtensions, TYPEDEF, TYPEDSIGNATURES
 using ExtendableFEMBase: ExtendableFEMBase, AbstractFiniteElement,
@@ -69,13 +72,12 @@ using LinearAlgebra: LinearAlgebra, copyto!, isposdef, mul!, norm
 using LinearSolve: LinearSolve, LinearProblem, UMFPACKFactorization, deleteat!,
     init, solve
 using Printf: Printf, @printf, @sprintf
-using SparseArrays: SparseArrays, AbstractSparseArray, SparseMatrixCSC, findnz, nnz,
-    nzrange, rowvals, sparse, SparseVector, spzeros, qr, rank
-using StaticArrays: @MArray
-using SparseDiffTools: SparseDiffTools, ForwardColorJacCache,
-    forwarddiff_color_jacobian!, matrix_colors
-using Symbolics: Symbolics
 using SciMLBase: SciMLBase
+using SparseConnectivityTracer: SparseConnectivityTracer, TracerSparsityDetector, jacobian_sparsity
+using SparseArrays: SparseArrays, AbstractSparseArray, findnz, nnz,
+    nzrange, rowvals, sparse, SparseVector, spzeros, qr, rank
+using SparseMatrixColorings: GreedyColoringAlgorithm, sparsity_pattern
+using StaticArrays: @MArray
 using TimerOutputs: TimerOutput, print_timer, @timeit
 using UnicodePlots: UnicodePlots
 
