@@ -78,7 +78,6 @@ using SparseArrays: SparseArrays, AbstractSparseArray, SparseMatrixCSC, findnz, 
     nzrange, rowvals, sparse, SparseVector, spzeros, qr, rank
 using SparseMatrixColorings: GreedyColoringAlgorithm, sparsity_pattern
 using StaticArrays: @MArray
-using Symbolics: Symbolics
 using TimerOutputs: TimerOutput, print_timer, @timeit
 using UnicodePlots: UnicodePlots
 
