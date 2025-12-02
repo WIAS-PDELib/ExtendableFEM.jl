@@ -1,7 +1,8 @@
-struct KernelEvaluator{Tv <: Real, QPInfosT <: QPInfos, DIT, JBT, KPT <: Function}
+struct KernelEvaluator{Tv <: Real, QPInfosT <: QPInfos, DIT, JBT, KPT <: Function, JT}
     input_args::Array{Tv, 1}
     params::QPInfosT
     result_kernel::Array{Tv, 1}
+    jac::JT
     jac_prep::DIT
     jac_backend::JBT
     kernel::KPT
@@ -246,8 +247,19 @@ function build_assembler!(A::AbstractMatrix, b::AbstractVector, O::NonlinearOper
                 sparsity_detector = sparsity_detector,
                 coloring_algorithm = GreedyColoringAlgorithm()
             )
+
             jac_prep = prepare_jacobian(kernel_params, result_kernel, sparse_forward_backend, input_args)
-            push!(Kj, KernelEvaluator(input_args, QPj, result_kernel, jac_prep, sparse_forward_backend, kernel_params))
+
+            if sparse_jacobians
+                if O.parameters[:sparse_jacobians_pattern] === nothing
+                    jac_sparsity_pattern = sparsity_pattern(jac_prep)
+                else
+                    jac_sparsity_pattern = O.parameters[:sparse_jacobians_pattern]
+                end
+            end
+            jac = O.parameters[:sparse_jacobians] ? Tv.(sparse(jac_sparsity_pattern)) : zeros(Tv, length(result_kernel), length(input_args))
+
+            push!(Kj, KernelEvaluator(input_args, QPj, result_kernel, jac, jac_prep, sparse_forward_backend, kernel_params))
         end
 
         ## prepare parallel assembly
@@ -280,28 +292,17 @@ function build_assembler!(A::AbstractMatrix, b::AbstractVector, O::NonlinearOper
                 BE_test_vals::Array{Array{Tv, 3}, 1},
                 BE_args_vals::Array{Array{Tv, 3}, 1},
                 L2G::L2GTransformer,
-                K::KernelEvaluator,
+                K::KE,
                 part = 1;
                 time = 0.0,
-            ) where {T, Tv, Ti}
+            ) where {T, Tv, Ti, KE}
 
-            ## extract kernel properties
-            params = K.params
-            input_args = K.input_args
+            ## extract kernel properties (by destructuring operator)
+
+            (; params, input_args, jac, jac_prep, jac_backend) = K
+
             value = K.result_kernel
-            jac_prep = K.jac_prep
-            jac_backend = K.jac_backend
             kernel_params = K.kernel
-            if O.parameters[:sparse_jacobians]
-                if O.parameters[:sparse_jacobians_pattern] === nothing
-                    jac_sparsity_pattern = sparsity_pattern(jac_prep)
-                else
-                    jac_sparsity_pattern = O.parameters[:sparse_jacobians_pattern]
-                end
-                jac = Tv.(sparse(jac_sparsity_pattern))
-            else
-                jac = zeros(Tv, length(value), length(input_args))
-            end
             params.time = time
 
             ndofs_test::Array{Int, 1} = [get_ndofs(ON_CELLS, FE, EG) for FE in FETypes_test]
