@@ -60,9 +60,27 @@ plot(id(u), sol; Plotter = PyPlot)
 ## Running examples from documentation
 
 In the [documentation](https://wias-pdelib.github.io/ExtendableFEM.jl/stable/index.html) many more examples can be found.
-Each of the is written as a module that needs to be included first. Afterwards the main file of this module must be started.
-Usually the main functions have a Plotter argument that can be used to plot the solution with the backend of your
-choice (e.g. PyPlot, GLMakie, Plots or other supported by [GridVisualize.jl](https://github.com/WIAS-PDELib/GridVisualize.jl))
+Each of the examples is implemented as a module that needs to be included first. Afterwards the main file of the module
+can be run.
+Usually the main function has a Plotter argument that can be used to toggle a plot the solution with the (already installed) backend of your
+choice (e.g. Plotter=PyPlot, GLMakie, Plots or others supported by [GridVisualize.jl](https://github.com/WIAS-PDELib/GridVisualize.jl)).
+Some examples need several further dependencies. To ensure an environment we everything is installed, one can use the test
+environment via the package [TestEnv](https://github.com/JuliaTesting/TestEnv.jl). The following script runs Example201:
+```julia
+# activate test environment
+using TestEnv
+TestEnv.activate()
+
+# include example file and load module
+include("examples/Example201_PoissonProblem.jl")
+
+# run example with default arguments
+Example201_PoissonProblem.main()
+
+# use with Plotting backend (added manually to the environment)
+using GLMakie
+Example201_PoissonProblem.main(; Plotter = GLMakie)
+```
 
 
 ## Citing
