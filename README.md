@@ -49,13 +49,21 @@ assign_operator!(PD, HomogeneousBoundaryData(u; regions = 1:4))
 FEType = H1Pk{1,2,3} # cubic H1-conforming element with 1 component in 2D
 FES = FESpace{FEType}(xgrid)
 
-# Solve the problem
-sol = solve!(PD, [FES])
+# Solve the problem + unicode plot into terminal
+sol = solve(PD, [FES]; plot = true, timeroutputs = :hide)
 
 # Plot the solution
 using PyPlot
 plot(id(u), sol; Plotter = PyPlot)
 ```
+
+## Running examples from documentation
+
+In the [documentation](https://wias-pdelib.github.io/ExtendableFEM.jl/stable/index.html) many more examples can be found.
+Each of the is written as a module that needs to be included first. Afterwards the main file of this module must be started.
+Usually the main functions have a Plotter argument that can be used to plot the solution with the backend of your
+choice (e.g. PyPlot, GLMakie, Plots or other supported by [GridVisualize.jl](https://github.com/WIAS-PDELib/GridVisualize.jl))
+
 
 ## Citing
 
