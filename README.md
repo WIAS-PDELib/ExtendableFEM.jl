@@ -20,13 +20,14 @@ The following minimal example demonstrates how to set up and solve a Poisson pro
 
 ```julia
 using ExtendableFEM
-using ExtendableGrids
+using ExtendableGrids # for grid management
 
-# Build a uniform-refined 2D unit square grid with triangles
-xgrid = uniform_refine(grid_unitsquare(Triangle2D), 4)
+# Build a structured ExtendableGrids.grid with mesh width h
+h = 0.1
+xgrid = simplexgrid(0:h:1, 0:h:1)
 
 # Create a new PDE description
-PD = ProblemDescription()
+PD = ProblemDescription("Demo problem")
 
 # Define and assign the unknown
 u = Unknown("u"; name = "potential")
@@ -42,19 +43,19 @@ function f!(fval, qpinfo)
 end
 assign_operator!(PD, LinearOperator(f!, [id(u)]))
 
-# Assign Dirichlet boundary data (u = 0)
-assign_operator!(PD, HomogeneousBoundaryData(u; regions = 1:4))
+# Assign Dirichlet boundary data (u = 0) on all four grid boundary regions
+assign_operator!(PD, HomogeneousBoundaryData(u; regions = [1,2,3,4]))
 
 # Discretize: choose finite element space
-FEType = H1Pk{1,2,3} # cubic H1-conforming element with 1 component in 2D
+FEType = H1Pk(order = 3, edim = 2, ncomponents = 1)
 FES = FESpace{FEType}(xgrid)
 
 # Solve the problem + unicode plot into terminal
 sol = solve(PD, [FES]; plot = true, timeroutputs = :hide)
 
 # Plot the solution
-using PyPlot
-plot(id(u), sol; Plotter = PyPlot)
+import PythonPlot
+plot([id(u), grid(u)], sol; Plotter = PythonPlot)
 ```
 
 ## Running examples from documentation
@@ -63,7 +64,7 @@ In the [documentation](https://wias-pdelib.github.io/ExtendableFEM.jl/stable/ind
 Each of the examples is implemented as a module that needs to be included first. Afterwards the main file of the module
 can be run.
 Usually the main function has a Plotter argument that can be used to toggle a plot the solution with the (already installed) backend of your
-choice (e.g. Plotter=PyPlot, GLMakie, Plots or others supported by [GridVisualize.jl](https://github.com/WIAS-PDELib/GridVisualize.jl)).
+choice (e.g. `Plotter=PythonPlot`, `GLMakie`, `Plots` or others supported by [GridVisualize.jl](https://github.com/WIAS-PDELib/GridVisualize.jl)).
 Some examples need several further dependencies. To ensure an environment we everything is installed, one can use the test
 environment via the package [TestEnv](https://github.com/JuliaTesting/TestEnv.jl). The following script runs Example201:
 ```julia
@@ -78,8 +79,8 @@ include("examples/Example201_PoissonProblem.jl")
 Example201_PoissonProblem.main()
 
 # use with Plotting backend (added manually to the environment)
-using GLMakie
-Example201_PoissonProblem.main(; Plotter = GLMakie)
+using PythonPlot
+Example201_PoissonProblem.main(; Plotter = PythonPlot)
 ```
 
 
