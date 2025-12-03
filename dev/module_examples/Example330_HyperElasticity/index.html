@@ -4,9 +4,9 @@
 \end{aligned}\]</p><p>where <span>$F(\mathbf{u}) := I + \nabla u$</span> is the deformation gradient and <span>$\mu$</span> and <span>$\lambda$</span> are the Lame parameters. The energy is differentiated twice by automatic differentiation to setup a Newton scheme for a Lagrangian finite element approximation of <span>$\mathbf{u}$</span>, once in the code below to define the kernel for the NonlinearOperator and this kernel is differentiated again in the assembly of the Newton scheme for the nonlinear operator.</p><p>The deformed unit cube and the displacement for the default parameters and inhomogeneous boundary conditions as defined in the code looks like this:</p><p><img src="../example330.png" alt/></p><pre><code class="language-julia hljs">module Example330_HyperElasticity
 
 using ExtendableFEM
-using LinearAlgebra
-using DiffResults
+using DifferentiationInterface
 using ForwardDiff
+using LinearAlgebra
 using SimplexGridFactory
 using TetGen
 
@@ -37,20 +37,22 @@ end
 
 # derivative of energy functional (by ForwardDiff)
 function nonlinkernel_DW!()
-    Dresult = nothing
-    cfg = nothing
-    result_dummy = nothing
-    W(qpinfo) = (a, b) -&gt; W!(a, b, qpinfo)
+    # A dictionary with cached data for each input type
+    jac_prep = Dict{DataType, Any}()
+    scalar_dummy = Dict{DataType, Any}()
+    AD_backend = AutoForwardDiff()
 
-    return function closure(result, input, qpinfo)
-        if Dresult === nothing
-            # first initialization of DResult when type of input = F is known
-            result_dummy = zeros(eltype(input), 1)
-            Dresult = DiffResults.JacobianResult(result_dummy, input)
-            cfg = ForwardDiff.JacobianConfig(W(qpinfo), result_dummy, input, ForwardDiff.Chunk{length(input)}())
+    # generate input -&gt; output function for a given quadrature point
+    make_W(qpinfo) = (out, in) -&gt; W!(out, in, qpinfo)
+
+    return function closure(result, input::Vector{T}, qpinfo) where {T}
+        W = make_W(qpinfo)
+        if !haskey(jac_prep, T)
+            # first initialization of cached data when type of input = F is known
+            scalar_dummy[T] = zeros(eltype(input), 1)
+            jac_prep[T] = prepare_jacobian(W, scalar_dummy[T], AD_backend, input)
         end
-        Dresult = ForwardDiff.vector_mode_jacobian!(Dresult, W(qpinfo), result_dummy, input, cfg)
-        copyto!(result, DiffResults.jacobian(Dresult))
+        jacobian!(W, scalar_dummy[T], result, jac_prep[T], AD_backend, input)
         return nothing
     end
 end
@@ -126,4 +128,4 @@ function tetrahedralization_of_cube(; maxvolume = 0.1)
     return simplexgrid(builder; maxvolume = maxvolume)
 end
 
-end # module</code></pre><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../Example312_PeriodicBoundary3D/">« Example312_PeriodicBoundary3D</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.16.1 on <span class="colophon-date" title="Wednesday 3 December 2025 13:18">Wednesday 3 December 2025</span>. Using Julia version 1.12.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+end # module</code></pre><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../Example312_PeriodicBoundary3D/">« Example312_PeriodicBoundary3D</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.16.1 on <span class="colophon-date" title="Wednesday 3 December 2025 13:24">Wednesday 3 December 2025</span>. Using Julia version 1.12.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
