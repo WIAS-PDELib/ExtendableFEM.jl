@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Example330_HyperElasticity · ExtendableFEM.jl</title><meta name="title" content="Example330_HyperElasticity · ExtendableFEM.jl"/><meta property="og:title" content="Example330_HyperElasticity · ExtendableFEM.jl"/><meta property="twitter:title" content="Example330_HyperElasticity · ExtendableFEM.jl"/><meta name="description" content="Documentation for ExtendableFEM.jl."/><meta property="og:description" content="Documentation for ExtendableFEM.jl."/><meta property="twitter:description" content="Documentation for ExtendableFEM.jl."/><script data-outdated-warner src="../../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../search_index.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../../">ExtendableFEM.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../../">Home</a></li><li><a class="tocitem" href="../../package_index/">Index</a></li><li><span class="tocitem">Problem Description</span><ul><li><a class="tocitem" href="../../problemdescription/">Problem Description</a></li><li><a class="tocitem" href="../../tensordescription/">Tensor Description</a></li><li><a class="tocitem" href="../../nonlinearoperator/">NonlinearOperator</a></li><li><a class="tocitem" href="../../bilinearoperator/">BilinearOperator</a></li><li><a class="tocitem" href="../../linearoperator/">LinearOperator</a></li><li><a class="tocitem" href="../../restrictions/">Restrictions</a></li><li><a class="tocitem" href="../../interpolateboundarydata/">InterpolateBoundaryData</a></li><li><a class="tocitem" href="../../homogeneousdata/">HomogeneousData</a></li><li><a class="tocitem" href="../../fixdofs/">FixDofs</a></li><li><a class="tocitem" href="../../combinedofs/">CombineDofs</a></li><li><a class="tocitem" href="../../callbackoperator/">CallbackOperator</a></li><li><a class="tocitem" href="../../allindex/">Index</a></li></ul></li><li><span class="tocitem">Solving</span><ul><li><a class="tocitem" href="../../pdesolvers/">Stationary Solvers</a></li><li><a class="tocitem" href="../../pdesolvers_dt/">Time-dependent Solvers</a></li><li><a class="tocitem" href="../../parallel_assembly/">Parallel Assembly</a></li></ul></li><li><span class="tocitem">Postprocessing</span><ul><li><a class="tocitem" href="../../postprocessing/">Postprocessing and Visualization</a></li><li><a class="tocitem" href="../../itemintegrators/">Item Integrators</a></li><li><a class="tocitem" href="../../faceinterpolator/">Face Interpolator</a></li></ul></li><li><span class="tocitem">Examples</span><ul><li><a class="tocitem" href="../Example103_BurgersEquation/">Example103_BurgersEquation</a></li><li><a class="tocitem" href="../Example105_NonlinearPoissonEquation/">Example105_NonlinearPoissonEquation</a></li><li><a class="tocitem" href="../Example106_NonlinearDiffusion/">Example106_NonlinearDiffusion</a></li><li><a class="tocitem" href="../Example108_RobinBoundaryCondition/">Example108_RobinBoundaryCondition</a></li><li><a class="tocitem" href="../Example201_PoissonProblem/">Example201_PoissonProblem</a></li><li><a class="tocitem" href="../Example202_MixedPoissonProblem/">Example202_MixedPoissonProblem</a></li><li><a class="tocitem" href="../Example203_PoissonProblemDG/">Example203_PoissonProblemDG</a></li><li><a class="tocitem" href="../Example204_LaplaceEVProblem/">Example204_LaplaceEVProblem</a></li><li><a class="tocitem" href="../Example205_HeatEquation/">Example205_HeatEquation</a></li><li><a class="tocitem" href="../Example206_CoupledSubGridProblems/">Example206_CoupledSubGridProblems</a></li><li><a class="tocitem" href="../Example207_AdvectionUpwindDG/">Example207_AdvectionUpwindDG</a></li><li><a class="tocitem" href="../Example210_LshapeAdaptivePoissonProblem/">Example210_LshapeAdaptivePoissonProblem</a></li><li><a class="tocitem" href="../Example211_LshapeAdaptiveEQPoissonProblem/">Example211_LshapeAdaptiveEQPoissonProblem</a></li><li><a class="tocitem" href="../Example212_PeriodicBoundary2D/">Example212_PeriodicBoundary2D</a></li><li><a class="tocitem" href="../Example220_ReactionConvectionDiffusion/">Example220_ReactionConvectionDiffusion</a></li><li><a class="tocitem" href="../Example225_ObstacleProblem/">Example225_ObstacleProblem</a></li><li><a class="tocitem" href="../Example226_Thermoforming/">Example226_Thermoforming</a></li><li><a class="tocitem" href="../Example227_ObstacleProblemLVPP/">Example227_ObstacleProblemLVPP</a></li><li><a class="tocitem" href="../Example230_NonlinearElasticity/">Example230_NonlinearElasticity</a></li><li><a class="tocitem" href="../Example235_StokesIteratedPenalty/">Example235_StokesIteratedPenalty</a></li><li><a class="tocitem" href="../Example240_SVRTEnrichment/">Example240_SVRTEnrichment</a></li><li><a class="tocitem" href="../Example245_NSEFlowAroundCylinder/">Example245_NSEFlowAroundCylinder</a></li><li><a class="tocitem" href="../Example250_NSELidDrivenCavity/">Example250_NSELidDrivenCavity</a></li><li><a class="tocitem" href="../Example252_NSEPlanarLatticeFlow/">Example252_NSEPlanarLatticeFlow</a></li><li><a class="tocitem" href="../Example260_AxisymmetricNavierStokesProblem/">Example260_AxisymmetricNavierStokesProblem</a></li><li><a class="tocitem" href="../Example264_StokesDarcy/">Example264_StokesDarcy</a></li><li><a class="tocitem" href="../Example265_FlowTransport/">Example265_FlowTransport</a></li><li><a class="tocitem" href="../Example270_NaturalConvectionProblem/">Example270_NaturalConvectionProblem</a></li><li><a class="tocitem" href="../Example275_OptimalControlStokes/">Example275_OptimalControlStokes</a></li><li><a class="tocitem" href="../Example280_CompressibleStokes/">Example280_CompressibleStokes</a></li><li><a class="tocitem" href="../Example282_IncompressibleMHD/">Example282_IncompressibleMHD</a></li><li><a class="tocitem" href="../Example284_LevelSetMethod/">Example284_LevelSetMethod</a></li><li><a class="tocitem" href="../Example285_CahnHilliard/">Example285_CahnHilliard</a></li><li><a class="tocitem" href="../Example290_PoroElasticity/">Example290_PoroElasticity</a></li><li><a class="tocitem" href="../Example301_PoissonProblem/">Example301_PoissonProblem</a></li><li><a class="tocitem" href="../Example310_DivFreeBasis/">Example310_DivFreeBasis</a></li><li><a class="tocitem" href="../Example312_PeriodicBoundary3D/">Example312_PeriodicBoundary3D</a></li><li class="is-active"><a class="tocitem" href>Example330_HyperElasticity</a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Examples</a></li><li class="is-active"><a href>Example330_HyperElasticity</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Example330_HyperElasticity</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/WIAS-PDELib/ExtendableFEM.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/WIAS-PDELib/ExtendableFEM.jl/blob/master/docs/src/module_examples/Example330_HyperElasticity.md" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="330-:-Hyperelasticity"><a class="docs-heading-anchor" href="#330-:-Hyperelasticity">330 : Hyperelasticity</a><a id="330-:-Hyperelasticity-1"></a><a class="docs-heading-anchor-permalink" href="#330-:-Hyperelasticity" title="Permalink"></a></h1><p>(<a href="../Example330_HyperElasticity.jl">source code</a>)</p><p>This examples computes the solution of a nonlinear elasticity problem for hyperelastic media via minimisation of the (neo-Hookian) energy functional</p><p class="math-container">\[\begin{aligned}
+	W(u, F(\mathbf{u})) := \int_\Omega \frac{\mu}{2} (F:F - 3 - 2\log(\mathrm{det}(F))) + \frac{\lambda}{2} \log(\mathrm{det}(F))^2 - B \cdot \mathbf{u} \textit{dx} - \int_{\partial \Omega} T \cdot \mathbf{u} \textit{ds}
+\end{aligned}\]</p><p>where <span>$F(\mathbf{u}) := I + \nabla u$</span> is the deformation gradient and <span>$\mu$</span> and <span>$\lambda$</span> are the Lame parameters. The energy is differentiated twice by automatic differentiation to setup a Newton scheme for a Lagrangian finite element approximation of <span>$\mathbf{u}$</span>, once in the code below to define the kernel for the NonlinearOperator and this kernel is differentiated again in the assembly of the Newton scheme for the nonlinear operator.</p><p>The deformed unit cube and the displacement for the default parameters and inhomogeneous boundary conditions as defined in the code looks like this:</p><p><img src="../example330.png" alt/></p><pre><code class="language-julia hljs">module Example330_HyperElasticity
+
+using ExtendableFEM
+using DifferentiationInterface
+using ForwardDiff
+using LinearAlgebra
+using SimplexGridFactory
+using TetGen
+
+# inhomogeneous boundary conditions for bregion 1
+function bnd_1!(result, qpinfo)
+    x, y, z = qpinfo.x[1], qpinfo.x[2], qpinfo.x[3]
+    angle = pi / 3
+    result[1] = 0.0
+    result[2] = (0.5 + (y - 0.5) * cos(angle) - (z - 0.5) * sin(angle) - y) / 2.0
+    return result[3] = (0.5 + (y - 0.5) * sin(angle) + (z - 0.5) * cos(angle) - x) / 2.0
+end
+
+# kernel for body and traction forces
+function apply_force!(result, qpinfo)
+    return result .= qpinfo.params[1]
+end
+
+# energy functional (only nonlinear part, without exterior forces)
+function W!(result, F, qpinfo)
+    F[1] += 1
+    F[5] += 1
+    F[9] += 1
+    μ, λ = qpinfo.params[1], qpinfo.params[2]
+    detF = -(F[3] * (F[5] * F[7] - F[4] * F[8]) + F[2] * ((-F[6]) * F[7] + F[4] * F[9]) + F[1] * (F[6] * F[8] - F[5] * F[9]))
+    result[1] = μ / 2 * (dot(F, F) - 3 - 2 * log(detF)) + λ / 2 * (log(detF))^2
+    return nothing
+end
+
+# derivative of energy functional (by ForwardDiff)
+function nonlinkernel_DW!()
+    # A dictionary with cached data for each input type
+    jac_prep = Dict{DataType, Any}()
+    scalar_dummy = Dict{DataType, Any}()
+    AD_backend = AutoForwardDiff()
+
+    # generate input -&gt; output function for a given quadrature point
+    make_W(qpinfo) = (out, in) -&gt; W!(out, in, qpinfo)
+
+    return function closure(result, input::Vector{T}, qpinfo) where {T}
+        W = make_W(qpinfo)
+        if !haskey(jac_prep, T)
+            # first initialization of cached data when type of input = F is known
+            scalar_dummy[T] = zeros(eltype(input), 1)
+            jac_prep[T] = prepare_jacobian(W, scalar_dummy[T], AD_backend, input)
+        end
+        jacobian!(W, scalar_dummy[T], result, jac_prep[T], AD_backend, input)
+        return nothing
+    end
+end
+
+
+function main(;
+        maxvolume = 0.001,  # parameter for grid generator
+        E = 10,             # Young modulus
+        ν = 0.3,            # Poisson ratio
+        order = 3,             # finite element order
+        B = [0, -0.5, 0],     # body force
+        T = [0.1, 0, 0],      # traction force
+        Plotter = nothing,
+        kwargs...
+    )
+
+    # compute Lame parameters
+    μ = E / (2 * (1 + ν))
+    λ = E * ν / ((1 + ν) * (1 - 2 * ν))
+
+    # define unknowns
+    u = Unknown(&quot;u&quot;; name = &quot;displacement&quot;)
+
+    # define problem
+    PD = ProblemDescription(&quot;Hyperelasticity problem&quot;)
+    assign_unknown!(PD, u)
+    assign_operator!(PD, NonlinearOperator(nonlinkernel_DW!(), [grad(u)]; sparse_jacobians = false, params = [μ, λ]))
+    assign_operator!(PD, LinearOperator(apply_force!, [id(u)]; params = [B]))
+    assign_operator!(PD, LinearOperator(apply_force!, [id(u)]; entities = ON_BFACES, store = true, regions = 1:6, params = [T]))
+    assign_operator!(PD, HomogeneousBoundaryData(u; regions = [2]))
+    assign_operator!(PD, InterpolateBoundaryData(u, bnd_1!; regions = [1], quadorder = 10))
+
+    # grid
+    xgrid = tetrahedralization_of_cube(maxvolume = maxvolume)
+
+    # solve
+    FES = FESpace{H1P1{3}}(xgrid)
+    sol = solve(PD, FES; maxiterations = 20)
+
+    # displace mesh and plot final result
+    displace_mesh!(xgrid, sol[u])
+    plt = plot([grid(u), id(u)], sol; Plotter = Plotter, do_vector_plots = false)
+
+    return sol, plt
+end
+
+
+function tetrahedralization_of_cube(; maxvolume = 0.1)
+    builder = SimplexGridBuilder(; Generator = TetGen)
+
+    p1 = point!(builder, 0, 0, 0)
+    p2 = point!(builder, 1, 0, 0)
+    p3 = point!(builder, 1, 1, 0)
+    p4 = point!(builder, 0, 1, 0)
+    p5 = point!(builder, 0, 0, 1)
+    p6 = point!(builder, 1, 0, 1)
+    p7 = point!(builder, 1, 1, 1)
+    p8 = point!(builder, 0, 1, 1)
+
+    facetregion!(builder, 1)
+    facet!(builder, p1, p2, p3, p4)
+    facetregion!(builder, 2)
+    facet!(builder, p5, p6, p7, p8)
+    facetregion!(builder, 3)
+    facet!(builder, p1, p2, p6, p5)
+    facetregion!(builder, 4)
+    facet!(builder, p2, p3, p7, p6)
+    facetregion!(builder, 5)
+    facet!(builder, p3, p4, p8, p7)
+    facetregion!(builder, 6)
+    facet!(builder, p4, p1, p5, p8)
+
+    return simplexgrid(builder; maxvolume = maxvolume)
+end
+
+end # module</code></pre><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../Example312_PeriodicBoundary3D/">« Example312_PeriodicBoundary3D</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.16.1 on <span class="colophon-date" title="Wednesday 3 December 2025 14:25">Wednesday 3 December 2025</span>. Using Julia version 1.12.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
