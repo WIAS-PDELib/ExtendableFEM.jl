@@ -25,9 +25,9 @@ looks like this:
 module Example330_HyperElasticity
 
 using ExtendableFEM
-using LinearAlgebra
-using DiffResults
+using DifferentiationInterface
 using ForwardDiff
+using LinearAlgebra
 using SimplexGridFactory
 using TetGen
 
@@ -58,20 +58,22 @@ end
 
 ## derivative of energy functional (by ForwardDiff)
 function nonlinkernel_DW!()
-    Dresult = nothing
-    cfg = nothing
-    result_dummy = nothing
-    W(qpinfo) = (a, b) -> W!(a, b, qpinfo)
+    ## A dictionary with cached data for each input type
+    jac_prep = Dict{DataType, Any}()
+    scalar_dummy = Dict{DataType, Any}()
+    AD_backend = AutoForwardDiff()
 
-    return function closure(result, input, qpinfo)
-        if Dresult === nothing
-            ## first initialization of DResult when type of input = F is known
-            result_dummy = zeros(eltype(input), 1)
-            Dresult = DiffResults.JacobianResult(result_dummy, input)
-            cfg = ForwardDiff.JacobianConfig(W(qpinfo), result_dummy, input, ForwardDiff.Chunk{length(input)}())
+    ## generate input -> output function for a given quadrature point
+    make_W(qpinfo) = (out, in) -> W!(out, in, qpinfo)
+
+    return function closure(result, input::Vector{T}, qpinfo) where {T}
+        W = make_W(qpinfo)
+        if !haskey(jac_prep, T)
+            ## first initialization of cached data when type of input = F is known
+            scalar_dummy[T] = zeros(eltype(input), 1)
+            jac_prep[T] = prepare_jacobian(W, scalar_dummy[T], AD_backend, input)
         end
-        Dresult = ForwardDiff.vector_mode_jacobian!(Dresult, W(qpinfo), result_dummy, input, cfg)
-        copyto!(result, DiffResults.jacobian(Dresult))
+        jacobian!(W, scalar_dummy[T], result, jac_prep[T], AD_backend, input)
         return nothing
     end
 end

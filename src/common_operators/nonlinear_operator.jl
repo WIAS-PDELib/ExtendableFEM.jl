@@ -1,11 +1,10 @@
-struct KernelEvaluator{Tv <: Real, QPInfosT <: QPInfos, JT, VT, DRT, CFGT, KPT <: Function}
+struct KernelEvaluator{Tv <: Real, QPInfosT <: QPInfos, DIT, JBT, KPT <: Function, JT}
     input_args::Array{Tv, 1}
     params::QPInfosT
     result_kernel::Array{Tv, 1}
     jac::JT
-    value::VT
-    Dresult::DRT
-    cfg::CFGT
+    jac_prep::DIT
+    jac_backend::JBT
     kernel::KPT
 end
 
@@ -43,6 +42,7 @@ default_nlop_kwargs() = Dict{Symbol, Tuple{Any, String}}(
     :regions => ([], "subset of regions where operator should be assembly only"),
     :sparse_jacobians => (true, "use sparse jacobians"),
     :sparse_jacobians_pattern => (nothing, "user provided sparsity pattern for the sparse jacobians (in case automatic detection fails)"),
+    :autodiff_backend => (AutoForwardDiff(), "backend for automatic differentiation"),
     :time_dependent => (false, "operator is time-dependent ?"),
     :verbosity => (0, "verbosity level"),
 )
@@ -230,37 +230,36 @@ function build_assembler!(A::AbstractMatrix, b::AbstractVector, O::NonlinearOper
         Kj = Array{KernelEvaluator, 1}([])
 
         sparse_jacobians = O.parameters[:sparse_jacobians]
-        sparsity_pattern = O.parameters[:sparse_jacobians_pattern]
         use_autodiff = O.jacobian === nothing
         for EG in EGs
             ## prepare parameters
             QPj = QPInfos(xgrid; time = time, x = ones(Tv, size(xgrid[Coordinates], 1)), params = O.parameters[:params])
             kernel_params = (result, input) -> (O.kernel(result, input, QPj))
-            if sparse_jacobians
-                input_args = zeros(Tv, op_offsets_args[end] + O.parameters[:extra_inputsize])
-                result_kernel = zeros(Tv, op_offsets_test[end])
-                if sparsity_pattern === nothing
-                    sparsity_pattern = Symbolics.jacobian_sparsity(kernel_params, result_kernel, input_args)
-                end
-                jac = Float64.(sparse(sparsity_pattern))
-                value = zeros(Tv, op_offsets_test[end])
-                colors = matrix_colors(jac)
-                Dresult = nothing
-                cfg = ForwardColorJacCache(
-                    kernel_params, input_args, nothing;
-                    dx = nothing,
-                    colorvec = colors,
-                    sparsity = sparsity_pattern
-                )
+            input_args = zeros(Tv, op_offsets_args[end] + O.parameters[:extra_inputsize])
+            result_kernel = zeros(Tv, op_offsets_test[end])
+            if O.parameters[:sparse_jacobians_pattern] === nothing
+                sparsity_detector = TracerSparsityDetector()
             else
-                input_args = zeros(Tv, op_offsets_args[end] + O.parameters[:extra_inputsize])
-                result_kernel = zeros(Tv, op_offsets_test[end])
-                Dresult = DiffResults.JacobianResult(result_kernel, input_args)
-                jac = DiffResults.jacobian(Dresult)
-                value = DiffResults.value(Dresult)
-                cfg = ForwardDiff.JacobianConfig(kernel_params, result_kernel, input_args, ForwardDiff.Chunk{op_offsets_args[end]}())
+                sparsity_detector = KnownJacobianSparsityDetector(O.parameters[:sparse_jacobians_pattern])
             end
-            push!(Kj, KernelEvaluator(input_args, QPj, result_kernel, jac, value, Dresult, cfg, kernel_params))
+            sparse_forward_backend = AutoSparse(
+                O.parameters[:autodiff_backend];
+                sparsity_detector = sparsity_detector,
+                coloring_algorithm = GreedyColoringAlgorithm()
+            )
+
+            jac_prep = prepare_jacobian(kernel_params, result_kernel, sparse_forward_backend, input_args)
+
+            if sparse_jacobians
+                if O.parameters[:sparse_jacobians_pattern] === nothing
+                    jac_sparsity_pattern = sparsity_pattern(jac_prep)
+                else
+                    jac_sparsity_pattern = O.parameters[:sparse_jacobians_pattern]
+                end
+            end
+            jac = O.parameters[:sparse_jacobians] ? Tv.(sparse(jac_sparsity_pattern)) : zeros(Tv, length(result_kernel), length(input_args))
+
+            push!(Kj, KernelEvaluator(input_args, QPj, result_kernel, jac, jac_prep, sparse_forward_backend, kernel_params))
         end
 
         ## prepare parallel assembly
@@ -293,19 +292,16 @@ function build_assembler!(A::AbstractMatrix, b::AbstractVector, O::NonlinearOper
                 BE_test_vals::Array{Array{Tv, 3}, 1},
                 BE_args_vals::Array{Array{Tv, 3}, 1},
                 L2G::L2GTransformer,
-                K::KernelEvaluator,
+                K::KE,
                 part = 1;
                 time = 0.0,
-            ) where {T, Tv, Ti}
+            ) where {T, Tv, Ti, KE}
 
-            ## extract kernel properties
-            params = K.params
-            input_args = K.input_args
-            result_kernel = K.result_kernel
-            cfg = K.cfg
-            Dresult = K.Dresult
-            jac = K.jac
-            value = K.value
+            ## extract kernel properties (by destructuring operator)
+
+            (; params, input_args, jac, jac_prep, jac_backend) = K
+
+            value = K.result_kernel
             kernel_params = K.kernel
             params.time = time
 
@@ -359,12 +355,14 @@ function build_assembler!(A::AbstractMatrix, b::AbstractVector, O::NonlinearOper
                     ## get global x for quadrature point
                     eval_trafo!(params.x, L2G, xref[qp])
                     if use_autodiff
-                        if sparse_jacobians
-                            forwarddiff_color_jacobian!(jac, kernel_params, input_args, cfg)
-                            kernel_params(value, input_args)
-                        else
-                            ForwardDiff.chunk_mode_jacobian!(Dresult, kernel_params, result_kernel, input_args, cfg)
-                        end
+                        DifferentiationInterface.value_and_jacobian!(
+                            kernel_params,
+                            value,
+                            jac,
+                            jac_prep,
+                            jac_backend,
+                            input_args
+                        )
                     else
                         O.jacobian(jac, input_args, params)
                         O.kernel(value, input_args, params)
