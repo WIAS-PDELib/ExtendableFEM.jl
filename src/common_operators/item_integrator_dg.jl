@@ -234,6 +234,12 @@ function build_assembler!(O::ItemIntegratorDG{Tv}, FE_args::Array{<:FEVectorBloc
                     end
                 end
 
+                if itemregions[item] > 0
+                    if !(visit_region[itemregions[item]])
+                        continue
+                    end
+                end
+
                 for qp in 1:nweights
                     ## evaluate arguments at quadrature points
                     fill!(input_args, 0)
@@ -364,9 +370,9 @@ function evaluate(O::ItemIntegratorDG{Tv, UT}, sol; kwargs...) where {Tv, UT}
     elseif AT <: ON_EDGES
         nitems = size(grid[EdgeNodes], 2)
     elseif AT <: ON_BFACES
-        nitems = size(grid[BFaceNodes], 2)
+        nitems = size(grid[FaceNodes], 2)
     elseif AT <: ON_BEDGES
-        nitems = size(grid[BEdgeNodes], 2)
+        nitems = size(grid[EdgeNodes], 2)
     end
     if O.parameters[:piecewise]
         b = zeros(eltype(sol[1].entries), O.parameters[:resultdim], nitems)
