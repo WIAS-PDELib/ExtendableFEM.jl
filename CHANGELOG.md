@@ -4,6 +4,7 @@
 
 ### Fixed
   - fixed type issues in LinearOperator and ItemIntegrator
+  - fixed region awareness and output array sizing for boundary entities in ItemIntegratorDG
 
 ## v1.7.0
 
