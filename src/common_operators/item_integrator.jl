@@ -191,7 +191,7 @@ function build_assembler!(O::ItemIntegrator{Tv}, FE_args::Array{<:FEVectorBlock,
         function assembly_loop(b, sol::Array{<:FEVectorBlock, 1}, items, EG::ElementGeometries, QF::QuadratureRule, BE_args::Array{<:FEEvaluator, 1}, L2G::L2GTransformer, QPinfos::QPInfos)
 
             ## prepare parameters
-            result_kernel = zeros(Tv, resultdim)
+            result_kernel = zeros(eltype(T), resultdim)
             input_args = zeros(Tv, op_offsets_args[end])
             ndofs_args::Array{Int, 1} = [size(BE.cvals, 2) for BE in BE_args]
             weights, xref = QF.w, QF.xref
