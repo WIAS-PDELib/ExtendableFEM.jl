@@ -1,6 +1,6 @@
 #=
 
-# 330 : Hyperelasticity
+# 331 : Hyperelasticity with Optim
 ([source code](@__SOURCE_URL__))
 
 This examples computes the solution of a nonlinear elasticity problem for hyperelastic media
@@ -18,11 +18,11 @@ and this kernel is differentiated again in the assembly of the Newton scheme for
 The deformed unit cube and the displacement for the default parameters and inhomogeneous boundary conditions as defined in the code
 looks like this:
 
-![](example330.png)
+![](example331.png)
 
 =#
 
-module Example330_HyperElasticity
+module Example331_HyperElasticityWithOptim
 
 using ExtendableFEM
 using DifferentiationInterface
@@ -50,13 +50,13 @@ end
 
 ## energy functional (only nonlinear part, without exterior forces)
 function W!(κ)
-    μ, λ = κ[1], κ[2]
+    μ, λ = Ref(κ[1]), Ref(κ[2]) # references to allow pre-allocation and changes of κ outside
     return function closure(result, F, qpinfo)
         F[1] += 1
         F[5] += 1
         F[9] += 1
         detF = -(F[3] * (F[5] * F[7] - F[4] * F[8]) + F[2] * ((-F[6]) * F[7] + F[4] * F[9]) + F[1] * (F[6] * F[8] - F[5] * F[9]))
-        result[1] = μ / 2 * (dot(F, F) - 3 - 2 * log(detF)) + λ / 2 * (log(detF))^2
+        result[1] = μ[] / 2 * (dot(F, F) - 3 - 2 * log(detF)) + λ[] / 2 * (log(detF))^2
         return nothing
     end
 end
@@ -111,17 +111,32 @@ function optim_functions(sol, B)
     bnd_op = HomogeneousBoundaryData(1; regions = [1, 2])
     assemble!(bnd_op, sol[1].FES)
     fixeddofs = fixed_dofs(bnd_op)
-    res_vector = FEVector{Real}(sol[1].FES; entries = zeros(Real, sol[1].FES.ndofs))
+    res_vectors = Dict{DataType, Any}()
+    κ_prototypes = Dict{DataType, Any}()
+    operators = Dict{DataType, Any}()
     AD_backend = AutoForwardDiff()
+
+    ## linear operators independent of κ
+    rhs_op = LinearOperator(apply_force!, [id(1)]; factor = -1, params = [B])
 
     ## Function that computes residual w.r.t. κ
     function F(κ)
-        # init operators
-        linop = LinearOperator(nonlinkernel_DW2!(κ), [grad(1)], [grad(1)])
-        rhs_op = LinearOperator(apply_force!, [id(1)]; factor = -1, params = [B])
+
+        ## get residual vector of correct type
+        T = eltype(κ)
+        if !haskey(res_vectors, T)
+            res_vectors[T] = FEVector{T}(sol[1].FES; entries = zeros(T, sol[1].FES.ndofs))
+            κ_prototypes[T] = deepcopy(κ)
+            operators[T] = LinearOperator(nonlinkernel_DW2!(κ_prototypes[T]), [grad(1)], [grad(1)])
+        end
+        res_vector = res_vectors[T]
+        κ_prototype = κ_prototypes[T]
+        operator = operators[T]
 
         # assemble residual
-        assemble!(res_vector, linop, sol)
+        κ_prototype .= κ
+        fill!(res_vector.entries, 0)
+        assemble!(res_vector, operator, sol)
         assemble!(res_vector, rhs_op, sol)
 
         # compute norm of residual
@@ -130,10 +145,10 @@ function optim_functions(sol, B)
     end
 
     function g!(g, κ)
-        return g = gradient(F, AD_backend, κ)
+        return g .= gradient(F, AD_backend, κ)
     end
 
-    return (κ) -> ForwardDiff.value(F(κ)), g!, (κ) -> gradient(F, AD_backend, κ)
+    return (κ) -> ForwardDiff.value(F(κ)), g!
 end
 
 
@@ -169,13 +184,12 @@ function main(;
     sol = solve(PD, FES; maxiterations = 20)
 
     ## optimisation test
-    F, g!, g = optim_functions(sol, B)
+    F, g! = optim_functions(sol, B)
     κ0 = [μ + 1, λ - 1]
-    @info F(κ0), g(κ0)
-    optim_result = optimize(F, g, κ0, GradientDescent(; linesearch = LineSearches.HagerZhang()), Optim.Options(f_abstol = 1.0e-8, iterations = 5); inplace = false)
+    optim_result = optimize(F, g!, κ0, GradientDescent(; linesearch = LineSearches.HagerZhang()), Optim.Options(f_abstol = 1.0e-8, iterations = 5); inplace = true)
     #optim_result = optimize(F, κ0)
     @info optim_result
-    @info Optim.minimizer(optim_result), [μ, λ]
+    @info "optim result, expected result:" Optim.minimizer(optim_result), [μ, λ]
 
     ## displace mesh and plot final result
     displace_mesh!(xgrid, sol[u])
@@ -184,7 +198,7 @@ function main(;
     return sol, plt
 end
 
-generateplots = ExtendableFEM.default_generateplots(Example330_HyperElasticity, "example330.png") #hide
+generateplots = ExtendableFEM.default_generateplots(Example331_HyperElasticityWithOptim, "example331.png") #hide
 
 function tetrahedralization_of_cube(; maxvolume = 0.1)
     builder = SimplexGridBuilder(; Generator = TetGen)
