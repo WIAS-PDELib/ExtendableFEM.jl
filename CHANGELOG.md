@@ -1,5 +1,10 @@
 # CHANGES
 
+## v1.7.1
+
+### Fixed
+  - fixed type issues in LinearOperator and ItemIntegrator
+
 ## v1.7.0
 
 ### Added

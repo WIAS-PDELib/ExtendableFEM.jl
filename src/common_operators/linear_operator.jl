@@ -372,7 +372,7 @@ function build_assembler!(b, O::LinearOperator{Tv}, FE_test, FE_args; time = 0.0
 
             ## prepare parameters
             input_args = zeros(Tv, op_offsets_args[end])
-            result_kernel = zeros(Tv, op_offsets_test[end])
+            result_kernel = zeros(T, op_offsets_test[end])
             offsets_test = [FE_test[j].offset for j in 1:length(FES_test)]
 
             ndofs_test::Array{Int, 1} = [get_ndofs(AT, FE, EG) for FE in FETypes_test]
@@ -584,7 +584,7 @@ function build_assembler!(b, O::LinearOperator{Tv}, FE_test::Array{<:FEVectorBlo
         function assembly_loop(b::AbstractVector{T}, items, EG::ElementGeometries, QF::QuadratureRule, BE_test::Array{<:FEEvaluator, 1}, BE_test_vals::Array{Array{Tv, 3}, 1}, L2G::L2GTransformer, QPinfos::QPInfos) where {T}
 
             ## prepare parameters
-            result_kernel = zeros(Tv, op_offsets_test[end])
+            result_kernel = zeros(T, op_offsets_test[end])
             offsets_test = [FE_test[j].offset for j in 1:length(FES_test)]
 
             ndofs_test::Array{Int, 1} = [get_ndofs(AT, FE, EG) for FE in FETypes_test]
