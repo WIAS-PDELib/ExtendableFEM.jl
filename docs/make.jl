@@ -48,6 +48,7 @@ function make_all(; with_examples::Bool = true, modules = :all, run_examples::Bo
                 "Example284_LevelSetMethod.jl",
                 "Example285_CahnHilliard.jl",
                 "Example290_PoroElasticity.jl",
+                "Example295_SlidingDroplet.jl",
                 "Example301_PoissonProblem.jl",
                 "Example310_DivFreeBasis.jl",
                 "Example312_PeriodicBoundary3D.jl",
