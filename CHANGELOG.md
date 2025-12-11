@@ -1,5 +1,10 @@
 # CHANGES
 
+## v1.7.2
+
+### Fixed
+  - fixed control flow and nonlinear residual computation in presence of restrictions
+
 ## v1.7.1
 
 ### Fixed
