@@ -44,13 +44,10 @@ function compute_nonlinear_residual!(residual, A, b, sol, unknowns, PD, SC, free
     for op in PD.operators
         residual.entries[fixed_dofs(op)] .= 0
     end
+
+    mask_nonrestricted = ones(Bool, length(residual.entries))
     for rs in PD.restrictions
-        residual.entries[fixed_dofs(rs)] .= 0
-        #for dof in fixed_dofs(rs)
-        #    if dof <= length(residual.entries)
-        #        residual.entries[dof] = 0
-        #    end
-        #end
+        mask_nonrestricted[fixed_dofs(rs)] .= false
     end
 
     for u_off in SC.parameters[:inactive]
@@ -60,7 +57,7 @@ function compute_nonlinear_residual!(residual, A, b, sol, unknowns, PD, SC, free
         end
     end
 
-    nlres = length(freedofs) > 0 ? norm(residual.entries[freedofs]) : norm(residual.entries)
+    nlres = length(freedofs) > 0 ? norm(residual.entries[freedofs]) : norm(residual.entries[mask_nonrestricted])
 
     if SC.parameters[:verbosity] > 0 && length(residual) > 1
         @info "sub-residuals = $(norms(residual))"
@@ -120,7 +117,7 @@ function assemble_system!(A, b, sol, PD, SC, timer; kwargs...)
         fill!(A.entries.cscmatrix.nzval, 0)
     end
 
-    # Assemble operators
+    # Assemble operators and restrictions
     if SC.parameters[:initialized]
         for op in PD.operators
             @timeit timer "$(op.parameters[:name])" begin
@@ -236,6 +233,7 @@ function solve_linear_system!(A, b, sol, soltemp, residual, linsolve, unknowns, 
 
     @timeit timer "linear solver" begin
 
+
         # does the linsolve object need a (new) matrix?
         linsolve_needs_matrix = !SC.parameters[:constant_matrix] || !SC.parameters[:initialized]
 
@@ -281,7 +279,7 @@ function solve_linear_system!(A, b, sol, soltemp, residual, linsolve, unknowns, 
 
                 ## we need to add the (initial) solution to the rhs, since we work with the residual equation
                 for (B, rhs) in zip(restriction_matrices, restriction_rhss)
-                    rhs -= B'sol_freedofs
+                    rhs .-= B'sol_freedofs
                 end
 
                 total_size = sum(block_sizes)
