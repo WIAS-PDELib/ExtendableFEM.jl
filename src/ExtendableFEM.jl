@@ -64,7 +64,6 @@ using ExtendableGrids: ExtendableGrids, AT_NODES, AbstractElementGeometry,
 using ExtendableSparse: ExtendableSparse, ExtendableSparseMatrix, flush!,
     MTExtendableSparseMatrixCSC, findindex,
     rawupdateindex!
-using FillArrays: Zeros
 using ForwardDiff: ForwardDiff
 using GridVisualize: GridVisualize, GridVisualizer, gridplot!, reveal, save,
     scalarplot!, vectorplot!
