@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Example240_SVRTEnrichment · ExtendableFEM.jl</title><meta name="title" content="Example240_SVRTEnrichment · ExtendableFEM.jl"/><meta property="og:title" content="Example240_SVRTEnrichment · ExtendableFEM.jl"/><meta property="twitter:title" content="Example240_SVRTEnrichment · ExtendableFEM.jl"/><meta name="description" content="Documentation for ExtendableFEM.jl."/><meta property="og:description" content="Documentation for ExtendableFEM.jl."/><meta property="twitter:description" content="Documentation for ExtendableFEM.jl."/><script data-outdated-warner src="../../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../search_index.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../../">ExtendableFEM.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../../">Home</a></li><li><a class="tocitem" href="../../package_index/">Index</a></li><li><span class="tocitem">Problem Description</span><ul><li><a class="tocitem" href="../../problemdescription/">Problem Description</a></li><li><a class="tocitem" href="../../tensordescription/">Tensor Description</a></li><li><a class="tocitem" href="../../nonlinearoperator/">NonlinearOperator</a></li><li><a class="tocitem" href="../../bilinearoperator/">BilinearOperator</a></li><li><a class="tocitem" href="../../linearoperator/">LinearOperator</a></li><li><a class="tocitem" href="../../restrictions/">Restrictions</a></li><li><a class="tocitem" href="../../interpolateboundarydata/">InterpolateBoundaryData</a></li><li><a class="tocitem" href="../../homogeneousdata/">HomogeneousData</a></li><li><a class="tocitem" href="../../fixdofs/">FixDofs</a></li><li><a class="tocitem" href="../../combinedofs/">CombineDofs</a></li><li><a class="tocitem" href="../../callbackoperator/">CallbackOperator</a></li><li><a class="tocitem" href="../../allindex/">Index</a></li></ul></li><li><span class="tocitem">Solving</span><ul><li><a class="tocitem" href="../../pdesolvers/">Stationary Solvers</a></li><li><a class="tocitem" href="../../pdesolvers_dt/">Time-dependent Solvers</a></li><li><a class="tocitem" href="../../parallel_assembly/">Parallel Assembly</a></li></ul></li><li><span class="tocitem">Postprocessing</span><ul><li><a class="tocitem" href="../../postprocessing/">Postprocessing and Visualization</a></li><li><a class="tocitem" href="../../itemintegrators/">Item Integrators</a></li><li><a class="tocitem" href="../../faceinterpolator/">Face Interpolator</a></li></ul></li><li><span class="tocitem">Examples</span><ul><li><a class="tocitem" href="../Example103_BurgersEquation/">Example103_BurgersEquation</a></li><li><a class="tocitem" href="../Example105_NonlinearPoissonEquation/">Example105_NonlinearPoissonEquation</a></li><li><a class="tocitem" href="../Example106_NonlinearDiffusion/">Example106_NonlinearDiffusion</a></li><li><a class="tocitem" href="../Example108_RobinBoundaryCondition/">Example108_RobinBoundaryCondition</a></li><li><a class="tocitem" href="../Example201_PoissonProblem/">Example201_PoissonProblem</a></li><li><a class="tocitem" href="../Example202_MixedPoissonProblem/">Example202_MixedPoissonProblem</a></li><li><a class="tocitem" href="../Example203_PoissonProblemDG/">Example203_PoissonProblemDG</a></li><li><a class="tocitem" href="../Example204_LaplaceEVProblem/">Example204_LaplaceEVProblem</a></li><li><a class="tocitem" href="../Example205_HeatEquation/">Example205_HeatEquation</a></li><li><a class="tocitem" href="../Example206_CoupledSubGridProblems/">Example206_CoupledSubGridProblems</a></li><li><a class="tocitem" href="../Example207_AdvectionUpwindDG/">Example207_AdvectionUpwindDG</a></li><li><a class="tocitem" href="../Example210_LshapeAdaptivePoissonProblem/">Example210_LshapeAdaptivePoissonProblem</a></li><li><a class="tocitem" href="../Example211_LshapeAdaptiveEQPoissonProblem/">Example211_LshapeAdaptiveEQPoissonProblem</a></li><li><a class="tocitem" href="../Example212_PeriodicBoundary2D/">Example212_PeriodicBoundary2D</a></li><li><a class="tocitem" href="../Example220_ReactionConvectionDiffusion/">Example220_ReactionConvectionDiffusion</a></li><li><a class="tocitem" href="../Example225_ObstacleProblem/">Example225_ObstacleProblem</a></li><li><a class="tocitem" href="../Example226_Thermoforming/">Example226_Thermoforming</a></li><li><a class="tocitem" href="../Example227_ObstacleProblemLVPP/">Example227_ObstacleProblemLVPP</a></li><li><a class="tocitem" href="../Example230_NonlinearElasticity/">Example230_NonlinearElasticity</a></li><li><a class="tocitem" href="../Example235_StokesIteratedPenalty/">Example235_StokesIteratedPenalty</a></li><li class="is-active"><a class="tocitem" href>Example240_SVRTEnrichment</a></li><li><a class="tocitem" href="../Example245_NSEFlowAroundCylinder/">Example245_NSEFlowAroundCylinder</a></li><li><a class="tocitem" href="../Example250_NSELidDrivenCavity/">Example250_NSELidDrivenCavity</a></li><li><a class="tocitem" href="../Example252_NSEPlanarLatticeFlow/">Example252_NSEPlanarLatticeFlow</a></li><li><a class="tocitem" href="../Example260_AxisymmetricNavierStokesProblem/">Example260_AxisymmetricNavierStokesProblem</a></li><li><a class="tocitem" href="../Example264_StokesDarcy/">Example264_StokesDarcy</a></li><li><a class="tocitem" href="../Example265_FlowTransport/">Example265_FlowTransport</a></li><li><a class="tocitem" href="../Example270_NaturalConvectionProblem/">Example270_NaturalConvectionProblem</a></li><li><a class="tocitem" href="../Example275_OptimalControlStokes/">Example275_OptimalControlStokes</a></li><li><a class="tocitem" href="../Example280_CompressibleStokes/">Example280_CompressibleStokes</a></li><li><a class="tocitem" href="../Example282_IncompressibleMHD/">Example282_IncompressibleMHD</a></li><li><a class="tocitem" href="../Example284_LevelSetMethod/">Example284_LevelSetMethod</a></li><li><a class="tocitem" href="../Example285_CahnHilliard/">Example285_CahnHilliard</a></li><li><a class="tocitem" href="../Example290_PoroElasticity/">Example290_PoroElasticity</a></li><li><a class="tocitem" href="../Example301_PoissonProblem/">Example301_PoissonProblem</a></li><li><a class="tocitem" href="../Example310_DivFreeBasis/">Example310_DivFreeBasis</a></li><li><a class="tocitem" href="../Example312_PeriodicBoundary3D/">Example312_PeriodicBoundary3D</a></li><li><a class="tocitem" href="../Example330_HyperElasticity/">Example330_HyperElasticity</a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Examples</a></li><li class="is-active"><a href>Example240_SVRTEnrichment</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Example240_SVRTEnrichment</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/WIAS-PDELib/ExtendableFEM.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/WIAS-PDELib/ExtendableFEM.jl/blob/master/docs/src/module_examples/Example240_SVRTEnrichment.md" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="240-:-Stokes-RT-enrichment"><a class="docs-heading-anchor" href="#240-:-Stokes-RT-enrichment">240 : Stokes <span>$RT$</span> enrichment</a><a id="240-:-Stokes-RT-enrichment-1"></a><a class="docs-heading-anchor-permalink" href="#240-:-Stokes-RT-enrichment" title="Permalink"></a></h1><p>(<a href="../Example240_SVRTEnrichment.jl">source code</a>)</p><p>This example computes the velocity <span>$\mathbf{u}$</span> and pressure <span>$\mathbf{p}$</span> of the incompressible Stokes problem</p><p class="math-container">\[\begin{aligned}
+- \mu \Delta \mathbf{u} + \nabla p &amp; = \mathbf{f}\\
+\mathrm{div}(\mathbf{u}) &amp; = 0
+\end{aligned}\]</p><p>with exterior force <span>$\mathbf{f}$</span> and some parameter <span>$\mu$</span> and inhomogeneous Dirichlet boundary data.</p><p>The problem will be solved by a <span>$(P_k \oplus RTenrichment) \times P_{k-1}$</span> scheme, which can be seen as an inf-sup stabilized Scott-Vogelius variant that works with general meshes, see references below. Therein, the velocity space employs continuous <span>$P_{k}$</span> functions plus certain (only H(div)-conforming) Raviart-Thomas functions and a discontinuous <span>$P_{k-1}$</span> pressure space leading to an exactly divergence-free discrete velocity. In a reduction step (that can be triggered with the reduce switch) all higher order pressure dofs and the enrichment dofs can be eliminated from the system.</p><div class="admonition is-category-reference" id="Reference-962fd4f0c9fc8ef0"><header class="admonition-header">Reference<a class="admonition-anchor" href="#Reference-962fd4f0c9fc8ef0" title="Permalink"></a></header><div class="admonition-body"><p>&quot;A low-order divergence-free H(div)-conforming finite element method for Stokes flows&quot;,<br/>X. Li, H. Rui,<br/>IMA Journal of Numerical Analysis (2021),<br/><a href="https://doi.org/10.1093/imanum/drab080">&gt;Journal-Link&lt;</a> <a href="https://arxiv.org/abs/2012.01689">&gt;Preprint-Link&lt;</a></p><p>&quot;Inf-sup stabilized Scott–Vogelius pairs on general simplicial grids by Raviart–Thomas enrichment&quot;,<br/>V. John, X. Li, C. Merdon, H. Rui,<br/><a href="https://arxiv.org/abs/2206.01242">&gt;Preprint-Link&lt;</a></p></div></div><p>The computed solution for the default parameters looks like this:</p><p><img src="../example240.png" alt/></p><pre><code class="language-julia hljs">module Example240_SVRTEnrichment
+
+using ExtendableFEM
+using GridVisualize
+using ExtendableGrids
+using ExtendableSparse
+using Triangulate
+using SimplexGridFactory
+using Symbolics
+
+# exact data for problem generated by Symbolics
+function prepare_data(; μ = 1)
+
+    @variables x y
+
+    # stream function ξ
+    ξ = -sin(2 * pi * x) * cos(2 * pi * y)
+
+    # velocity u = curl ξ
+    ∇ξ = Symbolics.gradient(ξ, [x, y])
+    u = [-∇ξ[2], ∇ξ[1]]
+
+    # pressure
+    p = (cos(4 * pi * x) - cos(4 * pi * y)) / 4
+
+    # gradient of velocity
+    ∇u = Symbolics.jacobian(u, [x, y])
+    ∇u_reshaped = [∇u[1, 1], ∇u[1, 2], ∇u[2, 1], ∇u[2, 2]]
+
+    # Laplacian
+    Δu = [
+        (Symbolics.gradient(∇u[1, 1], [x]) + Symbolics.gradient(∇u[1, 2], [y]))[1],
+        (Symbolics.gradient(∇u[2, 1], [x]) + Symbolics.gradient(∇u[2, 2], [y]))[1],
+    ]
+
+    # right-hand side
+    f = -μ * Δu + Symbolics.gradient(p, [x, y])
+
+    # build functions
+    p_eval = build_function(p, x, y, expression = Val{false})
+    u_eval = build_function(u, x, y, expression = Val{false})
+    ∇u_eval = build_function(∇u_reshaped, x, y, expression = Val{false})
+    f_eval = build_function(f, x, y, expression = Val{false})
+
+    return f_eval[2], u_eval[2], ∇u_eval[2], p_eval
+end
+
+# grid generator function
+function get_grid2D(nref; uniform = false, barycentric = false)
+    if uniform || barycentric
+        gen_ref = 0
+    else
+        gen_ref = nref
+    end
+    grid = simplexgrid(
+        Triangulate;
+        points = [0 0; 0 1; 1 1; 1 0]&#39;,
+        bfaces = [1 2; 2 3; 3 4; 4 1]&#39;,
+        bfaceregions = [1, 2, 3, 4],
+        regionpoints = [0.5 0.5;]&#39;,
+        regionnumbers = [1],
+        regionvolumes = [4.0^(-gen_ref - 1)]
+    )
+    if uniform
+        grid = uniform_refine(grid, nref)
+    end
+    if barycentric
+        grid = barycentric_refine(grid)
+    end
+    return grid
+end
+
+# kernel for Stokes operator
+function kernel_stokes_standard!(result, u_ops, qpinfo)
+    ∇u, p = view(u_ops, 1:4), view(u_ops, 5)
+    μ = qpinfo.params[1]
+    result[1] = μ * ∇u[1] - p[1]
+    result[2] = μ * ∇u[2]
+    result[3] = μ * ∇u[3]
+    result[4] = μ * ∇u[4] - p[1]
+    result[5] = -(∇u[1] + ∇u[4])
+    return nothing
+end
+
+function main(; nrefs = 5, μ = 1, α = 1, order = 2, Plotter = nothing, enrich = true, reduce = true, time = 0.5, bonus_quadorder = 5, kwargs...)
+
+    # prepare problem data
+    f_eval, u_eval, ∇u_eval, p_eval = prepare_data(; μ = μ)
+    rhs!(result, qpinfo) = (f_eval(result, qpinfo.x[1], qpinfo.x[2]))
+    exact_p!(result, qpinfo) = (result[1] = p_eval(qpinfo.x[1], qpinfo.x[2]))
+    exact_u!(result, qpinfo) = (u_eval(result, qpinfo.x[1], qpinfo.x[2]))
+    exact_∇u!(result, qpinfo) = (∇u_eval(result, qpinfo.x[1], qpinfo.x[2]))
+
+    # prepare unknowns
+    u = Unknown(&quot;u&quot;; name = &quot;velocity&quot;, dim = 2)
+    pfull = Unknown(&quot;p&quot;; name = &quot;pressure (full)&quot;, dim = 1)
+    pE = Unknown(&quot;p⟂&quot;; name = &quot;pressure (enriched)&quot;, dim = 1)
+    p0 = Unknown(&quot;p0&quot;; name = &quot;pressure (reduced)&quot;, dim = 1) # only used if enrich &amp;&amp; reduced
+    uR = Unknown(&quot;uR&quot;; name = &quot;velocity enrichment&quot;, dim = 2) # only used if enrich == true
+
+    # prepare plots
+    plt = GridVisualizer(; Plotter = Plotter, layout = (2, 2), clear = true, size = (1000, 1000))
+
+    # prepare error calculations
+    function exact_error!(result, u, qpinfo)
+        exact_u!(view(result, 1:2), qpinfo)
+        exact_∇u!(view(result, 3:6), qpinfo)
+        result .-= u
+        return result .= result .^ 2
+    end
+    function exact_error_p!(result, p, qpinfo)
+        exact_p!(view(result, 1), qpinfo)
+        result .-= p
+        return result .= result .^ 2
+    end
+    ErrorIntegratorExact = ItemIntegrator(exact_error!, [id(u), grad(u)]; quadorder = 2 * (order + 1), kwargs...)
+    ErrorIntegratorPressure = ItemIntegrator(exact_error_p!, [order == 1 ? id(p0) : id(pfull)]; quadorder = 2 * (order + 1), kwargs...)
+    L2NormIntegratorE = L2NormIntegrator([id(uR)]; quadorder = 2 * order)
+    function kernel_div!(result, u, qpinfo)
+        return result .= sum(u) .^ 2
+    end
+    DivNormIntegrator = ItemIntegrator(kernel_div!, enrich ? [div(u), div(uR)] : [div(u)]; quadorder = 2 * order)
+    NDofs = zeros(Int, nrefs)
+    Results = zeros(Float64, nrefs, 5)
+
+    for lvl in 1:nrefs
+
+        # grid
+        xgrid = get_grid2D(lvl)
+
+        # define and assign unknowns
+        PD = ProblemDescription(&quot;Stokes problem&quot;)
+        assign_unknown!(PD, u)
+        p = reduce * enrich ? p0 : pfull
+        assign_unknown!(PD, p)
+
+        ################
+        ### FESPACES ###
+        ################
+        if order == 1
+            FES_enrich = FESpace{HDIVRT0{2}}(xgrid)
+        else
+            FES_enrich = FESpace{HDIVRTkENRICH{2, order - 1, reduce}}(xgrid)
+        end
+        FES = Dict(
+            u =&gt; FESpace{H1Pk{2, 2, order}}(xgrid),
+            pfull =&gt; FESpace{order == 1 ? L2P0{1} : H1Pk{1, 2, order - 1}}(xgrid; broken = true),
+            p0 =&gt; FESpace{L2P0{1}}(xgrid; broken = true),
+            uR =&gt; enrich ? FES_enrich : nothing
+        )
+
+        ######################
+        ### STANDARD TERMS ###
+        ######################
+        assign_operator!(PD, LinearOperator(rhs!, [id(u)]; bonus_quadorder = bonus_quadorder, kwargs...))
+        assign_operator!(PD, BilinearOperator(kernel_stokes_standard!, [grad(u), id(p)]; params = [μ], kwargs...))
+        assign_operator!(PD, InterpolateBoundaryData(u, exact_u!; regions = 1:4, bonus_quadorder = bonus_quadorder))
+        assign_operator!(PD, FixDofs(p; dofs = [1], vals = [0]))
+
+        ##################
+        ### ENRICHMENT ###
+        ##################
+        if enrich
+            if reduce
+                if order == 1
+                    @info &quot;... preparing condensation of RT0 dofs&quot;
+                    AR = FEMatrix(FES_enrich)
+                    BR = FEMatrix(FES[p], FES_enrich)
+                    bR = FEVector(FES_enrich)
+                    assemble!(AR, BilinearOperator([div(1)]; lump = true, factor = α * μ, kwargs...))
+                    for bface in xgrid[BFaceFaces]
+                        AR.entries[bface, bface] = 1.0e60
+                    end
+                    assemble!(BR, BilinearOperator([id(1)], [div(1)]; factor = -1, kwargs...))
+                    assemble!(bR, LinearOperator(rhs!, [id(1)]; bonus_quadorder = 5, kwargs...); time = time)
+                    # invert AR (diagonal matrix)
+                    AR.entries.cscmatrix.nzval .= 1 ./ AR.entries.cscmatrix.nzval
+                    C = -BR.entries.cscmatrix * AR.entries.cscmatrix * BR.entries.cscmatrix&#39;
+                    c = -BR.entries.cscmatrix * AR.entries.cscmatrix * bR.entries
+                    assign_operator!(PD, BilinearOperator(C, [p], [p]; kwargs...))
+                    assign_operator!(PD, LinearOperator(c, [p]; kwargs...))
+                else
+                    @info &quot;... preparing removal of enrichment dofs&quot;
+                    BR = FEMatrix(FES[p], FES_enrich)
+                    A1R = FEMatrix(FES_enrich, FES[u])
+                    bR = FEVector(FES_enrich)
+                    assemble!(BR, BilinearOperator([id(1)], [div(1)]; factor = -1, kwargs...))
+                    assemble!(bR, LinearOperator(rhs!, [id(1)]; bonus_quadorder = 5, kwargs...); time = time)
+                    assemble!(A1R, BilinearOperator([id(1)], [Δ(1)]; factor = -μ, kwargs...))
+                    F, DD_RR = div_projector(FES[u], FES_enrich)
+                    C = F.entries.cscmatrix * A1R.entries.cscmatrix
+                    assign_operator!(PD, BilinearOperator(C, [u], [u]; factor = 1, transposed_copy = -1, kwargs...))
+                    assign_operator!(PD, LinearOperator(F.entries.cscmatrix * bR.entries, [u]; kwargs...))
+                end
+            else
+                assign_unknown!(PD, uR)
+                assign_operator!(PD, LinearOperator(rhs!, [id(uR)]; bonus_quadorder = 5, kwargs...))
+                assign_operator!(PD, BilinearOperator([id(p)], [div(uR)]; transposed_copy = 1, factor = -1, kwargs...))
+                if order == 1
+                    assign_operator!(PD, BilinearOperator([div(uR)]; lump = true, factor = μ, kwargs...))
+                    assign_operator!(PD, HomogeneousBoundaryData(uR; regions = 1:4))
+                else
+                    assign_operator!(PD, BilinearOperator([Δ(u)], [id(uR)]; factor = μ, transposed_copy = -1, kwargs...))
+                end
+            end
+        end
+
+        #############
+        ### SOLVE ###
+        #############
+        sol = solve(PD, FES; time = time, kwargs...)
+        NDofs[lvl] = length(sol.entries)
+
+        # move integral mean of pressure
+        pintegrate = ItemIntegrator([id(p)])
+        pmean = sum(evaluate(pintegrate, sol)) / sum(xgrid[CellVolumes])
+        view(sol[p]) .-= pmean
+
+        ######################
+        ### POSTPROCESSING ###
+        ######################
+        if enrich &amp;&amp; reduce
+            append!(sol, FES_enrich; tag = uR)
+            if order == 1
+                # compute enrichment part of velocity
+                view(sol[uR]) .= AR.entries.cscmatrix * (bR.entries - BR.entries.cscmatrix&#39; * view(sol[p]))
+            else
+                # compute enrichment part of velocity
+                view(sol[uR]) .= F.entries.cscmatrix&#39; * view(sol[u])
+            end
+
+            # compute higher order pressure dofs
+            if reduce &amp;&amp; order &gt; 1
+                # add blocks for higher order pressures to sol vector
+                VR = FES_enrich
+                append!(sol, VR; tag = pE)
+                append!(sol, FES[pfull]; tag = pfull)
+                sol_pE = view(sol[pE])
+                sol_pfull = view(sol[pfull])
+                sol_p0 = view(sol[p0])
+
+                res = FEVector(VR)
+                addblock_matmul!(res[1], A1R[1, 1], sol[u])
+                celldofs_VR::VariableTargetAdjacency{Int32} = VR[CellDofs]
+                ndofs_VR = max_num_targets_per_source(celldofs_VR)
+                Ap = zeros(Float64, ndofs_VR, ndofs_VR)
+                bp = zeros(Float64, ndofs_VR)
+                xp = zeros(Float64, ndofs_VR)
+                for cell in 1:num_cells(xgrid)
+                    # solve local pressure reconstruction
+                    # (p_h, div VR) = - (f,VR) + a_h(u_h,VR)
+                    for dof_j in 1:ndofs_VR
+                        dof = celldofs_VR[dof_j, cell]
+                        bp[dof_j] = -bR.entries[dof] + res.entries[dof]
+                        for dof_k in 1:ndofs_VR
+                            dof2 = celldofs_VR[dof_k, cell]
+                            Ap[dof_j, dof_k] = DD_RR.entries[dof, dof2]
+                        end
+                    end
+
+                    # solve for coefficients of div(RT1bubbles)
+                    xp = Ap \ bp
+
+                    # save in block id_pk
+                    for dof_j in 1:ndofs_VR
+                        dof = celldofs_VR[dof_j, cell]
+                        sol_pE[dof] = xp[dof_j]
+                    end
+                end
+
+                # interpolate into Pk basis (= same pressure basis as in full scheme)
+                PF = FES[pfull]
+                append!(sol, PF; tag = pfull)
+                celldofs_PF::SerialVariableTargetAdjacency{Int32} = PF[CellDofs]
+                ndofs_PF::Int = max_num_targets_per_source(celldofs_PF)
+
+                # compute local mass matrix of full pressure space
+                MAMA = FEMatrix(PF)
+                assemble!(MAMA, BilinearOperator([id(1)]))
+                MAMAE::ExtendableSparseMatrix{Float64, Int64} = MAMA.entries
+
+                # full div-pressure matrix
+                PFxVR = FEMatrix(PF, VR)
+                assemble!(PFxVR, BilinearOperator([id(1)], [div(1)]))
+                PFxVRE::ExtendableSparseMatrix{Float64, Int64} = PFxVR.entries
+                bp = zeros(Float64, ndofs_PF)
+                xp = zeros(Float64, ndofs_PF)
+                locMAMA = zeros(Float64, ndofs_PF, ndofs_PF)
+                for cell in 1:num_cells(xgrid)
+                    # solve local pressure reconstruction
+                    fill!(bp, 0)
+                    for dof_k in 1:ndofs_PF
+                        dof2 = celldofs_PF[dof_k, cell]
+                        for dof_j in 1:ndofs_VR
+                            dof = celldofs_VR[dof_j, cell]
+                            bp[dof_k] += PFxVRE[dof2, dof] * sol_pE[dof]
+                        end
+                        for dof_j in 1:ndofs_PF
+                            dof = celldofs_PF[dof_j, cell]
+                            locMAMA[dof_k, dof_j] = MAMAE[dof2, dof]
+                        end
+                    end
+
+                    # solve for coefficients of div(RT1bubbles)
+                    xp = locMAMA \ bp
+                    for dof_j in 1:ndofs_PF
+                        dof = celldofs_PF[dof_j, cell]
+                        sol_pfull[dof] = sol_p0[cell] + xp[dof_j]
+                    end
+                end
+            elseif reduce &amp;&amp; order == 1
+                pfull = p0
+            end
+        end
+
+        ########################
+        ### ERROR EVALUATION ###
+        ########################
+        error = evaluate(ErrorIntegratorExact, sol)
+        L2errorU = sqrt(sum(view(error, 1, :)) + sum(view(error, 2, :)))
+        H1errorU = sqrt(sum(view(error, 3, :)) + sum(view(error, 4, :)) + sum(view(error, 5, :)) + sum(view(error, 6, :)))
+        @info &quot;L2error(u) = $L2errorU&quot;
+        @info &quot;L2error(∇u) = $H1errorU&quot;
+        evaluate!(error, ErrorIntegratorPressure, sol)
+        L2errorP = sqrt(sum(view(error, 1, :)))
+        @info &quot;L2error(p) = $L2errorP&quot;
+        Results[lvl, 4] = L2errorP
+        if enrich
+            fill!(error, 0)
+            evaluate!(error, L2NormIntegratorE, sol)
+            L2normUR = sqrt(sum(view(error, 1, :)) + sum(view(error, 2, :)))
+            @info &quot;L2norm(uR) = $L2normUR&quot;
+        end
+        fill!(error, 0)
+        evaluate!(error, DivNormIntegrator, sol)
+        L2normDiv = sqrt(sum(view(error, 1, :)))
+        @info &quot;L2norm(div(u+uR)) = $L2normDiv&quot;
+
+        Results[lvl, 1] = L2errorU
+        Results[lvl, 2] = H1errorU
+        Results[lvl, 3] = L2normUR
+        Results[lvl, 5] = L2normDiv
+
+        #############
+        ### PLOTS ###
+        #############
+        scalarplot!(plt[1, 1], id(u), sol; abs = true)
+        scalarplot!(plt[1, 2], id(pfull), sol)
+        if order == 1 &amp;&amp; enrich
+            scalarplot!(plt[2, 2], id(uR), sol)
+        end
+    end
+    plot_convergencehistory!(
+        plt[2, 1],
+        NDofs,
+        Results[:, 1:4];
+        add_h_powers = [order, order + 1],
+        X_to_h = X -&gt; 8 * X .^ (-1 / 2),
+        legend = :best,
+        ylabels = [&quot;|| u - u_h ||&quot;, &quot;|| ∇(u - u_h) ||&quot;, &quot;|| uR ||&quot;, &quot;|| p - p_h ||&quot;, &quot;|| div(u + uR) ||&quot;],
+    )
+
+    print_convergencehistory(NDofs, Results; X_to_h = X -&gt; X .^ (-1 / 2), ylabels = [&quot;|| u - u_h ||&quot;, &quot;|| ∇(u - u_h) ||&quot;, &quot;|| uR ||&quot;, &quot;|| p - p_h ||&quot;, &quot;|| div(u + uR) ||&quot;], xlabel = &quot;ndof&quot;)
+
+    return Results, plt
+end
+
+function div_projector(V1, VR)
+
+    # setup interpolation matrix
+    celldofs_V1 = V1[CellDofs]
+    celldofs_VR = VR[CellDofs]
+    ndofs_V1 = max_num_targets_per_source(celldofs_V1)
+    ndofs_VR = max_num_targets_per_source(celldofs_VR)
+
+    DD_RR = FEMatrix(VR)
+    assemble!(DD_RR, BilinearOperator([div(1)]))
+    DD_RRE = DD_RR.entries
+    DD_1R = FEMatrix(V1, VR)
+    assemble!(DD_1R, BilinearOperator([div(1)]))
+    DD_1RE = DD_1R.entries
+    Ap = zeros(Float64, ndofs_VR, ndofs_VR)
+    bp = zeros(Float64, ndofs_VR)
+    xp = zeros(Float64, ndofs_VR)
+    ncells = num_sources(celldofs_V1)
+    F = FEMatrix(V1, VR)
+    FE = F.entries
+    for cell in 1:ncells
+
+        # solve local pressure reconstruction for RTk part
+        for dof_j in 1:ndofs_VR
+            dof = celldofs_VR[dof_j, cell]
+            for dof_k in 1:ndofs_VR
+                dof2 = celldofs_VR[dof_k, cell]
+                Ap[dof_j, dof_k] = DD_RRE[dof, dof2]
+            end
+        end
+
+        for dof_j in 1:ndofs_V1
+            dof = celldofs_V1[dof_j, cell]
+            for dof_k in 1:ndofs_VR
+                dof2 = celldofs_VR[dof_k, cell]
+                bp[dof_k] = -DD_1RE[dof, dof2]
+            end
+
+            xp = Ap \ bp
+
+            for dof_k in 1:ndofs_VR
+                dof2 = celldofs_VR[dof_k, cell]
+                FE[dof, dof2] = xp[dof_k]
+            end
+        end
+    end
+    flush!(FE)
+    return F, DD_RR
+end
+
+end # module</code></pre><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../Example235_StokesIteratedPenalty/">« Example235_StokesIteratedPenalty</a><a class="docs-footer-nextpage" href="../Example245_NSEFlowAroundCylinder/">Example245_NSEFlowAroundCylinder »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.16.1 on <span class="colophon-date" title="Friday 12 December 2025 10:31">Friday 12 December 2025</span>. Using Julia version 1.12.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
