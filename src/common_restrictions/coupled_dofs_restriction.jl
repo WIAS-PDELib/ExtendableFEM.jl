@@ -64,7 +64,7 @@ function assemble!(R::CoupledDofsRestriction, sol, SC; kwargs...)
     end
 
     R.parameters[:matrix] = B
-    R.parameters[:rhs] = Zeros(size(B, 2))
+    R.parameters[:rhs] = zeros(size(B, 2))
 
     # fixed dofs are all active rows of B
     R.parameters[:fixed_dofs] = unique(findnz(B)[1])
