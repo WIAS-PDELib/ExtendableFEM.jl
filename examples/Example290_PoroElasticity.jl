@@ -191,7 +191,7 @@ function main(; α = 0.93, E = 1.0e5, ν = 0.4, K = 1.0e-7, nrefs = 6, T = 0.5, 
     for it in 1:Int(floor(T / τ))
         t += τ
         @info "t = $t"
-        ExtendableFEM.solve(PD, FES, SC; time = t)
+        ExtendableFEM.solve(PD, FES, SC; time = t, timeroutputs = :hide)
     end
 
     ## error calculation
