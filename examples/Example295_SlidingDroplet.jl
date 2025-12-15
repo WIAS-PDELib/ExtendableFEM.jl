@@ -32,8 +32,8 @@ Then, it computes the displacement ``\mathbf{w}`` from ``\mathbf{u}`` by Laplace
 The weak formulation chracterizes ``(\mathbf{u},p,\mathbf{w}) \in V \times Q \times W`` by
 ```math
 \begin{aligned}
-	(2\mu \varepsilon(\mathbf{u}), \varepsilon(\mathbf{v})) + (\mathrm{div} \mathbf{v}, p)
-	+ \gamma \tau (\nabla_s \mathbf{u}, \nabla_s \mathbf{v})_{\Gamma_{air}}
+	(2\mu \varepsilon(\mathbf{u}), \varepsilon(\mathbf{v})) - (\mathrm{div} \mathbf{v}, p)
+	+ \gamma \tau (\nabla_s \mathbf{u}, \nabla_s \mathbf{v})_{\Gamma_{air}} & \\
 	+ \gamma_{sl} \tau (\nabla_s \mathbf{u}, \nabla_s \mathbf{v})_{\Gamma_{solid}}
 	+ \mu_{sl} (\mathbf{u} \cdot \mathbf{t}, \mathbf{v} \cdot \mathbf{t})_{\Gamma_{solid}}
 	& = (\mathbf{g}, \mathbf{v}) - \gamma (\nabla_s \mathbf{x}, \nabla_s \mathbf{v})_{\Gamma_{air}}
@@ -96,14 +96,14 @@ end
 
 function main(;
         order = 2,
-        g = 10,            ## gravity factor (in right direction)
+        g = 10,             ## gravity factor (in right direction)
         μ = 1,              ## bulk viscosity
         μ_sl = 0.1,         ## coefficient for Navier slip condition
         μ_dyn = 0,          ## dynamic contact angle
-        γ_la = 1,              ## surface tension coefficient at liquid <> air interface
+        γ_la = 1,           ## surface tension coefficient at liquid <> air interface
         γ_sl = 0,           ## surface tension coefficient at liquid <> solid interface
-        nsteps = 70,       ## ALE steps
-        τ = 1.0e-2,           ## ALE stepsize
+        nsteps = 70,        ## ALE steps
+        τ = 1.0e-2,         ## ALE stepsize
 
         nrefs = 4,
         Plotter = nothing, kwargs...
@@ -125,7 +125,7 @@ function main(;
     assign_operator!(PD, BilinearOperator([εV(u, 1.0)]; factor = 2 * μ, kwargs...))
     assign_operator!(PD, BilinearOperatorDG(surface_tension!, [grad(u)]; entities = ON_BFACES, factor = γ_la * τ, regions = [1], kwargs...))
     assign_operator!(PD, BilinearOperatorDG(surface_tension!, [grad(u)]; entities = ON_BFACES, factor = γ_sl * τ, regions = [2], kwargs...))
-    assign_operator!(PD, BilinearOperator([id(p)], [div(u)]; transposed_copy = 1, factor = 1, kwargs...))
+    assign_operator!(PD, BilinearOperator([id(p)], [div(u)]; transposed_copy = 1, factor = -1, kwargs...))
     assign_operator!(PD, BilinearOperator([id(u)]; entities = ON_BFACES, regions = [2], factor = μ_sl, kwargs...))
     if abs(μ_dyn) > 0
         assign_operator!(PD, CallbackOperator(ctriple_junction_kernel!(triple_nodes, μ_dyn), [u]; kwargs...))
@@ -199,8 +199,8 @@ function main(;
 
     sol.entries[1:FES[1].coffset] .= sol.entries[1:FES[1].coffset] .- v0
 
-    scalarplot!(plt[3, 3], xgrid, sqrt.(nodevals[1] .^ 2 .+ nodevals[2] .^ 2); levels = 7, title = "w (t = $(Float32(time)))")
-    vectorplot!(plt[3, 3], xgrid, eval_func_bary(PE); vscale = 0.8, levels = 7, clear = false, title = "w (t = $(Float32(time)))")
+    scalarplot!(plt[3, 3], xgrid, sqrt.(nodevals[1] .^ 2 .+ nodevals[2] .^ 2); levels = 7, title = "u - ̄u (t = $(Float32(time)))")
+    vectorplot!(plt[3, 3], xgrid, eval_func_bary(PE); vscale = 0.8, levels = 7, clear = false, title = "u - ̄u (t = $(Float32(time)))")
 
 
     return sol, plt
