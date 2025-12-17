@@ -239,3 +239,10 @@ dofgrid(u) = (u, "dofgrid")
 alias for (u, FO)
 """
 apply(u, FO::Type{<:AbstractFunctionOperator}) = (u, FO)
+
+"""
+	streamlines(u)
+
+alias for (u, "grid") (triggers streamlines plot)
+"""
+streamlines(u) = (u, "streamlines")

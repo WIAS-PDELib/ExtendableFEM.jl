@@ -115,9 +115,6 @@ function main(;
         FESpace{H1Pk{1, 2, order - 1}}(xgrid),
     ]
 
-    ## prepare plots
-    plt = GridVisualizer(; Plotter = Plotter, layout = (1, 2), clear = true, size = (1600, 800))
-
     ## solve by μ embedding
     step = 0
     sol = nothing
@@ -139,9 +136,6 @@ function main(;
         if step == 1
             initialize!(PE, sol)
         end
-        scalarplot!(plt[1, 1], xgrid, nodevalues(sol[1]; abs = true)[1, :]; title = "velocity (μ = $(extra_params[1]))", Plotter = Plotter)
-        vectorplot!(plt[1, 1], xgrid, eval_func_bary(PE), rasterpoints = 20, clear = false)
-        streamplot!(plt[1, 2], xgrid, eval_func_bary(PE), rasterpoints = 50, density = 2, title = "streamlines")
 
         if extra_params[1] <= μ_final
             break
@@ -150,9 +144,7 @@ function main(;
         end
     end
 
-    scalarplot!(plt[1, 1], xgrid, nodevalues(sol[1]; abs = true)[1, :]; title = "velocity (μ = $(extra_params[1]))", Plotter = Plotter)
-    vectorplot!(plt[1, 1], xgrid, eval_func_bary(PE), rasterpoints = 20, clear = false)
-    streamplot!(plt[1, 2], xgrid, eval_func_bary(PE), rasterpoints = 50, density = 2, title = "streamlines")
+    plt = plot([id(u), streamlines(u)], sol; Plotter = Plotter, rasterpoints = 30, width = 800, height = 400, title_add = " (μ = $(μ_final))")
 
     return sol, plt
 end

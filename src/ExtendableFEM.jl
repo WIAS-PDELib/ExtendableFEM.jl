@@ -67,7 +67,7 @@ using ExtendableSparse: ExtendableSparse, ExtendableSparseMatrix, flush!,
 using FillArrays: Zeros
 using ForwardDiff: ForwardDiff
 using GridVisualize: GridVisualize, GridVisualizer, gridplot!, reveal, save,
-    scalarplot!, vectorplot!
+    scalarplot!, vectorplot!, streamplot!
 using LinearAlgebra: LinearAlgebra, copyto!, isposdef, mul!, norm
 using LinearSolve: LinearSolve, LinearProblem, UMFPACKFactorization, deleteat!,
     init, solve
@@ -115,7 +115,7 @@ export print_table
 
 include("unknowns.jl")
 export Unknown
-export grid, dofgrid
+export grid, dofgrid, streamlines
 export id, grad, hessian, div, normalflux, tangentialflux, Δ, apply, curl1, curl2, curl3, laplace, tangentialgrad, symgrad_voigt, εV
 
 include("operators.jl")

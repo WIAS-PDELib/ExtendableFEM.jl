@@ -96,14 +96,14 @@ end
 
 function main(;
         order = 2,
-        g = 10,             ## gravity factor (in right direction)
+        g = 1,             ## gravity factor (in right direction)
         μ = 1,              ## bulk viscosity
         μ_sl = 0.1,         ## coefficient for Navier slip condition
         μ_dyn = 0,          ## dynamic contact angle
         γ_la = 1,           ## surface tension coefficient at liquid <> air interface
         γ_sl = 0,           ## surface tension coefficient at liquid <> solid interface
-        nsteps = 70,        ## ALE steps
-        τ = 1.0e-2,         ## ALE stepsize
+        nsteps = 420,        ## ALE steps
+        τ = 1.0e-1,         ## ALE stepsize
 
         nrefs = 4,
         Plotter = nothing, kwargs...
@@ -169,6 +169,7 @@ function main(;
 
     ## time loop
     nextplot = 1
+    v0 = nothing
     for step in 1:nsteps
         @info "STEP $step, time = $(Float16(time))"
 
@@ -185,22 +186,22 @@ function main(;
         time += τ
         displace_mesh!(xgrid, sol[w]; magnify = τ)
 
+        ## calculate final droplet speed
+        v0 = sum(sol.entries[1:FES[1].coffset]) / FES[1].coffset
+        @info "droplet_speed = $v0"
+
         ## plot
-        if time >= times_to_plot[nextplot]
+        if time >= times_to_plot[nextplot] - 1.0e-12
             scalarplot!(plt[1 + Int(floor((nextplot) / 3)), 1 + (nextplot) % 3], xgrid, sqrt.(nodevals[1] .^ 2 .+ nodevals[2] .^ 2); levels = 7, title = "u (t = $(Float32(time)))")
             vectorplot!(plt[1 + Int(floor((nextplot) / 3)), 1 + (nextplot) % 3], xgrid, eval_func_bary(PE); vscale = 0.8, levels = 7, clear = false, title = "u (t = $(Float32(time)))")
             nextplot += 1
         end
     end
 
-    ## calculate final droplet speed
-    v0 = sum(sol.entries[1:FES[1].coffset]) / FES[1].coffset
-    @info "droplet_speed = $v0"
-
     sol.entries[1:FES[1].coffset] .= sol.entries[1:FES[1].coffset] .- v0
 
     scalarplot!(plt[3, 3], xgrid, sqrt.(nodevals[1] .^ 2 .+ nodevals[2] .^ 2); levels = 7, title = "u - ̄u (t = $(Float32(time)))")
-    vectorplot!(plt[3, 3], xgrid, eval_func_bary(PE); vscale = 0.8, levels = 7, clear = false, title = "u - ̄u (t = $(Float32(time)))")
+    streamplot!(plt[3, 3], xgrid, eval_func_bary(PE); vscale = 0.8, levels = 7, clear = false, title = "u - ̄u (t = $(Float32(time)))")
 
 
     return sol, plt
