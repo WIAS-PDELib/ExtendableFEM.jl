@@ -45,6 +45,11 @@ function compute_nonlinear_residual!(residual, A, b, sol, unknowns, PD, SC, free
         residual.entries[fixed_dofs(op)] .= 0
     end
 
+    mask_nonrestricted = ones(Bool, length(residual.entries))
+    for rs in PD.restrictions
+        mask_nonrestricted[fixed_dofs(rs)] .= false
+    end
+
     for u_off in SC.parameters[:inactive]
         j = get_unknown_id(SC, u_off)
         if j > 0
@@ -52,7 +57,7 @@ function compute_nonlinear_residual!(residual, A, b, sol, unknowns, PD, SC, free
         end
     end
 
-    nlres = length(freedofs) > 0 ? norm(residual.entries[freedofs]) : norm(residual.entries)
+    nlres = length(freedofs) > 0 ? norm(residual.entries[freedofs]) : norm(residual.entries[mask_nonrestricted])
 
     if SC.parameters[:verbosity] > 0 && length(residual) > 1
         @info "sub-residuals = $(norms(residual))"
@@ -112,7 +117,7 @@ function assemble_system!(A, b, sol, PD, SC, timer; kwargs...)
         fill!(A.entries.cscmatrix.nzval, 0)
     end
 
-    # Assemble operators
+    # Assemble operators and restrictions
     if SC.parameters[:initialized]
         for op in PD.operators
             @timeit timer "$(op.parameters[:name])" begin
@@ -138,6 +143,10 @@ function assemble_system!(A, b, sol, PD, SC, timer; kwargs...)
             end
             time_assembly += stats.time
             allocs_assembly += stats.bytes
+        end
+        ## assemble restrictions
+        for restriction in PD.restrictions
+            @timeit timer "$(restriction.parameters[:name])" assemble!(restriction, sol, SC; kwargs...)
         end
     end
     flush!(A.entries)
@@ -222,16 +231,8 @@ Solves the linear system and updates the solution vector. This includes:
 """
 function solve_linear_system!(A, b, sol, soltemp, residual, linsolve, unknowns, freedofs, damping, PD, SC, stats, is_linear, timer, kwargs...)
 
-    @timeit timer "assembly" begin
-        ## assemble restrctions
-        if !SC.parameters[:initialized]
-            for restriction in PD.restrictions
-                @timeit timer "$(restriction.parameters[:name])" assemble!(restriction, sol, SC; kwargs...)
-            end
-        end
-    end
-
     @timeit timer "linear solver" begin
+
 
         # does the linsolve object need a (new) matrix?
         linsolve_needs_matrix = !SC.parameters[:constant_matrix] || !SC.parameters[:initialized]
@@ -243,6 +244,8 @@ function solve_linear_system!(A, b, sol, soltemp, residual, linsolve, unknowns, 
             else
                 A_unrestricted = A.entries.cscmatrix
             end
+            #else
+            #    A_unrestricted = A.entries.cscmatrix
         end
 
         # we solve for A Δx = r
@@ -264,10 +267,10 @@ function solve_linear_system!(A, b, sol, soltemp, residual, linsolve, unknowns, 
         else
             # add possible Lagrange restrictions
             restriction_matrices = [length(freedofs) > 0 ? view(restriction_matrix(re), freedofs, :) : restriction_matrix(re) for re in PD.restrictions ]
-            restriction_rhss = deepcopy([length(freedofs) > 0 ? view(restriction_rhs(re), freedofs) : restriction_rhs(re) for re in PD.restrictions ])
+            restriction_rhss = [length(freedofs) > 0 ? view(restriction_rhs(re), freedofs) : restriction_rhs(re) for re in PD.restrictions ]
 
             # block sizes for the block matrix
-            block_sizes = [size(A_unrestricted, 2), [ size(B, 2) for B in restriction_matrices ]...]
+            block_sizes = [length(b_unrestricted), [ length(b) for b in restriction_rhss ]...]
 
             # total number of additional LM dofs
             nLMs = @views sum(block_sizes[2:end])
@@ -280,7 +283,7 @@ function solve_linear_system!(A, b, sol, soltemp, residual, linsolve, unknowns, 
                 end
 
                 total_size = sum(block_sizes)
-                Tv = eltype(A_unrestricted)
+                Tv = eltype(b_unrestricted)
 
                 ## create block matrix
                 if linsolve_needs_matrix
@@ -506,6 +509,8 @@ function check_problem_linearity!(PDs, SCs, unknowns)
         end
         if SCs[j].parameters[:is_linear] == "auto"
             is_linear[j] = !nonlinear[j]
+        elseif SCs[j].parameters[:is_linear] == true
+            is_linear[j] = true
         end
         if is_linear[j] && nonlinear[j]
             @warn "problem $(PD.name) seems nonlinear, but user set is_linear = true (results may be wrong)!!"
