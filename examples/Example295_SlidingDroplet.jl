@@ -15,38 +15,36 @@ It seeks a velocity ``\mathbf{u}``, a pressure ``p`` such that
 	\mathrm{div} \mathbf{u} & = 0
 \end{aligned}
 ```
-on a moving domain ``\Omega(t)`` (a sliding droplet) with boundary conditions
-```math
-\begin{aligned}
-	\mathbf{u} \cdot \mathbf{n} & = 0 && \quad \text{no penetration along liquid-solid interface} \\
-	\mathbf{u} \cdot \mathbf{t} & = \mu_{sl}^{-1} \sigma_{nt} && \quad \text{Navier slip condition along liquid-solid interface} \\
-	\sigma \mathbf{n} & = \gamma \kappa \mathbf{n} && \quad \text{surface tension at liquid-air interface} \\
-	\sigma \mathbf{n} & = \gamma_{sl} \kappa \mathbf{n} && \quad \text{surface tension at liquid-solid interface}
-\end{aligned}
-```
-where ``\sigma = -p I + 2\mu \varepsilon(\mathbf{u})`` is the stress tensor, ``\kappa`` is the curvature,
-``\mathbf{n}`` is the normal vector and ``\mathbf{t}`` is the tangent vector.
+on a moving domain ``\Omega(t)`` (a sliding droplet) with Navier-slip and capillary boundary conditions,
+see the reference below for details.
 
-Then, it computes the displacement ``\mathbf{w}`` from ``\mathbf{u}`` by Laplace smoothing to prevent mesh folding.
+The ALE method computes a postprocessed displacement
+``\mathbf{w}`` from ``\mathbf{u}`` by Laplace smoothing to prevent mesh folding. The smoothing
+preserves the normal fluxes via a Lagrange multiplier.
 
-The weak formulation chracterizes ``(\mathbf{u},p,\mathbf{w}) \in V \times Q \times W`` by
+The weak formulation characterizes ``(\mathbf{u},p,\mathbf{w},\lambda) \in V \times Q \times W \times \Lambda`` by
 ```math
 \begin{aligned}
 	(2\mu \varepsilon(\mathbf{u}), \varepsilon(\mathbf{v})) - (\mathrm{div} \mathbf{v}, p)
-	+ \gamma \tau (\nabla_s \mathbf{u}, \nabla_s \mathbf{v})_{\Gamma_{air}} & \\
-	+ \gamma_{sl} \tau (\nabla_s \mathbf{u}, \nabla_s \mathbf{v})_{\Gamma_{solid}}
-	+ \mu_{sl} (\mathbf{u} \cdot \mathbf{t}, \mathbf{v} \cdot \mathbf{t})_{\Gamma_{solid}}
-	& = (\mathbf{g}, \mathbf{v}) - \gamma (\nabla_s \mathbf{x}, \nabla_s \mathbf{v})_{\Gamma_{air}}
-	- \gamma_{sl} (\nabla_s \mathbf{x}, \nabla_s \mathbf{v})_{\Gamma_{solid}}
+	+ \beta (\mathbf{u}, \mathbf{v})_{\Gamma_{solid}}
+	+ \delta (\mathbf{u}, \mathbf{v})_{\Gamma_{contact}}
+	& = (\mathrm{Bo} \mathbf{e}_x, \mathbf{v}) - (\nabla_s \mathbf{x}, \nabla_s \mathbf{v})_{\Gamma_{air}}
+	\cos(\theta) (\nabla_s \mathbf{x}, \nabla_s \mathbf{v})_{\Gamma_{solid}}
 	&& \quad \text{for all } \mathbf{v} \in V,\\
 (\mathrm{div} \mathbf{u}, q) & = 0 && \quad \text{for all } q \in Q,\\
-(\nabla \mathbf{w}, \nabla \mathbf{z}) + \epsilon^{-1} (\mathbf{w} \cdot \mathbf{n}, \mathbf{z} \cdot \mathbf{n})_{\partial\Omega}
-	& = \epsilon^{-1} (\mathbf{u} \cdot \mathbf{n}, \mathbf{z} \cdot \mathbf{n})_{\partial\Omega}
-	&& \quad \text{for all } \mathbf{z} \in W.
+(\nabla \mathbf{w}, \nabla \mathbf{z}) + (\mathbf{z} \cdot \mathbf{n}, \lambda)_{\partial\Omega}
+	& = 0
+	&& \quad \text{for all } \mathbf{z} \in W,\\
+    (\mathbf{w} \cdot \mathbf{n}, \psi)_{\partial\Omega}
+	& = (\mathbf{u} \cdot \mathbf{n}, \psi)_{\partial\Omega}
+	&& \quad \text{for all } \mathbf{\psi} \in \Lambda
 \end{aligned}
 ```
+Here, ``Bo``, ``\beta`` and ``\deta`` are dimensionless parameters
+and ``\theta`` is the equilibration contact angle, see the reference below for details.
 
-When the droplet speed becomes constant im time, a travelling solution is reached.
+When the droplet speed, i.e. the mean velocity in x-direction,
+becomes constant in time, a travelling wave solution is reached.
 For the default parameters the result looks like this:
 
 ![](example295.png)
@@ -106,10 +104,10 @@ end
 function main(;
         order = 2,          ## polynomial FEM order
         β = 1.0,            ## friction at liquid-solid interface
-        δ = 0.0,            ## friction at contact line
+        δ = 1.0,            ## friction at contact line
         Bo = 0.5,           ## Bond number
         θ = π / 2,            ## equilibrium contact angle
-        nsteps = 1000,      ## number of ALE steps
+        nsteps = 700,      ## number of ALE steps
         τ = 0.005,          ## ALE stepsize
         nrefs = 4,          ## mesh refinement level
         Plotter = nothing, kwargs...
@@ -169,12 +167,12 @@ function main(;
     SC = SolverConfiguration(PD, FES[[1, 2]]; init = sol, maxiterations = 1, verbosity = -1, timeroutputs = :none, kwargs...)
     SCALE = SolverConfiguration(PDALE, FES[[1, 3]]; init = sol, maxiterations = 1, verbosity = -1, timeroutputs = :none, kwargs...)
 
-    ## prepare plot
+    ## prepare mean velocity integration
+    vintegrate = ItemIntegrator([id(u, 1)]; piecewise = false)
 
     ## time loop
     time = 0.0
     v0 = nothing
-    v0_old = 0
     for step in 1:nsteps
         time += τ
         @info "STEP $step, τ = $τ time = $(Float16(time))"
@@ -192,8 +190,7 @@ function main(;
         displace_mesh!(xgrid, sol[w]; magnify = τ)
 
         ## calculate droplet speed
-        v0_old = v0
-        v0 = sum(sol.entries[1:FES[1].coffset]) / FES[1].coffset
+        v0 = evaluate(vintegrate, sol)[1] / sum(xgrid[CellVolumes])
 
         @info "droplet_speed = $v0"
     end
