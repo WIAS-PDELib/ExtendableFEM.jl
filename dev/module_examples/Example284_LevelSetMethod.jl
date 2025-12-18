@@ -102,7 +102,8 @@ function main(;
         t = 0
         for it in 1:Int(floor(T / τ))
             t += τ
-            ExtendableFEM.solve(PD, FES, SC; time = t)
+            @info "t = $t"
+            ExtendableFEM.solve(PD, FES, SC; time = t, timeroutputs = :hide)
             #scalarplot!(plt[1, 2], id(ϕ), sol; levels = [0.5], flimits = [-0.05, 1.05], colorbarticks = [0, 0.25, 0.5, 0.75, 1], title = "ϕ (t = $t)")
         end
     end
