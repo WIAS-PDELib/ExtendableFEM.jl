@@ -104,19 +104,18 @@ function initial_grid(nref; radius = 1)
 end
 
 function main(;
-        order = 2,
-        g = 2,             ## gravity factor (in right direction)
-        μ = 0.7,              ## bulk viscosity
-        μ_sl = 0.1,         ## coefficient for Navier slip condition
-        μ_dyn = 0,          ## dynamic contact angle
-        γ_la = 1,           ## surface tension coefficient at liquid <> air interface
-        γ_sl = 0,           ## surface tension coefficient at liquid <> solid interface
-        nsteps = 1000,        ## ALE steps
-        τ = 0.1,         ## ALE stepsize
-
-        nrefs = 4,
+        order = 2,          ## polynomial FEM order
+        β = 1.0,            ## friction at liquid-solid interface
+        δ = 0.0,            ## friction at contact line
+        Bo = 0.5,           ## Bond number
+        θ = π / 2,            ## equilibrium contact angle
+        nsteps = 1000,      ## number of ALE steps
+        τ = 0.005,          ## ALE stepsize
+        nrefs = 4,          ## mesh refinement level
         Plotter = nothing, kwargs...
     )
+
+    @info "δ = $δ, β = $(β)"
 
     ## grid
     xgrid, triple_nodes = initial_grid(nrefs)
@@ -134,19 +133,19 @@ function main(;
     assign_unknown!(PD, p)
 
     ## BLFs a(u,v), b(u,p)
-    assign_operator!(PD, BilinearOperator([εV(u, 1.0)]; factor = 2 * μ, kwargs...))
-    assign_operator!(PD, BilinearOperatorDG(surface_tension!, [grad(u)]; entities = ON_BFACES, factor = γ_la * τ, regions = [1], kwargs...))
-    assign_operator!(PD, BilinearOperatorDG(surface_tension!, [grad(u)]; entities = ON_BFACES, factor = γ_sl * τ, regions = [2], kwargs...))
+    assign_operator!(PD, BilinearOperator([εV(u, 1.0)]; factor = 2, kwargs...))
     assign_operator!(PD, BilinearOperator([id(p)], [div(u)]; transposed_copy = 1, factor = -1, kwargs...))
-    assign_operator!(PD, BilinearOperator([id(u)]; entities = ON_BFACES, regions = [2], factor = μ_sl, kwargs...))
-    if abs(μ_dyn) > 0
-        assign_operator!(PD, CallbackOperator(ctriple_junction_kernel!(triple_nodes, μ_dyn), [u]; kwargs...))
+    assign_operator!(PD, BilinearOperator([id(u)]; entities = ON_BFACES, regions = [2], factor = β, kwargs...))
+    if abs(δ) > 0
+        assign_operator!(PD, CallbackOperator(triple_junction_kernel!(triple_nodes, δ), [u]; kwargs...))
     end
 
     ## RHS
-    assign_operator!(PD, LinearOperator(g!, [id(u)]; factor = g, kwargs...))
-    assign_operator!(PD, LinearOperatorDG(surface_tension!, [grad(u)], [grad(x)]; entities = ON_BFACES, quadorder = 2, factor = -γ_la, regions = [1], kwargs...))
-    assign_operator!(PD, LinearOperatorDG(surface_tension!, [grad(u)], [grad(x)]; entities = ON_BFACES, quadorder = 2, factor = -γ_sl, regions = [2], kwargs...))
+    assign_operator!(PD, LinearOperator(g!, [id(u)]; factor = Bo, kwargs...))
+    assign_operator!(PD, LinearOperatorDG(surface_tension!, [grad(u)], [grad(x)]; entities = ON_BFACES, quadorder = 2, factor = -1, regions = [1], kwargs...))
+    if abs(cos(θ)) > 1.0e-12
+        assign_operator!(PD, LinearOperatorDG(surface_tension!, [grad(u)], [grad(x)]; entities = ON_BFACES, quadorder = 2, factor = cos(θ), regions = [2], kwargs...))
+    end
 
     ## boundary conditions
     assign_operator!(PD, HomogeneousBoundaryData(u; regions = [2], mask = [0, 1, 1]))
@@ -177,10 +176,11 @@ function main(;
     v0 = nothing
     v0_old = 0
     for step in 1:nsteps
+        time += τ
         @info "STEP $step, τ = $τ time = $(Float16(time))"
 
-        ## compute x for computation of the tangential identity grad(x)
-        interpolate!(sol[x], (result, qpinfo) -> (result .= qpinfo.x))
+        ## redefine x for computation of the tangential identity grad(x)
+        view(sol[x]) .= view(xgrid[Coordinates]', :)
 
         ## solve Stokes problem
         solve(PD, FES[[1, 2]], SC; kwargs...)
@@ -189,17 +189,12 @@ function main(;
         solve(PDALE, FES[[1, 3]], SCALE; kwargs...)
 
         ## displace mesh
-        time += τ
         displace_mesh!(xgrid, sol[w]; magnify = τ)
 
-        ## calculate final droplet speed
+        ## calculate droplet speed
         v0_old = v0
         v0 = sum(sol.entries[1:FES[1].coffset]) / FES[1].coffset
 
-        #if step > 1
-        #    @info 1e-10/abs(v0 - v0_old)
-        #    τ = min(10, max(1e-3, 1e-4/abs(v0 - v0_old)))
-        #end
         @info "droplet_speed = $v0"
     end
 
@@ -208,7 +203,7 @@ function main(;
     view(sol[v]) .= view(sol[u])
     sol[v][1:FES[1].coffset] .-= v0
 
-    plt = plot([grid(u), id(u), id(p), streamlines(v)], sol; Plotter = Plotter, levels = 0, colorbarticks = 7, rasterpoints = 30)
+    plt = plot([grid(u), id(u), id(p), streamlines(v)], sol; Plotter = Plotter, levels = 0, colorbarticks = 7, rasterpoints = 21)
 
     return sol, plt
 end
