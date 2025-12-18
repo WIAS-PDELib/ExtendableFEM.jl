@@ -25,11 +25,11 @@ preserves the normal fluxes via a Lagrange multiplier.
 The weak formulation characterizes ``(\mathbf{u},p,\mathbf{w},\lambda) \in V \times Q \times W \times \Lambda`` by
 ```math
 \begin{aligned}
-	(2\mu \varepsilon(\mathbf{u}), \varepsilon(\mathbf{v})) - (\mathrm{div} \mathbf{v}, p)
+	(2\mu \varepsilon(\mathbf{u}), \varepsilon(\mathbf{v})) - (\mathrm{div} \mathbf{v}, p)\\
 	+ \beta (\mathbf{u}, \mathbf{v})_{\Gamma_{solid}}
 	+ \delta (\mathbf{u}, \mathbf{v})_{\Gamma_{contact}}
-	& = (\mathrm{Bo} \mathbf{e}_x, \mathbf{v}) - (\nabla_s \mathbf{x}, \nabla_s \mathbf{v})_{\Gamma_{air}}
-	\cos(\theta) (\nabla_s \mathbf{x}, \nabla_s \mathbf{v})_{\Gamma_{solid}}
+	& = \mathrm{Bo} (\mathbf{e}_x, \mathbf{v}) - (\nabla_s \mathbf{x}, \nabla_s \mathbf{v})_{\Gamma_{air}}
+	+ \cos(\theta) (\nabla_s \mathbf{x}, \nabla_s \mathbf{v})_{\Gamma_{solid}}
 	&& \quad \text{for all } \mathbf{v} \in V,\\
 (\mathrm{div} \mathbf{u}, q) & = 0 && \quad \text{for all } q \in Q,\\
 (\nabla \mathbf{w}, \nabla \mathbf{z}) + (\mathbf{z} \cdot \mathbf{n}, \lambda)_{\partial\Omega}
@@ -40,7 +40,7 @@ The weak formulation characterizes ``(\mathbf{u},p,\mathbf{w},\lambda) \in V \ti
 	&& \quad \text{for all } \mathbf{\psi} \in \Lambda
 \end{aligned}
 ```
-Here, ``Bo``, ``\beta`` and ``\deta`` are dimensionless parameters
+Here, ``Bo``, ``\beta`` and ``\delta`` are dimensionless parameters
 and ``\theta`` is the equilibration contact angle, see the reference below for details.
 
 When the droplet speed, i.e. the mean velocity in x-direction,
@@ -107,9 +107,10 @@ function main(;
         δ = 1.0,            ## friction at contact line
         Bo = 0.5,           ## Bond number
         θ = π / 2,            ## equilibrium contact angle
-        nsteps = 700,      ## number of ALE steps
+        nsteps = 800,      ## number of ALE steps
         τ = 0.005,          ## ALE stepsize
         nrefs = 4,          ## mesh refinement level
+        stationarity_target = 1.0e-2,
         Plotter = nothing, kwargs...
     )
 
@@ -172,10 +173,10 @@ function main(;
 
     ## time loop
     time = 0.0
-    v0 = nothing
+    mass = sum(xgrid[CellVolumes])
+    v0, vprev = 0.0, 0.0
     for step in 1:nsteps
         time += τ
-        @info "STEP $step, τ = $τ time = $(Float16(time))"
 
         ## redefine x for computation of the tangential identity grad(x)
         view(sol[x]) .= view(xgrid[Coordinates]', :)
@@ -190,9 +191,20 @@ function main(;
         displace_mesh!(xgrid, sol[w]; magnify = τ)
 
         ## calculate droplet speed
-        v0 = evaluate(vintegrate, sol)[1] / sum(xgrid[CellVolumes])
+        vprev = v0
+        v0 = evaluate(vintegrate, sol)[1] / mass
 
-        @info "droplet_speed = $v0"
+        @info "STEP $step -------------
+        time = $(Float16(time))
+        droplet_speed = $(Float32(v0))
+        stationarity = $(step > 1 ? Float32((vprev - v0) / τ) : String("init"))"
+
+        if step > 1 && (vprev - v0 < τ * stationarity_target)
+            @info "detected stationarity"
+            break
+        elseif step == nsteps
+            @info "maximum number of ALE steps reached"
+        end
     end
 
     ## compute comoving velocity (= u - v0)
