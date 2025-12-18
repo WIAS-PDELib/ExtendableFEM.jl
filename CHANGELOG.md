@@ -1,5 +1,12 @@
 # CHANGES
 
+## v1.8.0
+
+### Added
+  - new keyword streamlines that can be used in the plotfunction to trigger GridVisualize.streamplot, now used in Example252
+  - new Example295 on a sliding droplet
+
+
 ## v1.7.2
 
 ### Fixed

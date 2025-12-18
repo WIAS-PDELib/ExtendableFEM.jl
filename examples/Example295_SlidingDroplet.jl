@@ -46,9 +46,18 @@ The weak formulation chracterizes ``(\mathbf{u},p,\mathbf{w}) \in V \times Q \ti
 \end{aligned}
 ```
 
-The computed solution for the default parameters looks like this:
+When the droplet speed becomes constant im time, a travelling solution is reached.
+For the default parameters the result looks like this:
 
 ![](example295.png)
+
+
+!!! reference
+
+	"Resolving the microscopic hydrodynamics at the moving contact line",\
+	A. K. Giri, P. Malgaretti, D. Peschka, and M. Sega,\
+	Phys. Rev. Fluids 7 (2022),\
+	[>Journal-Link<](https://doi.org/10.1103/PhysRevFluids.7.L102001)
 =#
 
 module Example295_SlidingDroplet
@@ -80,7 +89,7 @@ end
 
 function initial_grid(nref; radius = 1)
     builder = SimplexGridBuilder(Generator = Triangulate)
-    n = 2^(nref + 4)
+    n = 2^(nref + 3)
     maxvol = 2.0^(-nref - 3)
     points = [point!(builder, radius * sin(t), radius * cos(t)) for t in range(-π / 2, π / 2, length = n)]
 
@@ -96,14 +105,14 @@ end
 
 function main(;
         order = 2,
-        g = 1,             ## gravity factor (in right direction)
-        μ = 1,              ## bulk viscosity
+        g = 2,             ## gravity factor (in right direction)
+        μ = 0.7,              ## bulk viscosity
         μ_sl = 0.1,         ## coefficient for Navier slip condition
         μ_dyn = 0,          ## dynamic contact angle
         γ_la = 1,           ## surface tension coefficient at liquid <> air interface
         γ_sl = 0,           ## surface tension coefficient at liquid <> solid interface
-        nsteps = 420,        ## ALE steps
-        τ = 1.0e-1,         ## ALE stepsize
+        nsteps = 1000,        ## ALE steps
+        τ = 0.1,         ## ALE stepsize
 
         nrefs = 4,
         Plotter = nothing, kwargs...
@@ -117,6 +126,9 @@ function main(;
     u = Unknown("u"; name = "velocity")
     p = Unknown("p"; name = "pressure")
     x = Unknown("x"; name = "x")
+    w = Unknown("w"; name = "extension")
+    q = Unknown("q"; name = "Lagrange multiplier for normal flux")
+    v = Unknown("v"; name = "comoving velocity")
 
     assign_unknown!(PD, u)
     assign_unknown!(PD, p)
@@ -140,38 +152,32 @@ function main(;
     assign_operator!(PD, HomogeneousBoundaryData(u; regions = [2], mask = [0, 1, 1]))
 
     ## ALE problem description
-    penalty_normalfux = 1.0e5
     PDALE = ProblemDescription("ALE problem")
-    w = Unknown("w"; name = "extension")
     assign_unknown!(PDALE, w)
+    assign_unknown!(PDALE, q)
     assign_operator!(PDALE, BilinearOperator([grad(w)]; kwargs...))
-    assign_operator!(PDALE, BilinearOperator([normalflux(w)]; regions = [1, 2], entities = ON_BFACES, factor = penalty_normalfux))
-    assign_operator!(PDALE, LinearOperator([normalflux(w)], [normalflux(u)]; regions = [1, 2], entities = ON_BFACES, factor = penalty_normalfux))
+    assign_operator!(PDALE, BilinearOperator([normalflux(w)], [id(q)]; transposed_copy = 1, regions = [1, 2], entities = ON_BFACES))
+    assign_operator!(PDALE, LinearOperator([id(q)], [normalflux(u)]; regions = [1, 2], entities = ON_BFACES))
     assign_operator!(PDALE, HomogeneousBoundaryData(w; regions = [2], mask = [0, 1, 1]))
 
     ## prepare FESpace and solution vector
-    FES = [FESpace{H1Pk{2, 2, order}}(xgrid), FESpace{H1Pk{1, 2, order - 1}}(xgrid)]
-    sol = FEVector(FES; tags = [u, p])
+    FES = [FESpace{H1Pk{2, 2, order}}(xgrid), FESpace{H1Pk{1, 2, order - 1}}(xgrid), FESpace{H1Pk{1, 1, order - 1}, ON_BFACES}(xgrid), FESpace{H1P1{2}}(xgrid)]
+    sol = FEVector([FES[1], FES[2]]; tags = [u, p])
     append!(sol, FES[1]; tag = w)
-    append!(sol, FES[1]; tag = x)
+    append!(sol, FES[3]; tag = q)
+    append!(sol, FES[4]; tag = x)
 
     SC = SolverConfiguration(PD, FES[[1, 2]]; init = sol, maxiterations = 1, verbosity = -1, timeroutputs = :none, kwargs...)
-    SCALE = SolverConfiguration(PDALE, FES[[1]]; init = sol, maxiterations = 1, verbosity = -1, timeroutputs = :none, kwargs...)
+    SCALE = SolverConfiguration(PDALE, FES[[1, 3]]; init = sol, maxiterations = 1, verbosity = -1, timeroutputs = :none, kwargs...)
 
     ## prepare plot
-    time = 0.0
-    nodevals = nodevalues_view(sol[u])
-    PE = PointEvaluator([id(u)], sol)
-    plt = GridVisualizer(; Plotter = Plotter, layout = (3, 3), clear = true, resolution = (1600, 1200))
-    gridplot!(plt[1, 1], xgrid; linewidth = 1, xlabel = "", ylabel = "", colorbar = false, title = "initial grid")
-    dpt = (nsteps * τ) / 7
-    times_to_plot = (1:7) * dpt
 
     ## time loop
-    nextplot = 1
+    time = 0.0
     v0 = nothing
+    v0_old = 0
     for step in 1:nsteps
-        @info "STEP $step, time = $(Float16(time))"
+        @info "STEP $step, τ = $τ time = $(Float16(time))"
 
         ## compute x for computation of the tangential identity grad(x)
         interpolate!(sol[x], (result, qpinfo) -> (result .= qpinfo.x))
@@ -180,29 +186,29 @@ function main(;
         solve(PD, FES[[1, 2]], SC; kwargs...)
 
         ## solve ALE problem
-        solve(PDALE, FES[1], SCALE; kwargs...)
+        solve(PDALE, FES[[1, 3]], SCALE; kwargs...)
 
         ## displace mesh
         time += τ
         displace_mesh!(xgrid, sol[w]; magnify = τ)
 
         ## calculate final droplet speed
+        v0_old = v0
         v0 = sum(sol.entries[1:FES[1].coffset]) / FES[1].coffset
-        @info "droplet_speed = $v0"
 
-        ## plot
-        if time >= times_to_plot[nextplot] - 1.0e-12
-            scalarplot!(plt[1 + Int(floor((nextplot) / 3)), 1 + (nextplot) % 3], xgrid, sqrt.(nodevals[1] .^ 2 .+ nodevals[2] .^ 2); levels = 7, title = "u (t = $(Float32(time)))")
-            vectorplot!(plt[1 + Int(floor((nextplot) / 3)), 1 + (nextplot) % 3], xgrid, eval_func_bary(PE); vscale = 0.8, levels = 7, clear = false, title = "u (t = $(Float32(time)))")
-            nextplot += 1
-        end
+        #if step > 1
+        #    @info 1e-10/abs(v0 - v0_old)
+        #    τ = min(10, max(1e-3, 1e-4/abs(v0 - v0_old)))
+        #end
+        @info "droplet_speed = $v0"
     end
 
-    sol.entries[1:FES[1].coffset] .= sol.entries[1:FES[1].coffset] .- v0
+    ## compute comoving velocity (= u - v0)
+    append!(sol, FES[1]; tag = v)
+    view(sol[v]) .= view(sol[u])
+    sol[v][1:FES[1].coffset] .-= v0
 
-    scalarplot!(plt[3, 3], xgrid, sqrt.(nodevals[1] .^ 2 .+ nodevals[2] .^ 2); levels = 7, title = "u - ̄u (t = $(Float32(time)))")
-    streamplot!(plt[3, 3], xgrid, eval_func_bary(PE); vscale = 0.8, levels = 7, clear = false, title = "u - ̄u (t = $(Float32(time)))")
-
+    plt = plot([grid(u), id(u), id(p), streamlines(v)], sol; Plotter = Plotter, levels = 0, colorbarticks = 7, rasterpoints = 30)
 
     return sol, plt
 end
