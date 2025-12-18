@@ -118,6 +118,7 @@ function main(; maxdofs = 4000, μ = 1, order = 2, nlevels = 16, θ = 0.5, Plott
     ResultsH1 = zeros(Float64, 0)
     Resultsη = zeros(Float64, 0)
     sol = nothing
+    η4cell = nothing
     level = 0
     while (true)
         level += 1
@@ -129,7 +130,7 @@ function main(; maxdofs = 4000, μ = 1, order = 2, nlevels = 16, θ = 0.5, Plott
         println("\n  SOLVE LEVEL $level")
         println("    ndofs = $(NDofs[end])")
 
-        ## evaluate eqilibration error estimator and append it to sol vector (for plotting etc.)
+        ## evaluate equilibration error estimator and append it to sol vector (for plotting etc.)
         local_equilibration_estimator!(sol, FETypeDual)
         η4cell = evaluate(EQIntegrator, sol)
         push!(Resultsη, sqrt(sum(view(η4cell, 1, :))))
@@ -168,7 +169,7 @@ function main(; maxdofs = 4000, μ = 1, order = 2, nlevels = 16, θ = 0.5, Plott
     ## print/plot convergence history
     print_convergencehistory(NDofs, [ResultsL2 ResultsH1 Resultsη]; X_to_h = X -> X .^ (-1 / 2), ylabels = ["|| u - u_h ||", "|| ∇(u - u_h) ||", "η"])
 
-    return sol, plt
+    return [sol, η4cell], plt
 end
 
 ## this function computes the local equilibrated fluxes
@@ -363,8 +364,9 @@ end
 
 generateplots = ExtendableFEM.default_generateplots(Example211_LshapeAdaptiveEQPoissonProblem, "example211.png") #hide
 function runtests() #hide
-    sol, plt = main(; maxdofs = 1000, order = 2) #hide
-    @test length(sol.entries) == 8641 #hide
+    results, plt = main(; maxdofs = 21, order = 2) #hide
+    @test length(results[1].entries) == 96 #hide
+    @test results[2] ≈ [0.0005948849237161765 0.02155094069716629 0.0012248396092485094 0.01840063545660059 0.02155094068517524 0.0005948849232996949]
     return nothing #hide
 end #hide
 end

@@ -62,6 +62,14 @@ function plot!(
             gridplot!(p[row, col], sol[op[1]].FES.xgrid; linewidth = linewidth, kwargs...)
         elseif op[2] == "dofgrid"
             gridplot!(p[row, col], sol[op[1]].FES.dofgrid; linewidth = linewidth, kwargs...)
+        elseif op[2] == "streamlines"
+            if typeof(op[1]) <: Unknown
+                title = String(op[1].identifier)
+            else
+                title = "$(sol[op[1]].name)"
+            end
+            PE = PointEvaluator([apply(op[1], Identity)], sol)
+            streamplot!(p[row, col], sol[op[1]].FES.dofgrid, eval_func_bary(PE); rasterpoints = rasterpoints, title = title * " (streamlines)" * title_add, kwargs...)
         else
             ncomponents = get_ncomponents(sol[op[1]])
             edim = size(sol[op[1]].FES.xgrid[Coordinates], 1)
@@ -138,7 +146,7 @@ function plot(ops, sol; add = 0, Plotter = nothing, ncols = min(2, length(ops) +
     for op in ops
         ncomponents = get_ncomponents(sol[op[1]])
         edim = size(sol[op[1]].FES.xgrid[Coordinates], 1)
-        if !(op[2] in ["grid", "dofgrid"])
+        if !(op[2] in ["grid", "dofgrid", "streamlines"])
             resultdim = Length4Operator(op[2], edim, ncomponents)
             if resultdim > 1 && do_abs == false
                 nplots += resultdim - 1
