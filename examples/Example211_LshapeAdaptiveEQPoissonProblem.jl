@@ -130,10 +130,9 @@ function main(; maxdofs = 4000, μ = 1, order = 2, nlevels = 16, θ = 0.5, Plott
         println("\n  SOLVE LEVEL $level")
         println("    ndofs = $(NDofs[end])")
 
-        ## evaluate eqilibration error estimator and append it to sol vector (for plotting etc.)
+        ## evaluate equilibration error estimator and append it to sol vector (for plotting etc.)
         local_equilibration_estimator!(sol, FETypeDual)
         η4cell = evaluate(EQIntegrator, sol)
-        @info η4cell
         push!(Resultsη, sqrt(sum(view(η4cell, 1, :))))
 
         ## calculate L2 error, H1 error, estimator, dual L2 error and write to results
@@ -367,7 +366,7 @@ generateplots = ExtendableFEM.default_generateplots(Example211_LshapeAdaptiveEQP
 function runtests() #hide
     results, plt = main(; maxdofs = 21, order = 2) #hide
     @test length(results[1].entries) == 96 #hide
-    @test all(results[2] .≈ [0.0005948849237161765 0.02155094069716629 0.0012248396092485094 0.01840063545660059 0.02155094068517524 0.0005948849232996949])
+    @test results[2] ≈ [0.0005948849237161765 0.02155094069716629 0.0012248396092485094 0.01840063545660059 0.02155094068517524 0.0005948849232996949]
     return nothing #hide
 end #hide
 end
