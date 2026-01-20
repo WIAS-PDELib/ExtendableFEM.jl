@@ -1,5 +1,11 @@
 # CHANGES
 
+## v1.9.0
+
+### Added
+  - It is now possible to create a `CoupledDofsRestriction(unknown, source_region, target_region)` only from abstract data without knowledge of the grid or the FES.
+    It is assumed that the coupling is given between the source and target region and that these regions are parallel hyperplanes.
+
 ## v1.8.0
 
 ### Added
