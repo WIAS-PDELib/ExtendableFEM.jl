@@ -334,7 +334,7 @@ function solve_linear_system!(A, b, sol, soltemp, residual, linsolve, unknowns, 
                 u_block = BlockVector(zeros(Tv, total_size), block_sizes)
                 u_block[Block(1)] = u_unrestricted
 
-                for i in eachindex(PD.restrictions)
+                for i in eachindex(restriction_matrices)
                     if linsolve_needs_matrix
                         A_block[Block(1, i + 1)] = restriction_matrices[i]
                         A_block[Block(i + 1, 1)] = transpose(restriction_matrices[i])

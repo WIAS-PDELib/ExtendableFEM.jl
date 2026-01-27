@@ -52,6 +52,7 @@ function make_all(; with_examples::Bool = true, modules = :all, run_examples::Bo
                 "Example301_PoissonProblem.jl",
                 "Example310_DivFreeBasis.jl",
                 "Example312_PeriodicBoundary3D.jl",
+                "Example313_PeriodicPoisson.jl",
                 "Example330_HyperElasticity.jl",
             ]
         end

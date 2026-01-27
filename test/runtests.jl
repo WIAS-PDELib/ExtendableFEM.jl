@@ -57,6 +57,7 @@ function run_examples()
         "Example301_PoissonProblem.jl",
         "Example310_DivFreeBasis.jl",
         "Example312_PeriodicBoundary3D.jl",
+        "Example313_PeriodicPoisson",
     ]
 
     return @testset "module examples" begin
