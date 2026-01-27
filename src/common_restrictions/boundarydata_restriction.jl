@@ -34,6 +34,14 @@ function assemble!(R::BoundaryDataRestriction, sol, SC; kwargs...)
 
     ## assemble boundary operator (-> computes fixed dofs and vals)
     assemble!(nothing, SC.b, sol, R.boundary_operator, SC; kwargs...)
+    apply_penalties!(
+        nothing, SC.b, sol, R.boundary_operator, SC;
+        assemble_matrix = false,
+        assemble_rhs = false,
+        assemble_sol = true, # only modify the solution with boundary data
+        kwargs...
+    )
+
     fixeddofs = fixed_dofs(R.boundary_operator)
     fixedvals = fixed_vals(R.boundary_operator)
     nvals = length(fixeddofs)
