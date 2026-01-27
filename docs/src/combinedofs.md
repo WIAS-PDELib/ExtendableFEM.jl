@@ -19,7 +19,7 @@ get_periodic_coupling_matrix
 
 ## Example: Periodic Boundary Coupling (extract from Example212)
 
-Suppose you want to enforce periodicity between the left and right boundaries of a 2D domain. You can use `get_periodic_coupling_matrix` to find the corresponding DOFs, and then use `CombineDofs` to couple them in the system. The following code is adapted from [Example212_PeriodicBoundary2D.jl](https://github.com/WIAS-PDELib/ExtendableFEM.jl/blob/main/examples/Example212_PeriodicBoundary2D.jl):
+Suppose you want to enforce periodicity between the left and right boundaries of a 2D domain. You can use `get_periodic_coupling_matrix` to find the corresponding DOFs, and then use `CombineDofs` to couple them in the system. The following code is adapted from [Example212_PeriodicElasticity2D.jl](https://github.com/WIAS-PDELib/ExtendableFEM.jl/blob/main/examples/Example212_PeriodicElasticity2D.jl):
 
 ```julia
 # Define a function to map points on the left to the right boundary

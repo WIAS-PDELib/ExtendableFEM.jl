@@ -11,7 +11,7 @@ with periodic coupling along the x-axis.
 ![](example312.png)
 =#
 
-module Example312_PeriodicBoundary3D
+module Example312_PeriodicElasticity3D
 
 using ExtendableFEM
 using ExtendableGrids
@@ -194,7 +194,7 @@ function main(;
 
 end
 
-generateplots = ExtendableFEM.default_generateplots(Example312_PeriodicBoundary3D, "example312.png") #hide
+generateplots = ExtendableFEM.default_generateplots(Example312_PeriodicElasticity3D, "example312.png") #hide
 function runtests()                                                                                  #hide
     sol1, _ = main(periodic_coupling = :operator, threads = 1)                                       #hide
     @test abs(maximum(view(sol1[1])) - 1.8004602502175202) < 2.0e-3                                  #hide

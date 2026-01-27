@@ -11,7 +11,7 @@ with periodic boundary coupling along the x-axis.
 ![](example212.png)
 =#
 
-module Example212_PeriodicBoundary2D
+module Example212_PeriodicElasticity2D
 
 using ExtendableFEM
 using ExtendableGrids
@@ -176,7 +176,7 @@ function main(;
     return sol, plt
 end
 
-generateplots = ExtendableFEM.default_generateplots(Example212_PeriodicBoundary2D, "example212.png") #hide
+generateplots = ExtendableFEM.default_generateplots(Example212_PeriodicElasticity2D, "example212.png") #hide
 function runtests()                                                                                  #hide
     sol1, _ = main(use_LM_restrictions = false, threads = 1)                                         #hide
     @test abs(maximum(view(sol1[1])) - 1.3447465095618172) < 1.0e-3                                  #hide

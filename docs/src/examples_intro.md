@@ -11,19 +11,19 @@ The examples in this package are designed to be practical, reproducible, and edu
 
 ## Running the Examples
 
-To run an example (e.g., `Example212_PeriodicBoundary2D`):
+To run an example (e.g., `Example212_PeriodicElasticity2D`):
 
 1. Download the example file (see the source code link at the top of the example page).
 2. Ensure all required packages are installed in your Julia environment.
 3. In the Julia REPL:
 
     ```julia
-    julia> include("Example212_PeriodicBoundary2D.jl")
-    julia> Example212_PeriodicBoundary2D.main()
+    julia> include("Example212_PeriodicElasticity2D.jl")
+    julia> Example212_PeriodicElasticity2D.main()
     ```
 
 4. Some examples offer visual output via the optional argument `Plotter = PyPlot` or `Plotter = GLMakie` (provided the package is installed and loaded):
 
     ```julia
-    julia> Example212_PeriodicBoundary2D.main(Plotter = PyPlot)
+    julia> Example212_PeriodicElasticity2D.main(Plotter = PyPlot)
     ```
