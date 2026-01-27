@@ -309,7 +309,7 @@ function solve_linear_system!(A, b, sol, soltemp, residual, linsolve, unknowns, 
 
                         # compress the  column space
                         qr_rank = rank(qr_result)
-                        @assert norm(combined_restriction_rhs[(qr_rank + 1):end]) ≤ 1.0e-12 "the rhs of the restriction is not in the image"
+                        @assert norm(combined_restriction_rhs[(qr_rank + 1):end]) ≤ 1.0e-12 * norm(combined_restriction_rhs) "the rhs of the restriction is not in the image"
 
                         combined_restriction_matrix = combined_restriction_matrix[:, 1:qr_rank]
                         combined_restriction_rhs = combined_restriction_rhs[1:qr_rank]
