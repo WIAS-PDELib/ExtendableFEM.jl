@@ -72,7 +72,7 @@ function assemble!(R::LinearFunctionalRestriction{T, Tv}, sol, SC; kwargs...) wh
 
     assemble!(nothing, b, sol, R.linear_operator, SC; assemble_rhs = true, kwargs...)
 
-    R.parameters[:matrix] = reshape(b.entries, n, 1)
+    R.parameters[:matrix] = sparse(reshape(b.entries, n, 1))
     R.parameters[:rhs] = Tv[R.value]
     R.parameters[:fixed_dofs] = []
 
