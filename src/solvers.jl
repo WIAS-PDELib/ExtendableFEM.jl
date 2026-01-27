@@ -271,6 +271,7 @@ function solve_linear_system!(A, b, sol, soltemp, residual, linsolve, unknowns, 
 
             # block sizes for the block matrix
             block_sizes = [length(b_unrestricted), [ length(b) for b in restriction_rhss ]...]
+            total_size = sum(block_sizes)
 
             # total number of additional LM dofs
             nLMs = @views sum(block_sizes[2:end])
@@ -282,11 +283,46 @@ function solve_linear_system!(A, b, sol, soltemp, residual, linsolve, unknowns, 
                     rhs .-= B'sol_freedofs
                 end
 
-                total_size = sum(block_sizes)
                 Tv = eltype(b_unrestricted)
 
                 ## create block matrix
                 if linsolve_needs_matrix
+                    if SC.parameters[:compress_restrictions]
+                        # combine all restriction matrices into one:
+                        combined_transposed_restriction_matrix = vcat(restriction_matrices'...)
+                        combined_restriction_rhs = vcat(restriction_rhss...)
+
+                        # compute rank revealing QR decomposition (of the transposed matrix)
+                        qr_result = qr(combined_transposed_restriction_matrix)
+
+                        # extract components (from docs: Q*R = combined_transposed_restriction_matrix[prow, pcol])
+                        (; Q, R, prow, pcol) = qr_result
+
+                        # we need the inverse column permutation
+                        ipcol = invperm(pcol)
+
+                        # the new combined restriction block (add another transpose)
+                        combined_restriction_matrix = R[:, ipcol]'
+
+                        # the new combined restriction rhs
+                        combined_restriction_rhs = Q'combined_restriction_rhs[prow]
+
+                        # compress the  column space
+                        qr_rank = rank(qr_result)
+                        @assert norm(combined_restriction_rhs[(qr_rank + 1):end]) ≤ 1.0e-12 "the rhs of the restriction is not in the image"
+
+                        combined_restriction_matrix = combined_restriction_matrix[:, 1:qr_rank]
+                        combined_restriction_rhs = combined_restriction_rhs[1:qr_rank]
+
+                        # replace by single entries
+                        restriction_matrices = [combined_restriction_matrix]
+                        restriction_rhss = [combined_restriction_rhs]
+
+                        # update sizes
+                        block_sizes = [length(b_unrestricted), length(combined_restriction_rhs)]
+                        total_size = sum(block_sizes)
+                    end
+
                     A_block = BlockMatrix(spzeros(Tv, total_size, total_size), block_sizes, block_sizes)
                     A_block[Block(1, 1)] = A_unrestricted
                 end
