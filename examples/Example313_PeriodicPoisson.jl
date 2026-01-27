@@ -3,10 +3,14 @@
 # 312 : Periodic Poisson 3D
 ([source code](@__SOURCE_URL__))
 
-This is a simple demonstration and validation of the generic periodic boundary operator.
+This is a simple demonstration and validation of the new restriction based periodic boundary operator.
 
-We construct an unstructured periodic 3D grid and solve a simple linear elastic problem
-with periodic coupling along the x-axis.
+An unstructured cube grid is coupled along two axes periodically and restricted to non-zero Dirichlet values at the other to faces.
+
+The result is a linear function and the error is measured directly.
+
+Note that the result is independent of the periodic coupling! Therefore the correctness of the
+new QR based column compression is covered by this example.
 
 ![](example313.png)
 =#
