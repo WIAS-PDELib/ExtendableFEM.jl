@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Example252_NSEPlanarLatticeFlow · ExtendableFEM.jl</title><meta name="title" content="Example252_NSEPlanarLatticeFlow · ExtendableFEM.jl"/><meta property="og:title" content="Example252_NSEPlanarLatticeFlow · ExtendableFEM.jl"/><meta property="twitter:title" content="Example252_NSEPlanarLatticeFlow · ExtendableFEM.jl"/><meta name="description" content="Documentation for ExtendableFEM.jl."/><meta property="og:description" content="Documentation for ExtendableFEM.jl."/><meta property="twitter:description" content="Documentation for ExtendableFEM.jl."/><script data-outdated-warner src="../../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../search_index.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../../">ExtendableFEM.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../../">Home</a></li><li><a class="tocitem" href="../../package_index/">Index</a></li><li><span class="tocitem">Problem Description</span><ul><li><a class="tocitem" href="../../problemdescription/">Problem Description</a></li><li><a class="tocitem" href="../../tensordescription/">Tensor Description</a></li><li><a class="tocitem" href="../../nonlinearoperator/">NonlinearOperator</a></li><li><a class="tocitem" href="../../bilinearoperator/">BilinearOperator</a></li><li><a class="tocitem" href="../../linearoperator/">LinearOperator</a></li><li><a class="tocitem" href="../../restrictions/">Restrictions</a></li><li><a class="tocitem" href="../../interpolateboundarydata/">InterpolateBoundaryData</a></li><li><a class="tocitem" href="../../homogeneousdata/">HomogeneousData</a></li><li><a class="tocitem" href="../../fixdofs/">FixDofs</a></li><li><a class="tocitem" href="../../combinedofs/">CombineDofs</a></li><li><a class="tocitem" href="../../callbackoperator/">CallbackOperator</a></li><li><a class="tocitem" href="../../allindex/">Index</a></li></ul></li><li><span class="tocitem">Solving</span><ul><li><a class="tocitem" href="../../pdesolvers/">Stationary Solvers</a></li><li><a class="tocitem" href="../../pdesolvers_dt/">Time-dependent Solvers</a></li><li><a class="tocitem" href="../../parallel_assembly/">Parallel Assembly</a></li></ul></li><li><span class="tocitem">Postprocessing</span><ul><li><a class="tocitem" href="../../postprocessing/">Postprocessing and Visualization</a></li><li><a class="tocitem" href="../../itemintegrators/">Item Integrators</a></li><li><a class="tocitem" href="../../faceinterpolator/">Face Interpolator</a></li></ul></li><li><span class="tocitem">Examples</span><ul><li><a class="tocitem" href="../Example103_BurgersEquation/">Example103_BurgersEquation</a></li><li><a class="tocitem" href="../Example105_NonlinearPoissonEquation/">Example105_NonlinearPoissonEquation</a></li><li><a class="tocitem" href="../Example106_NonlinearDiffusion/">Example106_NonlinearDiffusion</a></li><li><a class="tocitem" href="../Example108_RobinBoundaryCondition/">Example108_RobinBoundaryCondition</a></li><li><a class="tocitem" href="../Example201_PoissonProblem/">Example201_PoissonProblem</a></li><li><a class="tocitem" href="../Example202_MixedPoissonProblem/">Example202_MixedPoissonProblem</a></li><li><a class="tocitem" href="../Example203_PoissonProblemDG/">Example203_PoissonProblemDG</a></li><li><a class="tocitem" href="../Example204_LaplaceEVProblem/">Example204_LaplaceEVProblem</a></li><li><a class="tocitem" href="../Example205_HeatEquation/">Example205_HeatEquation</a></li><li><a class="tocitem" href="../Example206_CoupledSubGridProblems/">Example206_CoupledSubGridProblems</a></li><li><a class="tocitem" href="../Example207_AdvectionUpwindDG/">Example207_AdvectionUpwindDG</a></li><li><a class="tocitem" href="../Example210_LshapeAdaptivePoissonProblem/">Example210_LshapeAdaptivePoissonProblem</a></li><li><a class="tocitem" href="../Example211_LshapeAdaptiveEQPoissonProblem/">Example211_LshapeAdaptiveEQPoissonProblem</a></li><li><a class="tocitem" href="../Example212_PeriodicElasticity2D/">Example212_PeriodicElasticity2D</a></li><li><a class="tocitem" href="../Example220_ReactionConvectionDiffusion/">Example220_ReactionConvectionDiffusion</a></li><li><a class="tocitem" href="../Example225_ObstacleProblem/">Example225_ObstacleProblem</a></li><li><a class="tocitem" href="../Example226_Thermoforming/">Example226_Thermoforming</a></li><li><a class="tocitem" href="../Example227_ObstacleProblemLVPP/">Example227_ObstacleProblemLVPP</a></li><li><a class="tocitem" href="../Example230_NonlinearElasticity/">Example230_NonlinearElasticity</a></li><li><a class="tocitem" href="../Example235_StokesIteratedPenalty/">Example235_StokesIteratedPenalty</a></li><li><a class="tocitem" href="../Example240_SVRTEnrichment/">Example240_SVRTEnrichment</a></li><li><a class="tocitem" href="../Example245_NSEFlowAroundCylinder/">Example245_NSEFlowAroundCylinder</a></li><li><a class="tocitem" href="../Example250_NSELidDrivenCavity/">Example250_NSELidDrivenCavity</a></li><li class="is-active"><a class="tocitem" href>Example252_NSEPlanarLatticeFlow</a></li><li><a class="tocitem" href="../Example260_AxisymmetricNavierStokesProblem/">Example260_AxisymmetricNavierStokesProblem</a></li><li><a class="tocitem" href="../Example264_StokesDarcy/">Example264_StokesDarcy</a></li><li><a class="tocitem" href="../Example265_FlowTransport/">Example265_FlowTransport</a></li><li><a class="tocitem" href="../Example270_NaturalConvectionProblem/">Example270_NaturalConvectionProblem</a></li><li><a class="tocitem" href="../Example275_OptimalControlStokes/">Example275_OptimalControlStokes</a></li><li><a class="tocitem" href="../Example280_CompressibleStokes/">Example280_CompressibleStokes</a></li><li><a class="tocitem" href="../Example282_IncompressibleMHD/">Example282_IncompressibleMHD</a></li><li><a class="tocitem" href="../Example284_LevelSetMethod/">Example284_LevelSetMethod</a></li><li><a class="tocitem" href="../Example285_CahnHilliard/">Example285_CahnHilliard</a></li><li><a class="tocitem" href="../Example290_PoroElasticity/">Example290_PoroElasticity</a></li><li><a class="tocitem" href="../Example295_SlidingDroplet/">Example295_SlidingDroplet</a></li><li><a class="tocitem" href="../Example301_PoissonProblem/">Example301_PoissonProblem</a></li><li><a class="tocitem" href="../Example310_DivFreeBasis/">Example310_DivFreeBasis</a></li><li><a class="tocitem" href="../Example312_PeriodicElasticity3D/">Example312_PeriodicElasticity3D</a></li><li><a class="tocitem" href="../Example313_PeriodicPoisson/">Example313_PeriodicPoisson</a></li><li><a class="tocitem" href="../Example330_HyperElasticity/">Example330_HyperElasticity</a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Examples</a></li><li class="is-active"><a href>Example252_NSEPlanarLatticeFlow</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Example252_NSEPlanarLatticeFlow</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/WIAS-PDELib/ExtendableFEM.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/WIAS-PDELib/ExtendableFEM.jl/blob/master/docs/src/module_examples/Example252_NSEPlanarLatticeFlow.md" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="252-:-Navier–Stokes-Planar-Lattice-Flow"><a class="docs-heading-anchor" href="#252-:-Navier–Stokes-Planar-Lattice-Flow">252 : Navier–Stokes Planar Lattice Flow</a><a id="252-:-Navier–Stokes-Planar-Lattice-Flow-1"></a><a class="docs-heading-anchor-permalink" href="#252-:-Navier–Stokes-Planar-Lattice-Flow" title="Permalink"></a></h1><p>(<a href="../Example252_NSEPlanarLatticeFlow.jl">source code</a>)</p><p>This example computes an approximation to the planar lattice flow test problem of the Navier-Stokes equations</p><p class="math-container">\[\begin{aligned}
+- \nu \Delta \mathbf{u} + (\mathbf{u} \cdot \nabla) \mathbf{u} + \nabla p &amp; = \mathbf{f}\\
+\mathrm{div}(\mathbf{u}) &amp; = 0
+\end{aligned}\]</p><p>with an exterior force <span>$\mathbf{f}$</span> and some viscosity parameter <span>$\nu$</span> and Dirichlet boundary data for <span>$\mathbf{u}$</span>.</p><p>Here the exact data for the planar lattice flow</p><p class="math-container">\[\begin{aligned}
+\mathbf{u}(x,y,t) &amp; := \exp(-8 \pi^2 \nu t) \begin{pmatrix} \sin(2 \pi x) \sin(2 \pi y) \\ \cos(2 \pi x) \cos(2 \pi y) \end{pmatrix}\\
+p(x,y,t) &amp; := \exp(-8 \pi^2 \nu t) ( \cos(4 \pi x) - \cos(4 \pi y)) / 4
+\end{aligned}\]</p><p>is prescribed at fixed time <span>$t = 0$</span> with <span>$\mathbf{f} = - \nu \Delta \mathbf{u}$</span>.</p><p>In this example the Navier-Stokes equations are solved with a pressure-robust variant of the Bernardi–Raugel finite element method and the nonlinear convection term (that involves reconstruction operators) is automatically differentiated for a Newton iteration.</p><p>The computed solution for the default parameters looks like this:</p><p><img src="../example252.png" alt/></p><pre><code class="language-julia hljs">module Example252_NSEPlanarLatticeFlow
+
+using ExtendableFEM
+using ExtendableGrids
+using LinearAlgebra
+
+# exact velocity (and Dirichlet data)
+function u!(result, qpinfo)
+    x = qpinfo.x
+    result[1] = sin(2 * pi * x[1]) * sin(2 * pi * x[2])
+    result[2] = cos(2 * pi * x[1]) * cos(2 * pi * x[2])
+    return nothing
+end
+
+# right-hand side f := -μ Δu + (u⋅∇)u + ∇p
+function f!(μ)
+    α = [0, 0]
+    return function closure(result, qpinfo)
+        x = qpinfo.x
+        result[1] = (μ * 8 * pi^2 + α[1]) * sin(2 * pi * x[1]) * sin(2 * pi * x[2])
+        result[2] = (μ * 8 * pi^2 + α[2]) * cos(2 * pi * x[1]) * cos(2 * pi * x[2])
+        return nothing
+    end
+end
+
+# exact pressure
+function p!(result, qpinfo)
+    x = qpinfo.x
+    result[1] = (cos(4 * pi * x[1]) - cos(4 * pi * x[2])) / 4
+    return nothing
+end
+
+function kernel_nonlinear!(result, u_ops, qpinfo)
+    u, ∇u, p = view(u_ops, 1:2), view(u_ops, 3:6), view(u_ops, 7)
+    μ = qpinfo.params[1]
+    result[1] = dot(u, view(∇u, 1:2))
+    result[2] = dot(u, view(∇u, 3:4))
+    result[3] = μ * ∇u[1] - p[1]
+    result[4] = μ * ∇u[2]
+    result[5] = μ * ∇u[3]
+    result[6] = μ * ∇u[4] - p[1]
+    result[7] = -(∇u[1] + ∇u[4])
+    return nothing
+end
+
+function exact_error!(result, u, qpinfo)
+    u!(result, qpinfo)
+    p!(view(result, 3), qpinfo)
+    result .-= u
+    return result .= result .^ 2
+end
+
+function main(;
+        μ = 0.001,
+        nrefs = 5,
+        reconstruct = true,
+        Plotter = nothing,
+        use_LM_restrictions = true,
+        kwargs...
+    )
+
+    # problem description
+    PD = ProblemDescription()
+    u = Unknown(&quot;u&quot;; name = &quot;velocity&quot;)
+    p = Unknown(&quot;p&quot;; name = &quot;pressure&quot;)
+    id_u = reconstruct ? apply(u, Reconstruct{HDIVBDM1{2}, Identity}) : id(u)
+
+    assign_unknown!(PD, u)
+    assign_unknown!(PD, p)
+    assign_operator!(PD, NonlinearOperator(kernel_nonlinear!, [id_u, grad(u), id(p)]; params = [μ], kwargs...))
+    assign_operator!(PD, LinearOperator(f!(μ), [id_u]; kwargs...))
+    assign_operator!(PD, InterpolateBoundaryData(u, u!; regions = 1:4))
+    if use_LM_restrictions
+        assign_restriction!(PD, ZeroMeanValueRestriction(p))
+    else
+        assign_operator!(PD, FixDofs(p; dofs = [1]))
+    end
+
+    # grid
+    xgrid = uniform_refine(grid_unitsquare(Triangle2D), nrefs)
+
+    # prepare FESpace
+    FES = [FESpace{H1BR{2}}(xgrid), FESpace{L2P0{1}}(xgrid)]
+
+    # solve
+    sol = solve(PD, FES; kwargs...)
+
+    pintegrate = ItemIntegrator([id(p)])
+    pmean = sum(evaluate(pintegrate, sol)) / sum(xgrid[CellVolumes])
+    if use_LM_restrictions
+        @show pmean
+    else
+        # move integral mean of pressure
+        view(sol[p]) .-= pmean
+    end
+
+    # error calculation
+    ErrorIntegratorExact = ItemIntegrator(exact_error!, [id(u), id(p)]; quadorder = 4, params = [μ], kwargs...)
+    error = evaluate(ErrorIntegratorExact, sol)
+    L2errorU = sqrt(sum(view(error, 1, :)) + sum(view(error, 2, :)))
+    L2errorP = sqrt(sum(view(error, 3, :)))
+    @info &quot;L2error(u) = $L2errorU&quot;
+    @info &quot;L2error(p) = $L2errorP&quot;
+
+    # plot
+    plt = plot([id(u), id(p)], sol; Plotter = Plotter)
+
+    return L2errorU, plt
+end
+
+end # module</code></pre><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../Example250_NSELidDrivenCavity/">« Example250_NSELidDrivenCavity</a><a class="docs-footer-nextpage" href="../Example260_AxisymmetricNavierStokesProblem/">Example260_AxisymmetricNavierStokesProblem »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.16.1 on <span class="colophon-date" title="Wednesday 28 January 2026 15:11">Wednesday 28 January 2026</span>. Using Julia version 1.12.4.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
