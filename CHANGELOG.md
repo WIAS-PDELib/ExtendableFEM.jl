@@ -1,5 +1,13 @@
 # CHANGES
 
+## v1.9.0
+
+### Added
+  - It is now possible to create a `CoupledDofsRestriction(unknown, source_region, target_region)` only from abstract data without knowledge of the grid or the FES.
+    It is assumed that the coupling is given between the source and target region and that these regions are parallel hyperplanes.
+  - New `SolverConfig` key word argument `:compress_restrictions` (default = `true`) to call a QR decomposition on all restriction matrices to eliminate linearly dependent columns.
+  - New example `Example313_PeriodicPoisson` to cover corner cases of multiple restrictions at once.
+
 ## v1.8.0
 
 ### Added

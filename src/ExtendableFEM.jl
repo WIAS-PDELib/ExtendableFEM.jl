@@ -40,7 +40,7 @@ using ExtendableFEMBase: ExtendableFEMBase, AbstractFiniteElement,
     norms, unicode_gridplot, unicode_scalarplot,
     update_basis!, SymmetricGradient
 using ExtendableGrids: ExtendableGrids, AT_NODES, AbstractElementGeometry,
-    Adjacency, AssemblyType, BEdgeNodes, BFaceFaces,
+    Adjacency, AssemblyType, BEdgeNodes, BFaceFaces, BFaceNormals,
     BFaceNodes, BFaceRegions, CellAssemblyGroups,
     CellFaceOrientations, CellFaces, CellGeometries,
     CellNodes, CellRegions, Coordinates, EdgeNodes,

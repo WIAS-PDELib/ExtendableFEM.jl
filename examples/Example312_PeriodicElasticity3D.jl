@@ -11,7 +11,7 @@ with periodic coupling along the x-axis.
 ![](example312.png)
 =#
 
-module Example312_PeriodicBoundary3D
+module Example312_PeriodicElasticity3D
 
 using ExtendableFEM
 using ExtendableGrids
@@ -129,8 +129,7 @@ end
 
 function main(;
         order = 1,
-        periodic = true,
-        use_LM_restrictions = true,
+        periodic_coupling = :none, # :restriction, :operator, :high_level_restriction
         Plotter = nothing,
         force = 1.0,
         h = 1.0e-4,
@@ -164,16 +163,22 @@ function main(;
 
     assign_operator!(PD, HomogeneousBoundaryData(u; regions = [reg_dirichlet]))
 
-    if periodic
+    if periodic_coupling == :high_level_restriction
+
+        # new high-level call
+        assign_restriction!(PD, CoupledDofsRestriction(u, reg_left, reg_right; parallel = threads > 1, threads))
+
+    elseif periodic_coupling != :none
+
         function give_opposite!(y, x)
             y .= x
             y[1] = width - x[1]
             return nothing
         end
         @showtime coupling_matrix = get_periodic_coupling_matrix(FES, reg_left, reg_right, give_opposite!; parallel = threads > 1, threads)
-        if use_LM_restrictions
+        if periodic_coupling == :restriction
             assign_restriction!(PD, CoupledDofsRestriction(coupling_matrix))
-        else
+        else # :operator
             assign_operator!(PD, CombineDofs(u, u, coupling_matrix; kwargs...))
         end
     end
@@ -189,16 +194,19 @@ function main(;
 
 end
 
-generateplots = ExtendableFEM.default_generateplots(Example312_PeriodicBoundary3D, "example312.png") #hide
+generateplots = ExtendableFEM.default_generateplots(Example312_PeriodicElasticity3D, "example312.png") #hide
 function runtests()                                                                                  #hide
-    sol1, _ = main(use_LM_restrictions = false, threads = 1)                                         #hide
+    sol1, _ = main(periodic_coupling = :operator, threads = 1)                                       #hide
     @test abs(maximum(view(sol1[1])) - 1.8004602502175202) < 2.0e-3                                  #hide
 
-    sol2, _ = main(use_LM_restrictions = false, threads = 4)                                         #hide
+    sol2, _ = main(periodic_coupling = :operator, threads = 4)                                       #hide
     @test sol1.entries ≈ sol2.entries                                                                #hide
 
-    sol3, _ = main(use_LM_restrictions = true, threads = 4)                                          #hide
+    sol3, _ = main(periodic_coupling = :restriction, threads = 4)                                    #hide
     @test sol1.entries ≈ sol3.entries                                                                #hide
+
+    sol4, _ = main(periodic_coupling = :high_level_restriction, threads = 4)                         #hide
+    @test sol1.entries ≈ sol4.entries                                                                #hide
 
     return nothing                                                                                   #hide
 end                                                                                                  #hide
