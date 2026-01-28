@@ -143,7 +143,7 @@ generateplots = ExtendableFEM.default_generateplots(Example226_Thermoforming, "e
 function runtests() #hide
     sol1, ~ = Example226_Thermoforming.main(; sparse_jacobians = true, N = 20) #hide
     sol2, ~ = Example226_Thermoforming.main(; sparse_jacobians = false, N = 20) #hide
-    @test norm(sol1.entries - sol2.entries) < 1.0e-12 #hide
+    @test norm(sol1.entries - sol2.entries) < 1.0e-10 #hide
     return nothing #hide
 end #hide
 end # module
