@@ -27,6 +27,10 @@ using StaticArrays
 using LinearAlgebra
 using Test #hide
 
+using Krylov
+using AMGCLWrap: AMGSolverAlgorithm, AMGPrecon
+using LinearSolve: PardisoJL, KrylovJL_GMRES
+
 const reg_left = 1
 const reg_right = 2
 const reg_front = 3
@@ -111,7 +115,13 @@ function main(;
     end
 
     ## solve
-    sol, SC = solve(PD, FES; return_config = true, kwargs...)
+    sol, SC = solve(
+        PD,
+        FES;
+        return_config = true,
+        method_linear = KrylovJL_GMRES(rtol = 1.0e-15, verbose = 10, precs = (A, p) -> (AMGPrecon(A), I)),
+        kwargs...
+    )
     residual(SC) < 1.0e-10 || error("Residual is not zero!")
 
     @info "Lagrange residuals" SC.statistics[:restriction_residuals]

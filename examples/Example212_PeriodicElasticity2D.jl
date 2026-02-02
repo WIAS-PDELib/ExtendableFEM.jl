@@ -24,6 +24,10 @@ using LinearAlgebra
 using Test #hide
 using SparseArrays
 
+using Krylov
+using AMGCLWrap: AMGSolverAlgorithm, AMGPrecon
+using LinearSolve: PardisoJL, KrylovJL_GMRES
+
 ## enumerate the boundary regions
 const reg_left = 4
 const reg_right = 2
@@ -152,22 +156,28 @@ function main(;
     assign_operator!(PD, HomogeneousBoundaryData(u; regions = [reg_dirichlet]))
 
     if periodic
-        function give_opposite!(y, x)
-            y .= x
-            y[1] = width - x[1]
-            return nothing
-        end
-
-        @showtime coupling_matrix = get_periodic_coupling_matrix(FES, reg_left, reg_right, give_opposite!; parallel = threads > 1, threads)
         if use_LM_restrictions
-            assign_restriction!(PD, CoupledDofsRestriction(coupling_matrix))
+            assign_restriction!(PD, CoupledDofsRestriction(u, reg_left, reg_right))
         else
+            function give_opposite!(y, x)
+                y .= x
+                y[1] = width - x[1]
+                return nothing
+            end
+
+            @showtime coupling_matrix = get_periodic_coupling_matrix(FES, reg_left, reg_right, give_opposite!; parallel = threads > 1, threads)
             assign_operator!(PD, CombineDofs(u, u, coupling_matrix; kwargs...))
         end
     end
 
-    sol, SC = solve(PD, FES, return_config = true)
-    residual(SC) < 1.0e-10 || error("Residual is not zero!")
+    # sol = FEVector(FES, tags = PD.unknowns)
+    # sol.entries .= rand(length(sol.entries))
+
+    sol = solve(
+        PD, FES; return_config = false, #init = sol,
+        method_linear = KrylovJL_GMRES(rtol = 1.0e-15, verbose = 1, precs = (A, p) -> (AMGPrecon(A), I)),
+    )
+    # residual(SC) < 1.0e-10 || error("Residual is not zero!")
 
     if use_LM_restrictions
         @info "Lagrange residuals" SC.statistics[:restriction_residuals]

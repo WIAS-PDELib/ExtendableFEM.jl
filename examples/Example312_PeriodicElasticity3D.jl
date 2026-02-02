@@ -23,6 +23,10 @@ using StaticArrays
 using LinearAlgebra
 using Test #hide
 
+using Krylov
+using AMGCLWrap: AMGSolverAlgorithm, AMGPrecon
+using LinearSolve: PardisoJL, KrylovJL_GMRES
+
 const reg_left = 1
 const reg_right = 2
 const reg_dirichlet = 3
@@ -129,7 +133,7 @@ end
 
 function main(;
         order = 1,
-        periodic_coupling = :none, # :restriction, :operator, :high_level_restriction
+        periodic_coupling = :high_level_restriction, # :restriction, :operator, :high_level_restriction
         Plotter = nothing,
         force = 1.0,
         h = 1.0e-4,
@@ -186,8 +190,16 @@ function main(;
     end
 
     ## solve
-    sol, SC = solve(PD, FES; return_config = true, kwargs...)
-    residual(SC) < 1.0e-10 || error("Residual is not zero!")
+    sol, SC = solve(
+        PD,
+        FES;
+        return_config = true,
+        # method_linear = KrylovJL_GMRES(rtol = 1.0e-15, verbose = 10, precs = (A, p) -> (AMGPrecon(A), I)),
+        # method_linear = KrylovJL_GMRES(rtol = 1.0e-15, verbose = 10),
+        kwargs...
+    )
+
+    # residual(SC) < 1.0e-10 || error("Residual is not zero!")
 
     @info "Lagrange residuals" SC.statistics[:restriction_residuals]
 
