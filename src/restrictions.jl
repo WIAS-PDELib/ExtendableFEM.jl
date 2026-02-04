@@ -18,6 +18,7 @@ end
 
 function assemble!(R::AbstractRestriction, SC; kwargs...)
     ## assembles internal restriction matrix in R
+    @warn "assemble! not implemented for $(typeof(R))"
     return nothing
 end
 

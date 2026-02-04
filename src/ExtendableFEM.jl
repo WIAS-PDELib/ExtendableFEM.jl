@@ -210,6 +210,7 @@ include("common_restrictions/linear_functional_restriction.jl")
 export LinearFunctionalRestriction
 export ZeroMeanValueRestriction
 export MassRestriction
+include("common_restrictions/compressed_restriction.jl")
 
 include("plots.jl")
 export plot_convergencehistory!

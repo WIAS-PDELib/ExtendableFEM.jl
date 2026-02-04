@@ -4,6 +4,11 @@
 
 ### Fixed
   - The linear residual takes also Lagrange multipliers and Lagrange restrictions into account.
+  - The nonlinear residual takes also Lagrange multipliers and Lagrange restrictions into account.
+
+### Added
+  - The compressed restrictions are now stored in a `CompressedRestriction`; for internal use only
+  - Each restriction stores the current Lagrange multipliers `:multipliers` vector in their parameters.
 
 ## v1.9.0
 
