@@ -343,8 +343,9 @@ function solve_linear_system!(A, b, sol, soltemp, residual, linsolve, unknowns, 
 
                 end
 
-                linsolve.b = Vector(b_block) # convert to dense vector
-                linsolve.u = Vector(u_block) # convert to dense vector
+                # convert to dense vectors
+                linsolve.b = Vector(b_block)
+                linsolve.u = Vector(u_block)
 
                 if linsolve_needs_matrix
 
@@ -374,16 +375,53 @@ function solve_linear_system!(A, b, sol, soltemp, residual, linsolve, unknowns, 
         # Solve linear system
         push!(stats[:matrix_nnz], nnz(linsolve.A))
         @timeit timer "solve! call" begin
-            blocked_result = LinearSolve.solve!(linsolve)
-            blocked_Δx = blocked_result.u
+            LinearSolve.solve!(linsolve)
+        end
+    end
+
+    # Check linear residual
+    @timeit timer "linear residual computation" begin
+
+        # compute flat residual (reuse b_flat): residual_flat = A_flat * u_flat - b_flat
+        residual_flat = linsolve.b
+        mul!(residual_flat, linsolve.A, linsolve.u, 1.0, -1.0)
+
+        for op in PD.operators
+            for dof in fixed_dofs(op)
+                # fix dofs only in first block
+                if dof <= length(b_unrestricted)
+                    residual_flat[dof] = 0
+                end
+            end
         end
 
-        # extract the solution / dismiss the lagrange multipliers
-        @views Δx = blocked_Δx[1:length(b_unrestricted)]
+        if length(freedofs) > 0
+            residual.entries[freedofs] .= @views residual_flat[1:length(b_unrestricted)]
+        else
+            residual.entries .= @views residual_flat[1:length(b_unrestricted)]
+        end
+
+        if length(PD.restrictions) > 0
+            # extract all residuals for the restriction blocks
+            block_ends = cumsum(block_sizes)
+            restriction_residuals = [norm(residual_flat[(block_ends[i] + 1):block_ends[i + 1]]) for i in 1:(length(block_sizes) - 1) ]
+            push!(stats[:restriction_residuals], restriction_residuals)
+        end
+
+        linres = norm(residual_flat)
+        push!(stats[:linear_residuals], linres)
+        if is_linear
+            push!(stats[:nonlinear_residuals], linres)
+        end
     end
+
 
     # Compute solution update
     @timeit timer "update solution" begin
+
+        # extract the solution / dismiss the lagrange multipliers
+        @views Δx = linsolve.u[1:length(b_unrestricted)]
+
         if length(freedofs) > 0
             x = sol.entries[freedofs] + Δx
         else
@@ -398,36 +436,6 @@ function solve_linear_system!(A, b, sol, soltemp, residual, linsolve, unknowns, 
         end
     end
 
-    # Check linear residual
-    @timeit timer "linear residual computation" begin
-        residual.entries .= b.entries
-        if length(freedofs) > 0
-            soltemp.entries[freedofs] .= x
-            residual.entries .-= A.entries.cscmatrix * soltemp.entries
-        else
-            residual.entries .-= A.entries.cscmatrix * x
-        end
-        for op in PD.operators
-            for dof in fixed_dofs(op)
-                if dof <= length(residual.entries)
-                    residual.entries[dof] = 0
-                end
-            end
-        end
-        for rs in PD.restrictions
-            for dof in fixed_dofs(rs)
-                if dof <= length(residual.entries)
-                    residual.entries[dof] = 0
-                end
-            end
-        end
-    end
-
-    linres = norm(residual.entries)
-    push!(stats[:linear_residuals], linres)
-    if is_linear
-        push!(stats[:nonlinear_residuals], linres)
-    end
 
     # Update solution
     @timeit timer "update solution" begin

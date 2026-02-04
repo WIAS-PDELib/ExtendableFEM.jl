@@ -1,5 +1,10 @@
 # CHANGES
 
+## v.1.9.1
+
+### Fixed
+  - The linear residual takes also Lagrange multipliers and Lagrange restrictions into account.
+
 ## v1.9.0
 
 ### Added

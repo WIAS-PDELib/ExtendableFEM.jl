@@ -125,6 +125,9 @@ function main(;
         threads = 1,
         kwargs...
     )
+    ## print options for better logs
+    @info "selected options" use_LM_restrictions threads
+
     xgrid = create_grid(; h, width, height)
 
     ## create finite element space and solution vector
@@ -165,6 +168,10 @@ function main(;
 
     sol, SC = solve(PD, FES, return_config = true)
     residual(SC) < 1.0e-10 || error("Residual is not zero!")
+
+    if use_LM_restrictions
+        @info "Lagrange residuals" SC.statistics[:restriction_residuals]
+    end
 
     plt = GridVisualizer(; Plotter, size = (1300, 800))
 

@@ -3,6 +3,7 @@ default_statistics(Tv = Float64, Ti = Int64) = Dict{Symbol, Any}(
     :linear_residuals => Tv[],
     :nonlinear_residuals => Tv[],
     :matrix_nnz => Ti[],
+    :restriction_residuals => Vector{Tv}[]
 )
 
 mutable struct SolverConfiguration{AT <: AbstractMatrix, bT, xT}
