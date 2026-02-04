@@ -139,6 +139,8 @@ function main(;
         threads = 1,
         kwargs...
     )
+    ## print options for better logs
+    @info "selected options" periodic_coupling threads
 
     xgrid = create_grid(; h, width, height, depth)
 
@@ -186,6 +188,8 @@ function main(;
     ## solve
     sol, SC = solve(PD, FES; return_config = true, kwargs...)
     residual(SC) < 1.0e-10 || error("Residual is not zero!")
+
+    @info "Lagrange residuals" SC.statistics[:restriction_residuals]
 
     displace_mesh!(xgrid, sol[u])
     plt = plot([grid(u)], sol; Plotter, do_vector_plots = false, width = 1200, height = 800, title = "displaced mesh", scene3d = :LScene)

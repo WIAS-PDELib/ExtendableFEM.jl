@@ -88,6 +88,8 @@ function main(;
         periodic = true,
         kwargs...
     )
+    ## print options for better logs
+    @info "selected options" periodic
 
     xgrid = create_grid(; h)
 
@@ -111,6 +113,8 @@ function main(;
     ## solve
     sol, SC = solve(PD, FES; return_config = true, kwargs...)
     residual(SC) < 1.0e-10 || error("Residual is not zero!")
+
+    @info "Lagrange residuals" SC.statistics[:restriction_residuals]
 
     function exact_error!(out, u, qpinfo)
         # exact solution here is u(x,y,z) = 2z - 1
