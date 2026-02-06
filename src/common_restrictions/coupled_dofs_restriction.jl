@@ -136,8 +136,5 @@ function assemble!(R::CoupledDofsRestriction, sol, SC; kwargs...)
     R_orig.parameters[:rhs] = zeros(size(B, 2))
     R_orig.parameters[:multiplier] = zeros(size(B, 2))
 
-    # fixed dofs are all active rows of B
-    R_orig.parameters[:fixed_dofs] = unique(findnz(B)[1])
-
     return nothing
 end

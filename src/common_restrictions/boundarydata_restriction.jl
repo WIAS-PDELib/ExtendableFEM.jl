@@ -52,7 +52,5 @@ function assemble!(R::BoundaryDataRestriction, sol, SC; kwargs...)
     R.parameters[:rhs] = fixedvals
     R.parameters[:multiplier] = zeros(nvals)
 
-    R.parameters[:fixed_dofs] = fixeddofs
-
     return nothing
 end
