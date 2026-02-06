@@ -38,13 +38,14 @@ Compute the nonlinear residual for the current solution.
 function compute_nonlinear_residual!(residual, A, b, sol, unknowns, PD, SC, freedofs)
     residual.entries .= b.entries
     for j in 1:length(b), k in 1:length(b)
-        addblock_matmul!(residual[j], A[j, k], sol[unknowns[k]], factor = -1)
+        addblock_matmul!(residual[j], A[j, k], sol[unknowns[k]], factor = -1.0)
     end
 
     # add Lagrange residuals
     for rs in PD.restrictions
-        mul!(residual.entries, rs.parameters[:matrix], rs.parameters[:multiplier], 1.0, 1.0)
+        mul!(residual.entries, rs.parameters[:matrix], rs.parameters[:multiplier], -1.0, 1.0)
     end
+
 
     for op in PD.operators
         residual.entries[fixed_dofs(op)] .= 0
@@ -62,6 +63,10 @@ function compute_nonlinear_residual!(residual, A, b, sol, unknowns, PD, SC, free
 
     if length(PD.restrictions) > 0
         nlres = sqrt(nlres^2 + norm(restriction_residuals)^2)
+    end
+
+    for rs in PD.restrictions
+        mul!(residual.entries, rs.parameters[:matrix], rs.parameters[:multiplier], 1.0, 1.0)
     end
 
     if SC.parameters[:verbosity] > 0
