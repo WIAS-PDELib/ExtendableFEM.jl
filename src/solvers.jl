@@ -84,7 +84,7 @@ end
 
 Initialize the linear solver for the given system.
 """
-function init_linear_solver!(SC, A, timer, method_linear, precon_linear)
+function init_linear_solver!(SC, A, b, timer, method_linear, precon_linear)
 
     # TODO use the timer
     time_assembly = 0.0
@@ -98,11 +98,11 @@ function init_linear_solver!(SC, A, timer, method_linear, precon_linear)
             stats = @timed begin
                 abstol = SC.parameters[:abstol]
                 reltol = SC.parameters[:reltol]
-                LP = SC.LP
+                LP = LinearProblem(A, b)
                 if precon_linear !== nothing
-                    SC.linsolver = init(LP, method_linear; Pl = precon_linear(A.entries.cscmatrix), abstol = abstol, reltol = reltol)
+                    SC.linsolver = init(LP, method_linear; Pl = precon_linear(A), abstol, reltol)
                 else
-                    SC.linsolver = init(LP, method_linear; abstol = abstol, reltol = reltol)
+                    SC.linsolver = init(LP, method_linear; abstol, reltol)
                 end
             end
             time_assembly += stats.time
@@ -242,10 +242,9 @@ Solves the linear system and updates the solution vector. This includes:
 - Computing the residual
 - Updating the solution with optional damping
 """
-function solve_linear_system!(A, b, sol, soltemp, residual, linsolve, unknowns, freedofs, damping, PD, SC, stats, is_linear, timer, kwargs...)
+function solve_linear_system!(A, b, sol, soltemp, residual, unknowns, freedofs, damping, PD, SC, stats, is_linear, timer, kwargs...)
 
     @timeit timer "linear solver" begin
-
 
         # does the linsolve object need a (new) matrix?
         linsolve_needs_matrix = !SC.parameters[:constant_matrix] || !SC.parameters[:initialized]
@@ -272,9 +271,9 @@ function solve_linear_system!(A, b, sol, soltemp, residual, linsolve, unknowns, 
 
         if length(PD.restrictions) == 0
             if linsolve_needs_matrix
-                linsolve.A = A_unrestricted
+                linsolve_A = A_unrestricted
             end
-            linsolve.b = b_unrestricted
+            linsolve_b = b_unrestricted
         else
             # add possible Lagrange restrictions
             restriction_matrices = [length(freedofs) > 0 ? view(restriction_matrix(re), freedofs, :) : restriction_matrix(re) for re in PD.restrictions ]
@@ -342,11 +341,7 @@ function solve_linear_system!(A, b, sol, soltemp, residual, linsolve, unknowns, 
                 end
 
                 b_block = BlockVector(zeros(Tv, total_size), block_sizes)
-
                 b_block[Block(1)] = b_unrestricted
-                u_unrestricted = @views linsolve.u[1:block_sizes[1]]
-                u_block = BlockVector(zeros(Tv, total_size), block_sizes)
-                u_block[Block(1)] = u_unrestricted
 
                 for i in eachindex(restriction_matrices)
                     if linsolve_needs_matrix
@@ -358,8 +353,7 @@ function solve_linear_system!(A, b, sol, soltemp, residual, linsolve, unknowns, 
                 end
 
                 # convert to dense vectors
-                linsolve.b = Vector(b_block)
-                linsolve.u = Vector(u_block)
+                linsolve_b = Vector(b_block)
 
                 if linsolve_needs_matrix
 
@@ -379,12 +373,20 @@ function solve_linear_system!(A, b, sol, soltemp, residual, linsolve, unknowns, 
                         # write each block directly in the resulting matrix
                         A_flat[range_row, range_col] = A_block[Block(i, j)]
                     end
-                    linsolve.A = A_flat
+                    linsolve_A = A_flat
                 end
             end
         end
 
-        SC.parameters[:initialized] = true
+        if !SC.parameters[:initialized]
+            ## init solver if not done before
+            @timeit timer "linear solver" begin
+                init_linear_solver!(SC, linsolve_A, linsolve_b, timer, method_linear, precon_linear)
+            end
+            SC.parameters[:initialized] = true
+        end
+
+        linsolve = SC.linsolver
 
         # Solve linear system
         push!(stats[:matrix_nnz], nnz(linsolve.A))
@@ -725,11 +727,6 @@ function CommonSolve.solve(PD::ProblemDescription, FES::Union{<:FESpace, Vector{
                 @info "....  isposdef  = $(isposdef(A.entries.cscmatrix))"
             end
 
-            ## init solver
-            @timeit timer "linear solver" begin
-                init_linear_solver!(SC, A, timer, method_linear, precon_linear)
-            end
-
             ## compute nonlinear residual
             @timeit timer "assembly" @timeit timer "residual vector" begin
                 nlres = compute_nonlinear_residual!(residual, A, b, sol, unknowns, PD, SC, freedofs)
@@ -744,11 +741,8 @@ function CommonSolve.solve(PD::ProblemDescription, FES::Union{<:FESpace, Vector{
             break
         end
 
-        linsolve = SC.linsolver
-
-
         linres = solve_linear_system!(
-            A, b, sol, soltemp, residual, linsolve, unknowns,
+            A, b, sol, soltemp, residual, unknowns,
             freedofs, damping, PD, SC, stats, is_linear, timer
         )
 
