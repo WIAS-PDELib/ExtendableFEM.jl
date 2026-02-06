@@ -84,7 +84,7 @@ end
 
 Initialize the linear solver for the given system.
 """
-function init_linear_solver!(SC, A, b, timer, method_linear, precon_linear)
+function init_linear_solver!(SC, A, b, timer)
 
     # TODO use the timer
     time_assembly = 0.0
@@ -98,6 +98,9 @@ function init_linear_solver!(SC, A, b, timer, method_linear, precon_linear)
             stats = @timed begin
                 abstol = SC.parameters[:abstol]
                 reltol = SC.parameters[:reltol]
+                method_linear = SC.parameters[:method_linear]
+                precon_linear = SC.parameters[:precon_linear]
+
                 LP = LinearProblem(A, b)
                 if precon_linear !== nothing
                     SC.linsolver = init(LP, method_linear; Pl = precon_linear(A), abstol, reltol)
@@ -381,7 +384,7 @@ function solve_linear_system!(A, b, sol, soltemp, residual, unknowns, freedofs, 
         if !SC.parameters[:initialized]
             ## init solver if not done before
             @timeit timer "linear solver" begin
-                init_linear_solver!(SC, linsolve_A, linsolve_b, timer, method_linear, precon_linear)
+                init_linear_solver!(SC, linsolve_A, linsolve_b, timer)
             end
             SC.parameters[:initialized] = true
         end
