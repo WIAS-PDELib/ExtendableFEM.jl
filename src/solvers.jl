@@ -64,9 +64,11 @@ function compute_nonlinear_residual!(residual, A, b, sol, unknowns, PD, SC, free
         nlres = sqrt(nlres^2 + norm(restriction_residuals)^2)
     end
 
-    if SC.parameters[:verbosity] > 0 && length(residual) > 1
-        @info "sub-residuals = $(norms(residual))"
-        @info "residuals of restrictions = $restriction_residuals"
+    if SC.parameters[:verbosity] > 0
+        if length(residual) > 1
+            @info "sub-residuals = $(norms(residual))"
+        end
+        @info "nonlinear residuals of restrictions = $restriction_residuals"
     end
 
     return nlres
