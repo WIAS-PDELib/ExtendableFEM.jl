@@ -24,8 +24,11 @@ using LinearAlgebra
 using Test #hide
 
 using Krylov
-using AMGCLWrap: AMGSolverAlgorithm, AMGPrecon
 using LinearSolve: PardisoJL, KrylovJL_GMRES
+using ILUZero: ilu0
+using LimitedLDLFactorizations
+using ChunkSplitters: chunks
+using SparseArrays
 
 const reg_left = 1
 const reg_right = 2
@@ -131,6 +134,67 @@ function create_grid(; h, height, width, depth)
     return simplexgrid(builder)
 end
 
+
+struct SchurComplementPreconditioner{AT, ST}
+    partitions
+    A_fac::AT
+    S_fac::ST
+end
+
+
+function schur_complement_preconditioner(dofs_first_block, A_factorization, S_factorization = lu)
+
+    # this is the resulting preconditioner
+    function prec(M, p)
+
+        @info "compute A_tilde and S_tilde with M = $(size(M))"
+
+        # We have
+        # M = [ A  B ] → n1 dofs
+        #     [ Bᵀ 0 ] → n2 dofs
+
+        n1 = dofs_first_block
+        n2 = size(M, 1) - n1
+
+        # I see no other way than creating this expensive copy
+        A = M[1:n1, 1:n1]
+        B = M[1:n1, (n1 + 1):end]
+
+        # first factorization
+        A_fac = A_factorization(A)
+
+        # compute the (dense!) Schur Matrix
+        # S ≈ - Bᵀ A⁻¹ B
+        S = zeros(n2, n2)
+
+        @info "Computing the Schur complement..."
+        ldiv_buffer = zeros(n1)
+        for col in 1:n2
+            # TODO: the following is not thread parallel?
+            @views ldiv!(ldiv_buffer, A_fac, B[:, col])
+            @views mul!(S[:, col], B', ldiv_buffer)
+        end
+        S .*= -1.0
+        @info "...done"
+
+        S_fac = S_factorization(sparse(S))
+
+        return (SchurComplementPreconditioner([1:n1, (n1 + 1):(n1 + n2)], A_fac, S_fac), I)
+    end
+
+    return prec
+end
+
+function LinearAlgebra.ldiv!(u, p::SchurComplementPreconditioner, v)
+
+    (part1, part2) = p.partitions
+    @views ldiv!(u[part1], p.A_fac, v[part1])
+    @views ldiv!(u[part2], p.S_fac, v[part2])
+
+    return u
+end
+
+
 function main(;
         order = 1,
         periodic_coupling = :high_level_restriction, # :restriction, :operator, :high_level_restriction
@@ -189,8 +253,6 @@ function main(;
         end
     end
 
-    ndofs = FES.ndofs
-
     ## solve
     sol, SC = solve(
         PD,
@@ -201,7 +263,7 @@ function main(;
             rtol = 1.0e-15,
             verbose = 10,
             itmax = 1000000,
-            precs = (A, p) -> (Diagonal([diag(A)[1:ndofs]..., ones(size(A, 1) - ndofs)...]), I)
+            precs = schur_complement_preconditioner(FES.ndofs, ilu0)
         ),
         # method_linear = KrylovJL_GMRES(rtol = 1.0e-15, verbose = 10),
         kwargs...

@@ -23,10 +23,12 @@ using StaticArrays
 using LinearAlgebra
 using Test #hide
 using SparseArrays
+using ExtendableSparse: BlockPreconditioner
 
 using Krylov
 using AMGCLWrap: AMGSolverAlgorithm, AMGPrecon
 using LinearSolve: PardisoJL, KrylovJL_GMRES
+using ILUZero: ilu0
 
 ## enumerate the boundary regions
 const reg_left = 4
@@ -117,6 +119,102 @@ function create_grid(; h, height, width)
     return simplexgrid(builder)
 end
 
+struct SchurComplementPreconditioner{AT, ST}
+    partitions
+    A_fac::AT
+    S_fac::ST
+end
+
+
+function schur_complement_preconditioner(dofs_first_block, A_preconditioner, S_preconditioner = lu)
+
+    # this is the resulting preconditioner
+    function prec(M, p)
+
+        @info "compute A_tilde and S_tilde with M = $(size(M))"
+
+        # We have
+        # M = [ A  B ]
+        #     [ Bᵀ 0 ]
+
+        n1 = dofs_first_block
+        n2 = size(M, 1) - n1
+
+        n2 == 0 && return (I, I)
+
+        @show n1 n2
+
+        # I see no other way than creating this expensive copy
+        A = M[1:n1, 1:n1]
+        B = M[1:n1, (n1 + 1):end]
+
+        # @show A
+
+        # first factorization
+        ε = 1
+        A += ε * I
+        A_fac = A_preconditioner(A)
+
+        # compute the (dense!) Schur Matrix
+        S = zeros(n2, n2)
+
+        # dense col buffer
+        B_col = zeros(n1)
+
+        @info "for j in 1:$n2"
+
+        for j in 1:n2
+            (j % 10 == 0) && @show j
+            B_col .= Vector(B[:, j])
+            S[:, j] = B' * (A_fac \ B_col)
+        end
+
+        # add minus sign
+        S .*= -1
+
+        S_fac = S_preconditioner(S)
+
+        @info "... done"
+
+        return (SchurComplementPreconditioner([1:n1, (n1 + 1):(n1 + n2)], A_fac, S_fac), I)
+    end
+
+    return prec
+end
+
+# function LinearAlgebra.ldiv!(p::SchurComplementPreconditioner, v)
+
+#     @info "yolo"
+
+#     (part1, part2) = p.partitions
+#     v1 = v[part1]
+#     ldiv!(p.A_fac, v1)
+#     v[part1] = v1
+
+#     v2 = v[part2]
+#     ldiv!(p.S_fac, v2)
+#     v[part2] = v2
+
+#     return v
+# end
+
+function LinearAlgebra.ldiv!(u, p::SchurComplementPreconditioner, v)
+
+    (part1, part2) = p.partitions
+    u1 = u[part1]
+    ldiv!(u1, p.A_fac, v[part1])
+    u[part1] = u1
+
+    u2 = u[part2]
+    ldiv!(u2, p.S_fac, v[part2])
+    u[part2] = u2
+
+    return u
+end
+
+
+Base.eltype(p::SchurComplementPreconditioner) = eltype(p.A_fac)
+
 function main(;
         order = 1,
         periodic = true,
@@ -177,9 +275,11 @@ function main(;
         PD, FES; return_config = true,
         method_linear = KrylovJL_GMRES(
             rtol = 1.0e-10,
-            verbose = 100,
+            verbose = 10,
             itmax = 10000,
-            # precs = (A, p) -> (AMGPrecon(A), I),
+            # # precs = schur_complement_preconditioner(FES.ndofs, AMGPrecon)
+            # precs = schur_complement_preconditioner(FES.ndofs, Diagonal)
+            precs = schur_complement_preconditioner(FES.ndofs, ilu0)
         ),
     )
     # residual(SC) < 1.0e-10 || error("Residual is not zero!")
