@@ -153,7 +153,7 @@ function main(;
     assign_operator!(PD, BilinearOperator(bilinear_kernel!, [εV(u, 1.0)]; kwargs...))
     assign_operator!(PD, LinearOperator(linear_kernel!, [id(u)]; kwargs...))
 
-    assign_operator!(PD, HomogeneousBoundaryData(u; regions = [reg_dirichlet]))
+    assign_restriction!(PD, BoundaryDataRestriction(u; regions = [reg_dirichlet]))
 
     if periodic
         if use_LM_restrictions
@@ -170,12 +170,17 @@ function main(;
         end
     end
 
-    # sol = FEVector(FES, tags = PD.unknowns)
-    # sol.entries .= rand(length(sol.entries))
+    # init = FEVector(FES, tags = PD.unknowns)
+    # init.entries .= rand(length(init.entries))
 
-    sol = solve(
-        PD, FES; return_config = false, #init = sol,
-        method_linear = KrylovJL_GMRES(rtol = 1.0e-15, verbose = 1, precs = (A, p) -> (AMGPrecon(A), I)),
+    sol, SC = solve(
+        PD, FES; return_config = true,
+        method_linear = KrylovJL_GMRES(
+            rtol = 1.0e-10,
+            verbose = 100,
+            itmax = 10000,
+            # precs = (A, p) -> (AMGPrecon(A), I),
+        ),
     )
     # residual(SC) < 1.0e-10 || error("Residual is not zero!")
 
@@ -183,14 +188,14 @@ function main(;
         @info "Lagrange residuals" SC.statistics[:restriction_residuals]
     end
 
-    plt = GridVisualizer(; Plotter, size = (1300, 800))
+    plt = GridVisualizer(; Plotter, size = (1300, 800), reveal = true)
 
     magnification = 1
     displaced_grid = deepcopy(xgrid)
     displace_mesh!(displaced_grid, sol[1], magnify = magnification)
     gridplot!(plt, displaced_grid, linewidth = 1, title = "displaced mesh, $(magnification)x magnified", scene3d = :LScene)
 
-    return sol, plt
+    return SC
 end
 
 generateplots = ExtendableFEM.default_generateplots(Example212_PeriodicElasticity2D, "example212.png") #hide

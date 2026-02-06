@@ -132,7 +132,7 @@ function assemble!(R::CoupledDofsRestriction, sol, SC; kwargs...)
         B = B[:, cols_of_interest]
     end
 
-    R_orig.parameters[:matrix] = B
+    R_orig.parameters[:matrix] = 1.0e0 * B
     R_orig.parameters[:rhs] = zeros(size(B, 2))
     R_orig.parameters[:multiplier] = zeros(size(B, 2))
 

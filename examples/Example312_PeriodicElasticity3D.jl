@@ -136,7 +136,7 @@ function main(;
         periodic_coupling = :high_level_restriction, # :restriction, :operator, :high_level_restriction
         Plotter = nothing,
         force = 1.0,
-        h = 1.0e-4,
+        h = 1.0e-2,
         width = 6.0,
         height = 0.2,
         depth = 1,
@@ -167,7 +167,7 @@ function main(;
     assign_operator!(PD, BilinearOperator(bilinear_kernel!, [εV(u, 1.0)]; kwargs...))
     assign_operator!(PD, LinearOperator(linear_kernel!, [id(u)]; kwargs...))
 
-    assign_operator!(PD, HomogeneousBoundaryData(u; regions = [reg_dirichlet]))
+    assign_restriction!(PD, BoundaryDataRestriction(u; regions = [reg_dirichlet]))
 
     if periodic_coupling == :high_level_restriction
 
@@ -189,12 +189,20 @@ function main(;
         end
     end
 
+    ndofs = FES.ndofs
+
     ## solve
     sol, SC = solve(
         PD,
         FES;
         return_config = true,
         # method_linear = KrylovJL_GMRES(rtol = 1.0e-15, verbose = 10, precs = (A, p) -> (AMGPrecon(A), I)),
+        method_linear = KrylovJL_GMRES(
+            rtol = 1.0e-15,
+            verbose = 10,
+            itmax = 1000000,
+            precs = (A, p) -> (Diagonal([diag(A)[1:ndofs]..., ones(size(A, 1) - ndofs)...]), I)
+        ),
         # method_linear = KrylovJL_GMRES(rtol = 1.0e-15, verbose = 10),
         kwargs...
     )
@@ -204,7 +212,7 @@ function main(;
     @info "Lagrange residuals" SC.statistics[:restriction_residuals]
 
     displace_mesh!(xgrid, sol[u])
-    plt = plot([grid(u)], sol; Plotter, do_vector_plots = false, width = 1200, height = 800, title = "displaced mesh", scene3d = :LScene)
+    plt = plot([grid(u)], sol; Plotter, do_vector_plots = false, width = 1200, height = 800, title = "displaced mesh", scene3d = :LScene, reveal = true)
 
     return sol, plt
 

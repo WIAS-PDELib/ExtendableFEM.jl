@@ -119,7 +119,7 @@ function main(;
         PD,
         FES;
         return_config = true,
-        method_linear = KrylovJL_GMRES(rtol = 1.0e-15, verbose = 10, precs = (A, p) -> (AMGPrecon(A), I)),
+        method_linear = KrylovJL_GMRES(rtol = 1.0e-15, verbose = 10), #, precs = (A, p) -> (AMGPrecon(A), I)),
         kwargs...
     )
     residual(SC) < 1.0e-10 || error("Residual is not zero!")
