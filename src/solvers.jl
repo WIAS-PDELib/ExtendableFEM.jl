@@ -38,16 +38,17 @@ Compute the nonlinear residual for the current solution.
 function compute_nonlinear_residual!(residual, A, b, sol, unknowns, PD, SC, freedofs)
     residual.entries .= b.entries
     for j in 1:length(b), k in 1:length(b)
-        addblock_matmul!(residual[j], A[j, k], sol[unknowns[k]], factor = -1)
+        addblock_matmul!(residual[j], A[j, k], sol[unknowns[k]], factor = -1.0)
     end
+
+    # add Lagrange residuals
+    for rs in PD.restrictions
+        mul!(residual.entries, rs.parameters[:matrix], rs.parameters[:multiplier], -1.0, 1.0)
+    end
+
 
     for op in PD.operators
         residual.entries[fixed_dofs(op)] .= 0
-    end
-
-    mask_nonrestricted = ones(Bool, length(residual.entries))
-    for rs in PD.restrictions
-        mask_nonrestricted[fixed_dofs(rs)] .= false
     end
 
     for u_off in SC.parameters[:inactive]
@@ -57,10 +58,22 @@ function compute_nonlinear_residual!(residual, A, b, sol, unknowns, PD, SC, free
         end
     end
 
-    nlres = length(freedofs) > 0 ? norm(residual.entries[freedofs]) : norm(residual.entries[mask_nonrestricted])
+    nlres = length(freedofs) > 0 ? norm(residual.entries[freedofs]) : norm(residual.entries)
+    restriction_residuals = [norm(rs.parameters[:matrix]' * sol.entries - rs.parameters[:rhs]) for rs in PD.restrictions]
 
-    if SC.parameters[:verbosity] > 0 && length(residual) > 1
-        @info "sub-residuals = $(norms(residual))"
+    if length(PD.restrictions) > 0
+        nlres = sqrt(nlres^2 + norm(restriction_residuals)^2)
+    end
+
+    for rs in PD.restrictions
+        mul!(residual.entries, rs.parameters[:matrix], rs.parameters[:multiplier], 1.0, 1.0)
+    end
+
+    if SC.parameters[:verbosity] > 0
+        if length(residual) > 1
+            @info "sub-residuals = $(norms(residual))"
+        end
+        @info "nonlinear residuals of restrictions = $restriction_residuals"
     end
 
     return nlres
@@ -244,8 +257,6 @@ function solve_linear_system!(A, b, sol, soltemp, residual, linsolve, unknowns, 
             else
                 A_unrestricted = A.entries.cscmatrix
             end
-            #else
-            #    A_unrestricted = A.entries.cscmatrix
         end
 
         # we solve for A Δx = r
@@ -267,7 +278,7 @@ function solve_linear_system!(A, b, sol, soltemp, residual, linsolve, unknowns, 
         else
             # add possible Lagrange restrictions
             restriction_matrices = [length(freedofs) > 0 ? view(restriction_matrix(re), freedofs, :) : restriction_matrix(re) for re in PD.restrictions ]
-            restriction_rhss = [length(freedofs) > 0 ? view(restriction_rhs(re), freedofs) : restriction_rhs(re) for re in PD.restrictions ]
+            restriction_rhss = deepcopy([length(freedofs) > 0 ? view(restriction_rhs(re), freedofs) : restriction_rhs(re) for re in PD.restrictions ])
 
             # block sizes for the block matrix
             block_sizes = [length(b_unrestricted), [ length(b) for b in restriction_rhss ]...]
@@ -277,11 +288,6 @@ function solve_linear_system!(A, b, sol, soltemp, residual, linsolve, unknowns, 
             nLMs = @views sum(block_sizes[2:end])
 
             @timeit timer "LM restrictions (nLMs = $nLMs)" begin
-
-                ## we need to add the (initial) solution to the rhs, since we work with the residual equation
-                for (B, rhs) in zip(restriction_matrices, restriction_rhss)
-                    rhs .-= B'sol_freedofs
-                end
 
                 Tv = eltype(b_unrestricted)
 
@@ -318,6 +324,9 @@ function solve_linear_system!(A, b, sol, soltemp, residual, linsolve, unknowns, 
                         restriction_matrices = [combined_restriction_matrix]
                         restriction_rhss = [combined_restriction_rhs]
 
+                        # remove previously defined restrictions (with explicit copy of the rhs; it is otherwise modified later)
+                        PD.restrictions = [CompressedRestriction(combined_restriction_matrix, deepcopy(combined_restriction_rhs))]
+
                         # update sizes
                         block_sizes = [length(b_unrestricted), length(combined_restriction_rhs)]
                         total_size = sum(block_sizes)
@@ -325,6 +334,11 @@ function solve_linear_system!(A, b, sol, soltemp, residual, linsolve, unknowns, 
 
                     A_block = BlockMatrix(spzeros(Tv, total_size, total_size), block_sizes, block_sizes)
                     A_block[Block(1, 1)] = A_unrestricted
+                end
+
+                ## we need to add the (initial) solution to the rhs, since we work with the residual equation
+                for (B, rhs) in zip(restriction_matrices, restriction_rhss)
+                    rhs .-= B'sol_freedofs
                 end
 
                 b_block = BlockVector(zeros(Tv, total_size), block_sizes)
@@ -406,6 +420,11 @@ function solve_linear_system!(A, b, sol, soltemp, residual, linsolve, unknowns, 
             block_ends = cumsum(block_sizes)
             restriction_residuals = [norm(residual_flat[(block_ends[i] + 1):block_ends[i + 1]]) for i in 1:(length(block_sizes) - 1) ]
             push!(stats[:restriction_residuals], restriction_residuals)
+
+            # store Lagrange multipliers
+            for (i, rs) in enumerate(PD.restrictions)
+                rs.parameters[:multiplier] = linsolve.u[(block_ends[i] + 1):block_ends[i + 1]]
+            end
         end
 
         linres = norm(residual_flat)

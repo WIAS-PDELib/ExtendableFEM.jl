@@ -74,7 +74,7 @@ function assemble!(R::LinearFunctionalRestriction{T, Tv}, sol, SC; kwargs...) wh
 
     R.parameters[:matrix] = sparse(reshape(b.entries, n, 1))
     R.parameters[:rhs] = Tv[R.value]
-    R.parameters[:fixed_dofs] = []
+    R.parameters[:multiplier] = zeros(1)
 
     return nothing
 end
