@@ -14,7 +14,6 @@ mutable struct SolverConfiguration{AT <: AbstractMatrix, bT, xT}
     tempsol::xT ## temporary solution
     res::xT
     freedofs::Vector{Int} ## stores indices of free dofs
-    LP::LinearProblem
     statistics::Dict{Symbol, Any}
     linsolver::Any
     unknown_ids_in_sol::Array{Int, 1}
@@ -221,11 +220,5 @@ function SolverConfiguration(Problem::ProblemDescription, unknowns::Array{Unknow
         x_temp = x
     end
 
-    ## construct linear problem
-    if length(freedofs) > 0
-        LP = LinearProblem(A.entries.cscmatrix[freedofs, freedofs], b.entries[freedofs])
-    else
-        LP = LinearProblem(A.entries.cscmatrix, b.entries)
-    end
-    return SolverConfiguration{typeof(A), typeof(b), typeof(x)}(Problem, A, b, x, x_temp, res, freedofs, LP, default_statistics(TvM, TiM), nothing, unknown_ids_in_sol, unknowns, copy(unknowns), offsets, parameters)
+    return SolverConfiguration{typeof(A), typeof(b), typeof(x)}(Problem, A, b, x, x_temp, res, freedofs, default_statistics(TvM, TiM), nothing, unknown_ids_in_sol, unknowns, copy(unknowns), offsets, parameters)
 end

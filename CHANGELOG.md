@@ -1,5 +1,11 @@
 # CHANGES
 
+## v.1.10.0
+
+### Changed
+  - `SolverConfiguration` has no `LP` property any more: everything is available via the `linsolver`.
+  - `initialize_linear_solver` is slightly changed and called much later in `solve`.
+
 ## v.1.9.1
 
 ### Fixed
