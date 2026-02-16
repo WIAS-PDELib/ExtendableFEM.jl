@@ -119,7 +119,7 @@ function main(;
         use_LM_restrictions = true,
         Plotter = nothing,
         force = 10.0,
-        h = 1.0e-2,
+        h = 5.0e-2,
         width = 6.0,
         height = 1.0,
         threads = 1,
@@ -186,7 +186,7 @@ end
 generateplots = ExtendableFEM.default_generateplots(Example212_PeriodicElasticity2D, "example212.png") #hide
 function runtests()                                                                                  #hide
     sol1, _ = main(use_LM_restrictions = false, threads = 1)                                         #hide
-    @test abs(maximum(view(sol1[1])) - 1.3447465095618172) < 1.0e-3                                  #hide
+    @test abs(maximum(view(sol1[1])) - 1.2638113215466982) < 1.0e-3                                  #hide
 
     sol2, _ = main(use_LM_restrictions = false, threads = 4)                                         #hide
     @test sol1.entries ≈ sol2.entries                                                                #hide
