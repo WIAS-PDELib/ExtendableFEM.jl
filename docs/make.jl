@@ -13,48 +13,7 @@ function make_all(; with_examples::Bool = true, modules = :all, run_examples::Bo
         example_dir = joinpath(@__DIR__, "..", "examples")
 
         if modules === :all
-            modules = [
-                "Example103_BurgersEquation.jl",
-                "Example105_NonlinearPoissonEquation.jl",
-                "Example106_NonlinearDiffusion.jl",
-                "Example108_RobinBoundaryCondition.jl",
-                "Example201_PoissonProblem.jl",
-                "Example202_MixedPoissonProblem.jl",
-                "Example203_PoissonProblemDG.jl",
-                "Example204_LaplaceEVProblem.jl",
-                "Example205_HeatEquation.jl",
-                "Example206_CoupledSubGridProblems.jl",
-                "Example207_AdvectionUpwindDG.jl",
-                "Example210_LshapeAdaptivePoissonProblem.jl",
-                "Example211_LshapeAdaptiveEQPoissonProblem.jl",
-                "Example212_PeriodicElasticity2D.jl",
-                "Example220_ReactionConvectionDiffusion.jl",
-                "Example225_ObstacleProblem.jl",
-                "Example226_Thermoforming.jl",
-                "Example227_ObstacleProblemLVPP.jl",
-                "Example230_NonlinearElasticity.jl",
-                "Example235_StokesIteratedPenalty.jl",
-                "Example240_SVRTEnrichment.jl",
-                "Example245_NSEFlowAroundCylinder.jl",
-                "Example250_NSELidDrivenCavity.jl",
-                "Example252_NSEPlanarLatticeFlow.jl",
-                "Example260_AxisymmetricNavierStokesProblem.jl",
-                "Example264_StokesDarcy.jl",
-                "Example265_FlowTransport.jl",
-                "Example270_NaturalConvectionProblem.jl",
-                "Example275_OptimalControlStokes.jl",
-                "Example280_CompressibleStokes.jl",
-                "Example282_IncompressibleMHD.jl",
-                "Example284_LevelSetMethod.jl",
-                "Example285_CahnHilliard.jl",
-                "Example290_PoroElasticity.jl",
-                "Example295_SlidingDroplet.jl",
-                "Example301_PoissonProblem.jl",
-                "Example310_DivFreeBasis.jl",
-                "Example312_PeriodicElasticity3D.jl",
-                "Example313_PeriodicPoisson.jl",
-                "Example330_HyperElasticity.jl",
-            ]
+            modules = readdir(example_dir)
         end
 
         #notebooks = ["PlutoTemplate.jl"
