@@ -972,9 +972,11 @@ function build_assembler!(A, O::BilinearOperator{Tv}, FE_test, FE_ansatz; time =
                         if O.parameters[:verbosity] > 0
                             @info "$(O.parameters[:name]) : assembling in parallel with $ncolors colors, $(length(EGs)) partitions and $(Threads.nthreads()) threads"
                         end
-                        for color in 1:ncolors
+                        @time for color in 1:ncolors
                             Threads.@threads for part in pcp[color]:(pcp[color + 1] - 1)
+                                @info "Start Color $color $part"
                                 assembly_loop(S, itemassemblygroups[part], EGs[part], O.QF[part], O.BE_test[part], O.BE_ansatz[part], O.BE_test_vals[part], O.BE_ansatz_vals[part], O.L2G[part], O.QP_infos[part], part; kwargs...)
+                                @info "Finish Color $color $part"
                             end
                         end
                     elseif O.parameters[:parallel_groups]
@@ -990,11 +992,13 @@ function build_assembler!(A, O::BilinearOperator{Tv}, FE_test, FE_ansatz; time =
                             assembly_loop(S, itemassemblygroups[j], EGs[j], O.QF[j], O.BE_test[j], O.BE_ansatz[j], O.BE_test_vals[j], O.BE_ansatz_vals[j], O.L2G[j], O.QP_infos[j]; kwargs...)
                         end
                     end
-                    flush!(S)
+                    @showtime flush!(S)
                     if O.parameters[:store]
                         add!(A, S)
                         O.storage = S
                     end
+                    @info "assembly done"
+
                 end
             end
             return if O.parameters[:verbosity] > 0
