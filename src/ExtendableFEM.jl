@@ -7,7 +7,6 @@ module ExtendableFEM
 
 using ADTypes: ADTypes, KnownJacobianSparsityDetector
 using ChunkSplitters: chunks
-using BlockArrays: BlockMatrix, BlockVector, Block, blocks, axes, mortar
 using CommonSolve: CommonSolve
 using DifferentiationInterface: DifferentiationInterface,
     AutoSparse, AutoForwardDiff, prepare_jacobian
