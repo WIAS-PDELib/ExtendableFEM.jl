@@ -321,12 +321,16 @@ function solve_linear_system!(A, b, sol, soltemp, residual, unknowns, freedofs, 
                         # the new combined restriction rhs
                         combined_restriction_rhs = Q'combined_restriction_rhs[prow]
 
+                        SC.parameters[:verbosity] > 1 && @info "new rhs computed"
+
                         # compress the  column space
                         qr_rank = rank(qr_result)
                         @assert norm(combined_restriction_rhs[(qr_rank + 1):end]) ≤ 1.0e-12 * norm(combined_restriction_rhs) "the rhs of the restriction is not in the image"
 
                         combined_restriction_matrix = combined_restriction_matrix[:, 1:qr_rank]
                         combined_restriction_rhs = combined_restriction_rhs[1:qr_rank]
+
+                        SC.parameters[:verbosity] > 1 && @info "matrix is truncated"
 
                         # replace by single entries
                         restriction_matrices = [combined_restriction_matrix]
@@ -346,6 +350,8 @@ function solve_linear_system!(A, b, sol, soltemp, residual, unknowns, freedofs, 
                     A_block[Block(1, 1)] = A_unrestricted
                 end
 
+                SC.parameters[:verbosity] > 1 && @info "start adjusting rhs"
+
                 ## we need to add the (initial) solution to the rhs, since we work with the residual equation
                 for (B, rhs) in zip(restriction_matrices, restriction_rhss)
                     rhs .-= B'sol_freedofs
@@ -362,6 +368,8 @@ function solve_linear_system!(A, b, sol, soltemp, residual, unknowns, freedofs, 
                     b_block[Block(i + 1)] = restriction_rhss[i]
 
                 end
+
+                SC.parameters[:verbosity] > 1 && @info "done setting blocks"
 
                 # convert to dense vectors
                 linsolve_b = Vector(b_block)
