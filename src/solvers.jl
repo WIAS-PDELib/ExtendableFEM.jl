@@ -91,15 +91,16 @@ function init_linear_solver!(SC, A, b, timer)
     allocs_assembly = 0
 
     if SC.linsolver === nothing
-        if SC.parameters[:verbosity] > 0
-            @info ".... initializing linear solver ($(method_linear))\n"
-        end
         @timeit timer "initialization" begin
             stats = @timed begin
                 abstol = SC.parameters[:abstol]
                 reltol = SC.parameters[:reltol]
                 method_linear = SC.parameters[:method_linear]
                 precon_linear = SC.parameters[:precon_linear]
+
+                if SC.parameters[:verbosity] > 0
+                    @info ".... initializing linear solver ($(method_linear))\n"
+                end
 
                 LP = LinearProblem(A, b)
                 if precon_linear !== nothing
@@ -296,12 +297,17 @@ function solve_linear_system!(A, b, sol, soltemp, residual, unknowns, freedofs, 
                 ## create block matrix
                 if linsolve_needs_matrix
                     if SC.parameters[:compress_restrictions]
+
+                        SC.parameters[:verbosity] > 1 && @info "Compressing the restriction matrices..."
+
                         # combine all restriction matrices into one:
                         combined_transposed_restriction_matrix = vcat(restriction_matrices'...)
                         combined_restriction_rhs = vcat(restriction_rhss...)
 
                         # compute rank revealing QR decomposition (of the transposed matrix)
                         qr_result = qr(combined_transposed_restriction_matrix)
+
+                        SC.parameters[:verbosity] > 1 && @info "QR decomposition computed"
 
                         # extract components (from docs: Q*R = combined_transposed_restriction_matrix[prow, pcol])
                         (; Q, R, prow, pcol) = qr_result
@@ -332,6 +338,8 @@ function solve_linear_system!(A, b, sol, soltemp, residual, unknowns, freedofs, 
                         # update sizes
                         block_sizes = [length(b_unrestricted), length(combined_restriction_rhs)]
                         total_size = sum(block_sizes)
+
+                        SC.parameters[:verbosity] > 1 && @info "Created new CompressedRestriction"
                     end
 
                     A_block = BlockMatrix(spzeros(Tv, total_size, total_size), block_sizes, block_sizes)
@@ -369,6 +377,8 @@ function solve_linear_system!(A, b, sol, soltemp, residual, unknowns, freedofs, 
 
                     (n_row, n_col) = size(blocks(A_block))
 
+
+                    SC.parameters[:verbosity] > 1 && @info "Assemble flat matrix out of blocks..."
                     for i in 1:n_row, j in 1:n_col
                         range_row = (lasts_row[i] + 1):lasts_row[i + 1]
                         range_col = (lasts_col[j] + 1):lasts_col[j + 1]
@@ -376,6 +386,8 @@ function solve_linear_system!(A, b, sol, soltemp, residual, unknowns, freedofs, 
                         # write each block directly in the resulting matrix
                         A_flat[range_row, range_col] = A_block[Block(i, j)]
                     end
+                    SC.parameters[:verbosity] > 1 && @info "... matrix assembly complete!"
+
                     linsolve_A = A_flat
                 end
             end
