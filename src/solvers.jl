@@ -138,6 +138,7 @@ function assemble_system!(A, b, sol, PD, SC, timer; kwargs...)
     if SC.parameters[:initialized]
         for op in PD.operators
             @timeit timer "$(op.parameters[:name])" begin
+                SC.parameters[:verbosity] > 1 && @info "assemble $(op.parameters[:name]) ... "
                 stats = @timed assemble!(
                     A, b, sol, op, SC;
                     time = SC.parameters[:time],
@@ -152,6 +153,7 @@ function assemble_system!(A, b, sol, PD, SC, timer; kwargs...)
     else
         for op in PD.operators
             @timeit timer "$(op.parameters[:name]) (first)" begin
+                SC.parameters[:verbosity] > 1 && @info "first assembly of $(op.parameters[:name]) ... "
                 stats = @timed assemble!(
                     A, b, sol, op, SC;
                     time = SC.parameters[:time],
@@ -163,14 +165,18 @@ function assemble_system!(A, b, sol, PD, SC, timer; kwargs...)
         end
         ## assemble restrictions
         for restriction in PD.restrictions
+            SC.parameters[:verbosity] > 1 && @info "assemble $(restriction.parameters[:name]) ... "
             @timeit timer "$(restriction.parameters[:name])" assemble!(restriction, sol, SC; kwargs...)
         end
     end
+
+    SC.parameters[:verbosity] > 1 && @info "flush FEMatrix... "
     flush!(A.entries)
 
     # Apply penalties
     for op in PD.operators
         @timeit timer "$(op.parameters[:name]) (penalties)" begin
+            SC.parameters[:verbosity] > 1 && @info "apply penalties of $(op.parameters[:name]) ... "
             stats = @timed apply_penalties!(
                 A, b, sol, op, SC;
                 assemble_matrix = !SC.parameters[:initialized] || !SC.parameters[:constant_matrix],
@@ -181,6 +187,8 @@ function assemble_system!(A, b, sol, PD, SC, timer; kwargs...)
         time_assembly += stats.time
         allocs_assembly += stats.bytes
     end
+
+    SC.parameters[:verbosity] > 1 && @info "flush FEMatrix... "
     flush!(A.entries)
 
     return time_assembly, allocs_assembly
