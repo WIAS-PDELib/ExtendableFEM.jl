@@ -138,6 +138,7 @@ function assemble_system!(A, b, sol, PD, SC, timer; kwargs...)
     if SC.parameters[:initialized]
         for op in PD.operators
             @timeit timer "$(op.parameters[:name])" begin
+                SC.parameters[:verbosity] > 1 && @info "assemble $(op.parameters[:name]) ... "
                 stats = @timed assemble!(
                     A, b, sol, op, SC;
                     time = SC.parameters[:time],
@@ -152,6 +153,7 @@ function assemble_system!(A, b, sol, PD, SC, timer; kwargs...)
     else
         for op in PD.operators
             @timeit timer "$(op.parameters[:name]) (first)" begin
+                SC.parameters[:verbosity] > 1 && @info "first assembly of $(op.parameters[:name]) ... "
                 stats = @timed assemble!(
                     A, b, sol, op, SC;
                     time = SC.parameters[:time],
@@ -163,14 +165,18 @@ function assemble_system!(A, b, sol, PD, SC, timer; kwargs...)
         end
         ## assemble restrictions
         for restriction in PD.restrictions
+            SC.parameters[:verbosity] > 1 && @info "assemble $(restriction.parameters[:name]) ... "
             @timeit timer "$(restriction.parameters[:name])" assemble!(restriction, sol, SC; kwargs...)
         end
     end
+
+    SC.parameters[:verbosity] > 1 && @info "flush FEMatrix... "
     flush!(A.entries)
 
     # Apply penalties
     for op in PD.operators
         @timeit timer "$(op.parameters[:name]) (penalties)" begin
+            SC.parameters[:verbosity] > 1 && @info "apply penalties of $(op.parameters[:name]) ... "
             stats = @timed apply_penalties!(
                 A, b, sol, op, SC;
                 assemble_matrix = !SC.parameters[:initialized] || !SC.parameters[:constant_matrix],
@@ -181,6 +187,8 @@ function assemble_system!(A, b, sol, PD, SC, timer; kwargs...)
         time_assembly += stats.time
         allocs_assembly += stats.bytes
     end
+
+    SC.parameters[:verbosity] > 1 && @info "flush FEMatrix... "
     flush!(A.entries)
 
     return time_assembly, allocs_assembly
@@ -271,7 +279,7 @@ function solve_linear_system!(A, b, sol, soltemp, residual, unknowns, freedofs, 
         end
 
         ## restrictions only involve the blocks coressponding to the unknowns and not necessarily the full sol.entries
-        sol_freedofs = mortar([view(sol[u]) for u in unknowns])
+        sol_freedofs = vcat([view(sol[u]) for u in unknowns]...)
 
         if length(PD.restrictions) == 0
             if linsolve_needs_matrix
@@ -285,7 +293,7 @@ function solve_linear_system!(A, b, sol, soltemp, residual, unknowns, freedofs, 
 
             # block sizes for the block matrix
             block_sizes = [length(b_unrestricted), [ length(b) for b in restriction_rhss ]...]
-            total_size = sum(block_sizes)
+            block_ends = cumsum(block_sizes)
 
             # total number of additional LM dofs
             nLMs = @views sum(block_sizes[2:end])
@@ -315,14 +323,15 @@ function solve_linear_system!(A, b, sol, soltemp, residual, unknowns, freedofs, 
                         # we need the inverse column permutation
                         ipcol = invperm(pcol)
 
-                        # the new combined restriction block (add another transpose)
-                        combined_restriction_matrix = R[:, ipcol]'
+                        # the new combined restriction block (add another transpose and convert into CSC matrix)
+                        combined_restriction_matrix = sparse(R[:, ipcol]')
 
                         # the new combined restriction rhs
                         combined_restriction_rhs = Q'combined_restriction_rhs[prow]
 
                         # compress the  column space
                         qr_rank = rank(qr_result)
+                        SC.parameters[:verbosity] > 1 && @info "QR decomposition has rank $qr_rank"
                         @assert norm(combined_restriction_rhs[(qr_rank + 1):end]) ≤ 1.0e-12 * norm(combined_restriction_rhs) "the rhs of the restriction is not in the image"
 
                         combined_restriction_matrix = combined_restriction_matrix[:, 1:qr_rank]
@@ -337,62 +346,35 @@ function solve_linear_system!(A, b, sol, soltemp, residual, unknowns, freedofs, 
 
                         # update sizes
                         block_sizes = [length(b_unrestricted), length(combined_restriction_rhs)]
-                        total_size = sum(block_sizes)
+                        block_ends = cumsum(block_sizes)
 
                         SC.parameters[:verbosity] > 1 && @info "Created new CompressedRestriction"
                     end
 
-                    A_block = BlockMatrix(spzeros(Tv, total_size, total_size), block_sizes, block_sizes)
-                    A_block[Block(1, 1)] = A_unrestricted
+                    linsolve_A = spzeros(Tv, block_ends[end], block_ends[end])
+                    linsolve_A[1:block_ends[1], 1:block_ends[1]] = A_unrestricted
                 end
 
                 ## we need to add the (initial) solution to the rhs, since we work with the residual equation
                 for (B, rhs) in zip(restriction_matrices, restriction_rhss)
-                    rhs .-= B'sol_freedofs
+                    # rhs -= B'sol_freedofs
+                    mul!(rhs, B', sol_freedofs, -1.0, 1.0)
                 end
 
-                b_block = BlockVector(zeros(Tv, total_size), block_sizes)
-                b_block[Block(1)] = b_unrestricted
+                linsolve_b = zeros(Tv, block_ends[end])
+                linsolve_b[1:block_ends[1]] = b_unrestricted
 
                 for i in eachindex(restriction_matrices)
                     if linsolve_needs_matrix
-                        A_block[Block(1, i + 1)] = restriction_matrices[i]
-                        A_block[Block(i + 1, 1)] = transpose(restriction_matrices[i])
+                        linsolve_A[1:block_ends[1], (block_ends[i] + 1):block_ends[i + 1]] = restriction_matrices[i]
+                        linsolve_A[(block_ends[i] + 1):block_ends[i + 1], 1:block_ends[1]] = restriction_matrices[i]'
                     end
-                    b_block[Block(i + 1)] = restriction_rhss[i]
+                    linsolve_b[(block_ends[i] + 1):block_ends[i + 1]] = restriction_rhss[i]
 
                 end
-
-                # convert to dense vectors
-                linsolve_b = Vector(b_block)
-
-                if linsolve_needs_matrix
-
-                    # linsolve.A = sparse(A_block) # convert to CSC Matrix is very slow https://github.com/JuliaArrays/BlockArrays.jl/issues/78
-                    # do it manually:
-                    A_flat = spzeros(size(A_block))
-
-                    lasts_row = [0, axes(A_block)[1].lasts...] # add leading zero
-                    lasts_col = [0, axes(A_block)[2].lasts...] # add leading zero
-
-                    (n_row, n_col) = size(blocks(A_block))
-
-
-                    SC.parameters[:verbosity] > 1 && @info "Assemble flat matrix out of blocks..."
-                    for i in 1:n_row, j in 1:n_col
-                        range_row = (lasts_row[i] + 1):lasts_row[i + 1]
-                        range_col = (lasts_col[j] + 1):lasts_col[j + 1]
-
-                        # write each block directly in the resulting matrix
-                        A_flat[range_row, range_col] = A_block[Block(i, j)]
-                    end
-                    SC.parameters[:verbosity] > 1 && @info "... matrix assembly complete!"
-
-                    linsolve_A = A_flat
-                end
+                SC.parameters[:verbosity] > 1 && @info "done setting blocked matrix/vector"
             end
         end
-
 
         if SC.parameters[:initialized]
             # set/update the linear system
@@ -442,7 +424,6 @@ function solve_linear_system!(A, b, sol, soltemp, residual, unknowns, freedofs, 
 
         if length(PD.restrictions) > 0
             # extract all residuals for the restriction blocks
-            block_ends = cumsum(block_sizes)
             restriction_residuals = [norm(residual_flat[(block_ends[i] + 1):block_ends[i + 1]]) for i in 1:(length(block_sizes) - 1) ]
             push!(stats[:restriction_residuals], restriction_residuals)
 
