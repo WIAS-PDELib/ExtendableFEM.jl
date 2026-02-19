@@ -358,7 +358,7 @@ function solve_linear_system!(A, b, sol, soltemp, residual, unknowns, freedofs, 
                 ## we need to add the (initial) solution to the rhs, since we work with the residual equation
                 for (B, rhs) in zip(restriction_matrices, restriction_rhss)
                     # rhs -= B'sol_freedofs
-                    mul!(rhs, B', sol_freedofs, -1.0, 0.0)
+                    mul!(rhs, B', sol_freedofs, -1.0, 1.0)
                 end
 
                 linsolve_b = zeros(Tv, block_ends[end])
