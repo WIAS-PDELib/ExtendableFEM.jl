@@ -42,7 +42,7 @@ default_unknown_kwargs() = Dict{Symbol, Tuple{Any, String}}(
     :algebraic_constraint => (nothing, "is this unknown an algebraic constraint?"),
 )
 
-test_function(u::Unknown) = u.parameters[:symbol_test] === nothing ? "X($(u.identifier))" : u.parameters[:symbol_test]
+test_function(u::Unknown) = u.parameters[:symbol_test] === nothing ? u.identifier : u.parameters[:symbol_test]
 ansatz_function(u::Unknown) = u.parameters[:symbol_ansatz] === nothing ? u.identifier : u.parameters[:symbol_ansatz]
 
 
@@ -72,7 +72,17 @@ function Unknown(u::String; identifier = Symbol(u), name = u, kwargs...)
 end
 
 function Base.show(io::IO, u::Unknown)
-    return print(io, "$(u.identifier) ($(u.name))")
+    print(io, "$(u.identifier) [name=$(u.name)")
+    if haskey(u.parameters, :dimension) && u.parameters[:dimension] !== nothing
+        print(io, ", dim=$(u.parameters[:dimension])")
+    end
+    if haskey(u.parameters, :symbol_ansatz) && u.parameters[:symbol_ansatz] !== nothing
+        print(io, ", ansatz=$(u.parameters[:symbol_ansatz])")
+    end
+    if haskey(u.parameters, :symbol_test) && u.parameters[:symbol_test] !== nothing
+        print(io, ", test=$(u.parameters[:symbol_test])")
+    end
+    return print(io, "]")
 end
 
 ## remapping of all function operators

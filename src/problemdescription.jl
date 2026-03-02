@@ -153,5 +153,13 @@ function Base.show(io::IO, PD::ProblemDescription)
             println(io, "    [$i] $o")
         end
     end
+    println(io, "  Restrictions ($(length(PD.restrictions))):")
+    if isempty(PD.restrictions)
+        println(io, "    (none)")
+    else
+        for (i, r) in enumerate(PD.restrictions)
+            println(io, "    [$i] $r")
+        end
+    end
     return
 end

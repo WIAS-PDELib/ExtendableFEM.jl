@@ -15,8 +15,8 @@ Construct a linear functional restriction for a finite element unknown from a gi
 - `value::T`: The target value for the linear functional (default: `0`).
 
 """
-function LinearFunctionalRestriction(O::LinearOperator{Tv}; value::T = 0) where {Tv, T}
-    return LinearFunctionalRestriction{T, Tv}(value, O, Dict{Symbol, Any}(:name => "LinearFunctionalRestriction"))
+function LinearFunctionalRestriction(u::Unknown, O::LinearOperator{Tv}; value::T = 0) where {Tv, T}
+    return LinearFunctionalRestriction{T, Tv}(value, O, Dict{Symbol, Any}(:name => "LinearFunctionalRestriction", :unknown => u))
 end
 
 
@@ -37,7 +37,12 @@ Internally, it creates a `LinearOperator` using the provided kernel and operator
 """
 function ZeroMeanValueRestriction(u::Unknown; kernel = ExtendableFEMBase.constant_one_kernel, operator = Identity, Tv = Float64)
     linear_operator = LinearOperator(kernel, [(u, operator)]; store = true, Tv)
-    return LinearFunctionalRestriction{Int64, Tv}(0, linear_operator, Dict{Symbol, Any}(:name => "MeanValueRestriction"))
+    return LinearFunctionalRestriction{Int64, Tv}(
+        0, linear_operator, Dict{Symbol, Any}(
+            :name => "MeanValueRestriction",
+            :unknown => u
+        )
+    )
 end
 
 
@@ -59,20 +64,25 @@ Internally, it creates a `LinearOperator` using the provided kernel and operator
 """
 function MassRestriction(u::Unknown; kernel = ExtendableFEMBase.constant_one_kernel, value::T = 0, operator = Identity, Tv = Float64) where {T}
     linear_operator = LinearOperator(kernel, [(u, operator)]; store = true, Tv)
-    return LinearFunctionalRestriction{T, Tv}(value, linear_operator, Dict{Symbol, Any}(:name => "MeanValueRestriction"))
+    return LinearFunctionalRestriction{T, Tv}(
+        value, linear_operator, Dict{Symbol, Any}(
+            :name => "MeanValueRestriction",
+            :unknown => u
+        )
+    )
 end
 
 
 function assemble!(R::LinearFunctionalRestriction{T, Tv}, sol, SC; kwargs...) where {T, Tv}
 
-    n = length(SC.b.entries)
+    n = length(SC.b[R.parameters[:unknown]])
 
-    b = deepcopy(SC.b)
+    b = copy(SC.b)
     fill!(b.entries, 0.0)
 
     assemble!(nothing, b, sol, R.linear_operator, SC; assemble_rhs = true, kwargs...)
 
-    R.parameters[:matrix] = sparse(reshape(b.entries, n, 1))
+    R.parameters[:matrix] = sparse(reshape(view(b[R.parameters[:unknown]]), n, 1))
     R.parameters[:rhs] = Tv[R.value]
     R.parameters[:multiplier] = zeros(1)
 

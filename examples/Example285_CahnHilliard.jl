@@ -44,6 +44,7 @@ end
 function main(;
         order = 2,                              # finite element order for c and μ
         nref = 4,                               # refinement level
+        periodic = true,
         M = 1.0,
         λ = 1.0e-2,
         iterations_until_next_plot = 20,
@@ -67,6 +68,13 @@ function main(;
     assign_operator!(PD, BilinearOperator([grad(c)], [grad(μ)]; factor = M, store = true))
     assign_operator!(PD, BilinearOperator([id(μ)]; store = true))
     assign_operator!(PD, BilinearOperator([grad(μ)], [grad(c)]; factor = -λ, store = true))
+
+    if periodic
+        assign_restriction!(PD, CoupledDofsRestriction(c, 1, 3))
+        assign_restriction!(PD, CoupledDofsRestriction(c, 2, 4))
+        assign_restriction!(PD, CoupledDofsRestriction(μ, 1, 3))
+        assign_restriction!(PD, CoupledDofsRestriction(μ, 2, 4))
+    end
 
     ## add nonlinear reaction part (= -df/dc times test function)
     function kernel_dfdc!(result, input, qpinfo)

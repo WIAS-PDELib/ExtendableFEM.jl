@@ -1,5 +1,15 @@
 # CHANGES
 
+## v.1.10.3
+
+### Fixed
+  - Restriction now also work for problems with more than one unknown
+
+### Added
+  - Restrictions are listed in show of ProblemDescription
+  - CompressedRestriction has (empty) assemble! function to prevent crash in some cases
+  - improved show of Unknowns
+  
 ## v.1.10.0
 
 ### Changed

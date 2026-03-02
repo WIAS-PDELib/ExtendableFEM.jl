@@ -7,7 +7,14 @@ abstract type AbstractRestriction end
 
 
 function Base.show(io::IO, R::AbstractRestriction)
-    print(io, "AbstractRestriction")
+    if haskey(R.parameters, :name)
+        print(io, "$(R.parameters[:name])")
+        if haskey(R.parameters, :name)
+            print(io, " for $(ansatz_function(R.parameters[:unknown]))")
+        end
+    else
+        print(io, "Restriction of type $(typeof(R))")
+    end
     return nothing
 end
 

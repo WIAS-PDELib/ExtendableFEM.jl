@@ -43,7 +43,7 @@ function compute_nonlinear_residual!(residual, A, b, sol, unknowns, PD, SC, free
 
     # add Lagrange residuals
     for rs in PD.restrictions
-        mul!(residual.entries, rs.parameters[:matrix], rs.parameters[:multiplier], -1.0, 1.0)
+        mul!(view(residual[rs.parameters[:unknown]]), rs.parameters[:matrix], rs.parameters[:multiplier], -1.0, 1.0)
     end
 
 
@@ -59,14 +59,14 @@ function compute_nonlinear_residual!(residual, A, b, sol, unknowns, PD, SC, free
     end
 
     nlres = length(freedofs) > 0 ? norm(residual.entries[freedofs]) : norm(residual.entries)
-    restriction_residuals = [norm(rs.parameters[:matrix]' * sol.entries - rs.parameters[:rhs]) for rs in PD.restrictions]
+    restriction_residuals = [norm(rs.parameters[:matrix]' * view(sol[rs.parameters[:unknown]]) - rs.parameters[:rhs]) for rs in PD.restrictions]
 
     if length(PD.restrictions) > 0
         nlres = sqrt(nlres^2 + norm(restriction_residuals)^2)
     end
 
     for rs in PD.restrictions
-        mul!(residual.entries, rs.parameters[:matrix], rs.parameters[:multiplier], 1.0, 1.0)
+        view(residual[rs.parameters[:unknown]]) .+= rs.parameters[:matrix] * rs.parameters[:multiplier]
     end
 
     if SC.parameters[:verbosity] > 0
@@ -278,9 +278,6 @@ function solve_linear_system!(A, b, sol, soltemp, residual, unknowns, freedofs, 
             b_unrestricted = residual.entries
         end
 
-        ## restrictions only involve the blocks coressponding to the unknowns and not necessarily the full sol.entries
-        sol_freedofs = vcat([view(sol[u]) for u in unknowns]...)
-
         if length(PD.restrictions) == 0
             if linsolve_needs_matrix
                 linsolve_A = A_unrestricted
@@ -306,68 +303,97 @@ function solve_linear_system!(A, b, sol, soltemp, residual, unknowns, freedofs, 
                 if linsolve_needs_matrix
                     if SC.parameters[:compress_restrictions]
 
+                        # compress only once and for all
+                        SC.parameters[:compress_restrictions] = false
+
                         SC.parameters[:verbosity] > 1 && @info "Compressing the restriction matrices..."
 
-                        # combine all restriction matrices into one:
-                        combined_transposed_restriction_matrix = vcat(restriction_matrices'...)
-                        combined_restriction_rhs = vcat(restriction_rhss...)
+                        compressed_restrictions = []
+                        compressed_matrices = []
+                        compressed_rhss = []
 
-                        # compute rank revealing QR decomposition (of the transposed matrix)
-                        qr_result = qr(combined_transposed_restriction_matrix)
+                        # find all restricted unknowns
+                        restricted_unknowns = unique([ re.parameters[:unknown] for re in PD.restrictions])
 
-                        SC.parameters[:verbosity] > 1 && @info "QR decomposition computed"
+                        for u in restricted_unknowns
 
-                        # extract components (from docs: Q*R = combined_transposed_restriction_matrix[prow, pcol])
-                        (; Q, R, prow, pcol) = qr_result
+                            # which restrictions belong to `u`?
+                            indices = filter(i -> PD.restrictions[i].parameters[:unknown] == u, 1:length(PD.restrictions))
 
-                        # we need the inverse column permutation
-                        ipcol = invperm(pcol)
+                            # combine all restriction matrices into one:
+                            combined_transposed_restriction_matrix = vcat(restriction_matrices[indices]'...)
+                            combined_restriction_rhs = vcat(restriction_rhss[indices]...)
 
-                        # the new combined restriction block (add another transpose and convert into CSC matrix)
-                        combined_restriction_matrix = sparse(R[:, ipcol]')
+                            # compute rank revealing QR decomposition (of the transposed matrix)
+                            qr_result = qr(combined_transposed_restriction_matrix)
 
-                        # the new combined restriction rhs
-                        combined_restriction_rhs = Q'combined_restriction_rhs[prow]
+                            SC.parameters[:verbosity] > 1 && @info "QR decomposition computed"
 
-                        # compress the  column space
-                        qr_rank = rank(qr_result)
-                        SC.parameters[:verbosity] > 1 && @info "QR decomposition has rank $qr_rank"
-                        @assert norm(combined_restriction_rhs[(qr_rank + 1):end]) ≤ 1.0e-12 * norm(combined_restriction_rhs) "the rhs of the restriction is not in the image"
+                            # extract components (from docs: Q*R = combined_transposed_restriction_matrix[prow, pcol])
+                            (; Q, R, prow, pcol) = qr_result
 
-                        combined_restriction_matrix = combined_restriction_matrix[:, 1:qr_rank]
-                        combined_restriction_rhs = combined_restriction_rhs[1:qr_rank]
+                            # we need the inverse column permutation
+                            ipcol = invperm(pcol)
 
-                        # replace by single entries
-                        restriction_matrices = [combined_restriction_matrix]
-                        restriction_rhss = [combined_restriction_rhs]
+                            # the new combined restriction block (add another transpose and convert into CSC matrix)
+                            combined_restriction_matrix = sparse(R[:, ipcol]')
 
-                        # remove previously defined restrictions (with explicit copy of the rhs; it is otherwise modified later)
-                        PD.restrictions = [CompressedRestriction(combined_restriction_matrix, deepcopy(combined_restriction_rhs))]
+                            # the new combined restriction rhs
+                            combined_restriction_rhs = Q'combined_restriction_rhs[prow]
+
+                            # compress the  column space
+                            qr_rank = rank(qr_result)
+                            SC.parameters[:verbosity] > 1 && @info "QR decomposition has rank $qr_rank"
+                            @assert norm(combined_restriction_rhs[(qr_rank + 1):end]) ≤ 1.0e-12 * norm(combined_restriction_rhs) "the rhs of the restriction is not in the image"
+
+                            combined_restriction_matrix = combined_restriction_matrix[:, 1:qr_rank]
+                            combined_restriction_rhs = combined_restriction_rhs[1:qr_rank]
+
+                            # replace by single entries
+                            push!(compressed_matrices, combined_restriction_matrix)
+                            push!(compressed_rhss, combined_restriction_rhs)
+
+                            # explicit copy of the rhs; it is otherwise modified later
+                            compressed_restriction = CompressedRestriction(u, combined_restriction_matrix, deepcopy(combined_restriction_rhs))
+                            push!(compressed_restrictions, compressed_restriction)
+
+                            SC.parameters[:verbosity] > 1 && @info "Created new CompressedRestriction for unknown $u"
+                        end
+
+                        # remove previously defined restrictions
+                        PD.restrictions = compressed_restrictions
+
+                        restriction_matrices = compressed_matrices
+                        restriction_rhss = compressed_rhss
 
                         # update sizes
-                        block_sizes = [length(b_unrestricted), length(combined_restriction_rhs)]
+                        block_sizes = [length(b_unrestricted), length.(compressed_rhss)...]
                         block_ends = cumsum(block_sizes)
-
-                        SC.parameters[:verbosity] > 1 && @info "Created new CompressedRestriction"
                     end
 
                     linsolve_A = spzeros(Tv, block_ends[end], block_ends[end])
                     linsolve_A[1:block_ends[1], 1:block_ends[1]] = A_unrestricted
                 end
 
+                # corresponding sol entries for each restriction
+                restricted_sol_entries = [view(sol[re.parameters[:unknown]]) for re in PD.restrictions]
+
                 ## we need to add the (initial) solution to the rhs, since we work with the residual equation
-                for (B, rhs) in zip(restriction_matrices, restriction_rhss)
-                    # rhs -= B'sol_freedofs
-                    mul!(rhs, B', sol_freedofs, -1.0, 1.0)
+                for (B, rhs, sol_entries) in zip(restriction_matrices, restriction_rhss, restricted_sol_entries)
+                    # rhs -= B'sol_entries
+                    mul!(rhs, B', sol_entries, -1.0, 1.0)
                 end
 
                 linsolve_b = zeros(Tv, block_ends[end])
                 linsolve_b[1:block_ends[1]] = b_unrestricted
 
                 for i in eachindex(restriction_matrices)
+                    # index range of the restricted unknown
+                    dof_range = (sol[PD.restrictions[i].parameters[:unknown]].offset + 1):(sol[PD.restrictions[i].parameters[:unknown]].last_index)
+
                     if linsolve_needs_matrix
-                        linsolve_A[1:block_ends[1], (block_ends[i] + 1):block_ends[i + 1]] = restriction_matrices[i]
-                        linsolve_A[(block_ends[i] + 1):block_ends[i + 1], 1:block_ends[1]] = restriction_matrices[i]'
+                        linsolve_A[dof_range, (block_ends[i] + 1):block_ends[i + 1]] = restriction_matrices[i]
+                        linsolve_A[(block_ends[i] + 1):block_ends[i + 1], dof_range] = restriction_matrices[i]'
                     end
                     linsolve_b[(block_ends[i] + 1):block_ends[i + 1]] = restriction_rhss[i]
 
