@@ -12,13 +12,20 @@ end
 
     This is 𝑛𝑜𝑡 exported, for internal use only!
 """
-function CompressedRestriction(matrix::AbstractMatrix, rhs::AbstractVector)
+function CompressedRestriction(unknown::Union{Unknown, Int}, matrix::AbstractMatrix, rhs::AbstractVector)
     return CompressedRestriction(
         Dict{Symbol, Any}(
             :name => "CompressedRestriction",
+            :unknown => unknown,
             :matrix => matrix,
             :rhs => rhs,
             :multiplier => zero(rhs)
         )
     )
+end
+
+
+function assemble!(R::CompressedRestriction, sol, SC; kwargs...)
+    # do nothing
+    return nothing
 end

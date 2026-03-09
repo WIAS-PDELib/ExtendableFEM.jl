@@ -26,7 +26,12 @@ function BoundaryDataRestriction(u::Unknown, data = nothing; kwargs...)
     else
         boundary_operator = InterpolateBoundaryData(u, data; kwargs...)
     end
-    return BoundaryDataRestriction(u, boundary_operator, Dict{Symbol, Any}(:name => "BoundaryDataRestriction"))
+    return BoundaryDataRestriction(
+        u, boundary_operator, Dict{Symbol, Any}(
+            :name => "BoundaryDataRestriction",
+            :unknown => u
+        )
+    )
 end
 
 
@@ -47,7 +52,7 @@ function assemble!(R::BoundaryDataRestriction, sol, SC; kwargs...)
     nvals = length(fixeddofs)
 
     ## assign fixed dofs and vals to restriction
-    n = length(SC.b.entries)
+    n = length(SC.b[R.parameters[:unknown]])
     R.parameters[:matrix] = sparse(fixeddofs, 1:nvals, ones(nvals), n, nvals)
     R.parameters[:rhs] = fixedvals
     R.parameters[:multiplier] = zeros(nvals)

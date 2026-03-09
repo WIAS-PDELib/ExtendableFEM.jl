@@ -15,11 +15,12 @@ end
 
     The matrix can be obtained from, e.g., `get_periodic_coupling_matrix`.
 """
-function CoupledDofsRestriction(matrix::AbstractMatrix)
+function CoupledDofsRestriction(matrix::AbstractMatrix; unknown = 1)
     return CoupledDofsRestriction(
         [matrix],
         Dict{Symbol, Any}(
             :name => "CoupledDofsRestriction",
+            :unknown => unknown,
             :reduce_col_space => false
         )
     )
@@ -34,11 +35,12 @@ end
     By default, the column space of the matrices is reduced to be of full rank.
     This can toggled by the `:reduce_col_space` parameter.
 """
-function CoupledDofsRestriction(matrices::Vector{AM}) where {AM <: AbstractMatrix}
+function CoupledDofsRestriction(matrices::Vector{AM}; unknown = 1) where {AM <: AbstractMatrix}
     return CoupledDofsRestriction(
         matrices,
         Dict{Symbol, Any}(
             :name => "CoupledDofsRestriction",
+            :unknown => unknown,
             :reduce_col_space => true
         )
     )
@@ -112,7 +114,7 @@ function assemble!(R::CoupledDofsRestriction, sol, SC; kwargs...)
         coupling_matrix = get_periodic_coupling_matrix(FES, source_region, target_region, give_opposite!; R_kwargs...)
 
         # replace R (in this scope)
-        R = CoupledDofsRestriction(coupling_matrix)
+        R = CoupledDofsRestriction(coupling_matrix, unknown = R.parameters[:unknown])
     end
 
 
