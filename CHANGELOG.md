@@ -1,5 +1,12 @@
 # CHANGES
 
+
+## v.1.10.4
+
+### Fixed
+  - assembly of CombineDofs operator now much faster
+
+
 ## v.1.10.3
 
 ### Fixed
