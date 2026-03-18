@@ -868,11 +868,14 @@ function iterate_until_stationarity(
     allocs_final = 0
     nlres = 1.1e30
     linres = 1.1e30
+    verbosity = maximum([SC.parameters[:verbosity] for SC in SCs])
     converged = zeros(Bool, nPDs)
     it::Int = 0
     while (it < maxsteps) && (any(converged .== false))
         it += 1
-        @printf "%5d\t" it
+        if verbosity > -2
+            @printf "%5d\t" it
+        end
         copyto!(init.entries, sol.entries)
         allocs_assembly = 0
         time_assembly = 0
@@ -884,6 +887,7 @@ function iterate_until_stationarity(
             A = As[p]
             PD = PDs[p]
             SC = SCs[p]
+            stats = SC.statistics
             residual = residuals[p]
             maxits = SC.parameters[:maxiterations]
             nltol = SC.parameters[:target_residual]
@@ -923,7 +927,10 @@ function iterate_until_stationarity(
                         end
                     end
                     nlres = norm(residual.entries)
-                    @printf "\tres[%d] = %.2e" p nlres
+                    if verbosity > -2
+                        @printf "\tres[%d] = %.2e" p nlres
+                    end
+                    push!(stats[:nonlinear_residuals], nlres)
                 end
                 time_final += time_assembly + time_solve_init
                 allocs_final += allocs_assembly + allocs_solve_init
@@ -944,15 +951,18 @@ function iterate_until_stationarity(
                 allocs_final += allocs_solve
                 time_solve += time_solve_init
                 allocs_solve += allocs_solve_init
-                if SC.parameters[:verbosity] > -1
+                if verbosity > -1
                     @printf " (%.3e)" linres
                 end
+                push!(stats[:linear_residuals], linres)
             end # nonlinear iterations subproblem
         end
 
         if energy_integrator !== nothing
             error = evaluate(energy_integrator, sol)
-            @printf "   energy = %.3e" sum([sum(view(error, j, :)) for j in 1:size(error, 1)])
+            if verbosity > -1
+                @printf "   energy = %.3e" sum([sum(view(error, j, :)) for j in 1:size(error, 1)])
+            end
         end
         @printf "\n"
     end

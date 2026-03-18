@@ -152,6 +152,9 @@ function main(;
         SC2 = SolverConfiguration(PDT; init = sol, maxiterations = 1, target_residual = target_residual, kwargs...)
         sol, nits = iterate_until_stationarity([SC1, SC2]; energy_integrator = EnergyIntegrator, maxsteps = maxsteps, init = sol, kwargs...)
 
+        @info "final residual momentum = $(residual(SC1))"
+        @info "final residual continuity = $(residual(SC2))"
+
         ## calculate error
         error = evaluate(ErrorIntegratorExact, sol)
         Results[lvl, 1] = sqrt(sum(view(error, 1, :)) + sum(view(error, 2, :)))
