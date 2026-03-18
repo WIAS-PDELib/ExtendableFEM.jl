@@ -108,11 +108,11 @@ function build_assembler!(CD::CombineDofs{UT, CT}, FE::Array{<:FEVectorBlock, 1}
         function assemble!(A::AbstractSparseArray{T}, b::AbstractVector{T}, assemble_matrix::Bool, assemble_rhs::Bool, kwargs...) where {T}
             if assemble_matrix
 
-                @showtime @views AT = sparse(A.cscmatrix[fixed_dofs .+ offsetX, :]')
+                @views AT = sparse(A.cscmatrix[fixed_dofs .+ offsetX, :]')
 
                 # go through each constrained dof and update the FE adjacency info
                 # of the coupled dofs
-                @time for (i, dof_i) in enumerate(fixed_dofs)
+                for (i, dof_i) in enumerate(fixed_dofs)
                     # this col-view is efficient
                     coupling_i = @views coupling_matrix[:, dof_i]
 
