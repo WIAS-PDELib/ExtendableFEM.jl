@@ -129,7 +129,7 @@ end
 
 function main(;
         order = 1,
-        periodic_coupling = :none, # :restriction, :operator, :high_level_restriction
+        periodic_coupling = :high_level_restriction, # :restriction, :operator, :high_level_restriction
         Plotter = nothing,
         force = 1.0,
         h = 1.0e-4,

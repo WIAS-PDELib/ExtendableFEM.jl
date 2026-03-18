@@ -107,29 +107,27 @@ function build_assembler!(CD::CombineDofs{UT, CT}, FE::Array{<:FEVectorBlock, 1}
 
         function assemble!(A::AbstractSparseArray{T}, b::AbstractVector{T}, assemble_matrix::Bool, assemble_rhs::Bool, kwargs...) where {T}
             if assemble_matrix
+
+                @showtime @views AT = sparse(A.cscmatrix[fixed_dofs .+ offsetX, :]')
+
                 # go through each constrained dof and update the FE adjacency info
                 # of the coupled dofs
-                for dof_i in fixed_dofs
+                @time for (i, dof_i) in enumerate(fixed_dofs)
                     # this col-view is efficient
                     coupling_i = @views coupling_matrix[:, dof_i]
-
-                    # write the FE adjacency of the constrained dofs into this row
-                    sourcerow = dof_i + offsetX
 
                     # extract the constrained dofs and the weights
                     coupled_dofs_i, weights_i = findnz(coupling_i)
 
                     # parse through sourcerow and add the contents to the coupled dofs
-                    for col in 1:size(A, 2)
-                        r = findindex(A.cscmatrix, sourcerow, col)
-                        if r > 0
-                            val = A.cscmatrix.nzval[r]
-                            if abs(val) > 1.0e-15
-                                for (dof_k, weight_ik) in zip(coupled_dofs_i, weights_i)
-                                    targetrow = dof_k + offsetX
-                                    _addnz(A, targetrow, col, val, weight_ik)
-                                end
-                            end
+                    A_row = @views AT[:, i]
+                    cols_i, vals_i = findnz(A_row)
+
+                    # copy values of sourcerow to the coupled targetrow
+                    for (col, val) in zip(cols_i, vals_i)
+                        for (dof_k, weight_ik) in zip(coupled_dofs_i, weights_i)
+                            targetrow = dof_k + offsetX
+                            _addnz(A, targetrow, col, val, weight_ik)
                         end
                     end
                 end
