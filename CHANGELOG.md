@@ -1,6 +1,12 @@
 # CHANGES
 
 
+## v.1.10.5
+
+### Fixed
+  - linear and nonlinear residuals in solve_until_stationarity are saved in SolverConfiguration.statistics
+
+
 ## v.1.10.4
 
 ### Fixed
