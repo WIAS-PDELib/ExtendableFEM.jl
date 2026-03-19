@@ -130,7 +130,7 @@ function main(;
     EnergyIntegrator = ItemIntegrator(energy_kernel!, [id(u)]; resultdim = 1, quadorder = 2 * (order + 1), kwargs...)
     ErrorIntegratorExact = ItemIntegrator(exact_error!(u!, ∇u!, ϱ!), [id(u), grad(u), id(ϱ)]; resultdim = 9, quadorder = 2 * (order + 1), kwargs...)
     NDofs = zeros(Int, nrefs)
-    Results = zeros(Float64, nrefs, 5)
+    Results = zeros(Float64, nrefs, 7)
 
     sol = nothing
     xgrid = nothing
@@ -152,6 +152,11 @@ function main(;
         SC2 = SolverConfiguration(PDT; init = sol, maxiterations = 1, target_residual = target_residual, kwargs...)
         sol, nits = iterate_until_stationarity([SC1, SC2]; energy_integrator = EnergyIntegrator, maxsteps = maxsteps, init = sol, kwargs...)
 
+        residual_momentum = residual(SC1)
+        residual_continuity = residual(SC2)
+        @info "final residual momentum = $(residual_momentum)"
+        @info "final residual continuity = $(residual_continuity)"
+
         ## calculate error
         error = evaluate(ErrorIntegratorExact, sol)
         Results[lvl, 1] = sqrt(sum(view(error, 1, :)) + sum(view(error, 2, :)))
@@ -159,6 +164,8 @@ function main(;
         Results[lvl, 3] = sqrt(sum(view(error, 7, :)))
         Results[lvl, 4] = sqrt(sum(view(error, 8, :)) + sum(view(error, 9, :)))
         Results[lvl, 5] = nits
+        Results[lvl, 6] = residual_momentum
+        Results[lvl, 7] = residual_continuity
 
         ## print results
         print_convergencehistory(NDofs[1:lvl], Results[1:lvl, :]; X_to_h = X -> X .^ (-1 / 2), ylabels = ["|| u - u_h ||", "|| ∇(u - u_h) ||", "|| ϱ - ϱ_h ||", "|| ϱu - ϱu_h ||", "#its"], xlabel = "ndof")
@@ -328,6 +335,8 @@ end
 generateplots = ExtendableFEM.default_generateplots(Example280_CompressibleStokes, "example280.png") #hide
 function runtests() #hide
     Results, plt = main(; nrefs = 2) #hide
+    @test Results[end, 6] <= 1.0e-11 #hide
+    @test Results[end, 7] <= 1.0e-11 #hide
     @test Results[end, 1] ≈ 6.732891488265023e-7 #hide
     return nothing #hide
 end #hide

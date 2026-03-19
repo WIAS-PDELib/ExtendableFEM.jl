@@ -88,7 +88,7 @@ function main(;
     EnergyIntegrator = ItemIntegrator(energy_kernel!, [id(u)]; resultdim = 1, quadorder = 2 * (order + 1), kwargs...)
     ErrorIntegratorExact = ItemIntegrator(exact_error!(u!, ∇u!, ϱ!), [id(u), grad(u), id(ϱ)]; resultdim = 9, quadorder = 2 * (order + 1), kwargs...)
     NDofs = zeros(Int, nrefs)
-    Results = zeros(Float64, nrefs, 5)
+    Results = zeros(Float64, nrefs, 7)
 
     sol = nothing
     xgrid = nothing
@@ -110,6 +110,11 @@ function main(;
         SC2 = SolverConfiguration(PDT; init = sol, maxiterations = 1, target_residual = target_residual, kwargs...)
         sol, nits = iterate_until_stationarity([SC1, SC2]; energy_integrator = EnergyIntegrator, maxsteps = maxsteps, init = sol, kwargs...)
 
+        residual_momentum = residual(SC1)
+        residual_continuity = residual(SC2)
+        @info &quot;final residual momentum = $(residual_momentum)&quot;
+        @info &quot;final residual continuity = $(residual_continuity)&quot;
+
         # calculate error
         error = evaluate(ErrorIntegratorExact, sol)
         Results[lvl, 1] = sqrt(sum(view(error, 1, :)) + sum(view(error, 2, :)))
@@ -117,6 +122,8 @@ function main(;
         Results[lvl, 3] = sqrt(sum(view(error, 7, :)))
         Results[lvl, 4] = sqrt(sum(view(error, 8, :)) + sum(view(error, 9, :)))
         Results[lvl, 5] = nits
+        Results[lvl, 6] = residual_momentum
+        Results[lvl, 7] = residual_continuity
 
         # print results
         print_convergencehistory(NDofs[1:lvl], Results[1:lvl, :]; X_to_h = X -&gt; X .^ (-1 / 2), ylabels = [&quot;|| u - u_h ||&quot;, &quot;|| ∇(u - u_h) ||&quot;, &quot;|| ϱ - ϱ_h ||&quot;, &quot;|| ϱu - ϱu_h ||&quot;, &quot;#its&quot;], xlabel = &quot;ndof&quot;)
@@ -283,4 +290,4 @@ function prepare_data!(; M = 1, c = 1, μ = 1, ufac = 100, laplacian_in_rhs = tr
     return ϱ_eval, g_eval[2], f == 0 ? nothing : f_eval[2], u_eval[2], ∇u_eval[2]
 end
 
-end</code></pre><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../Example275_OptimalControlStokes/">« Example275_OptimalControlStokes</a><a class="docs-footer-nextpage" href="../Example282_IncompressibleMHD/">Example282_IncompressibleMHD »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.17.0 on <span class="colophon-date" title="Wednesday 18 March 2026 13:30">Wednesday 18 March 2026</span>. Using Julia version 1.12.5.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+end</code></pre><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../Example275_OptimalControlStokes/">« Example275_OptimalControlStokes</a><a class="docs-footer-nextpage" href="../Example282_IncompressibleMHD/">Example282_IncompressibleMHD »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.17.0 on <span class="colophon-date" title="Thursday 19 March 2026 08:45">Thursday 19 March 2026</span>. Using Julia version 1.12.5.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
