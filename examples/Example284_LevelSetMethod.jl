@@ -56,7 +56,7 @@ end
 ## everything is wrapped in a main function
 function main(;
         Plotter = nothing, ϵ = 0.05, τ = 1.0e-2, T = 1.0, order = 2, nref = 6, use_diffeq = false,
-        solver = ImplicitEuler(autodiff = false), verbosity = -1, kwargs...
+        solver = ImplicitEuler(), verbosity = -1, kwargs...
     )
 
     ## initial grid and final time
@@ -84,10 +84,10 @@ function main(;
 
         ## solve ODE problem
         de_sol = DifferentialEquations.solve(prob, solver, abstol = 1.0e-6, reltol = 1.0e-4, dt = τ, dtmin = 1.0e-8, adaptive = true)
-        @info "#tsteps = $(length(de_sol))"
+        @info "#tsteps = $(length(de_sol.u))"
 
         ## get final solution
-        sol.entries .= de_sol[end]
+        sol.entries .= de_sol.u[end]
     else
         ## add backward Euler time derivative
         M = FEMatrix(FES)
