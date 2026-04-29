@@ -714,37 +714,6 @@ function assemble!(A, b, sol, O::LinearOperator{Tv, UT}, SC::SolverConfiguration
     end
 end
 
-"""
-$(TYPEDSIGNATURES)
-
-Assembles the right-hand side vector for a linear form (i.e., applies the `LinearOperator` to the current solution and accumulates the result in `b`). If the operator depends on the current solution (i.e., has argument unknowns), the solution vector(s) `sol` must be provided.
-
-# Arguments
-- `b::FEVector`: The right-hand side vector to assemble into (can be block-structured).
-- `O::LinearOperator`: The linear operator to assemble.
-- `sol`: (Optional) Solution vector(s) for argument unknowns, required if the operator depends on the current solution.
-- `assemble_rhs`: (Keyword, default = `true`) If `false`, assembly is skipped.
-- `kwargs...`: Additional keyword arguments passed to the assembler (e.g., time, custom parameters).
-
-# Returns
-- The assembled right-hand side vector `b` (modified in-place).
-"""
-function assemble!(b::FEVector, O::LinearOperator{Tv, UT}, sol = nothing; assemble_rhs = true, kwargs...) where {Tv, UT}
-    if !assemble_rhs
-        return
-    end
-    ind_test = O.u_test
-    ind_args = O.u_args
-    return if length(O.u_args) > 0
-        build_assembler!(b.entries, O, [b[j] for j in ind_test], [sol[j] for j in ind_args]; kwargs...)
-        O.assembler(b.entries, [sol[j] for j in ind_args])
-    else
-        build_assembler!(b.entries, O, [b[j] for j in ind_test]; kwargs...)
-        O.assembler(b.entries)
-    end
-end
-
-
 function assemble!(A, b, sol, O::LinearOperatorFromVector{UT, bT}, SC::SolverConfiguration; assemble_rhs = true, kwargs...) where {UT, bT}
     if !assemble_rhs
         return
@@ -783,5 +752,65 @@ function assemble!(A, b, sol, O::LinearOperatorFromMatrix{UT, MT}, SC::SolverCon
     else
         @assert length(ind_test) == 1 && length(ind_args) == 1
         addblock_matmul!(b[ind_test[1]], O.A, sol[ind_args[1]]; factor = O.parameters[:factor])
+    end
+end
+
+
+"""
+$(TYPEDSIGNATURES)
+
+Assembles the right-hand side vector for a linear form (i.e., applies the `LinearOperator` to the current solution and accumulates the result in `b`). If the operator depends on the current solution (i.e., has argument unknowns), the solution vector(s) `sol` must be provided.
+
+# Arguments
+- `b::FEVector`: The right-hand side vector to assemble into (can be block-structured).
+- `O::LinearOperator`: The linear operator to assemble.
+- `sol`: (Optional) Solution vector(s) for argument unknowns, required if the operator depends on the current solution.
+- `assemble_rhs`: (Keyword, default = `true`) If `false`, assembly is skipped.
+- `kwargs...`: Additional keyword arguments passed to the assembler (e.g., time, custom parameters).
+
+# Returns
+- The assembled right-hand side vector `b` (modified in-place).
+"""
+function assemble!(b::FEVector, O::LinearOperator{Tv, UT}, sol = nothing; assemble_rhs = true, kwargs...) where {Tv, UT}
+    if !assemble_rhs
+        return
+    end
+    ind_test = O.u_test
+    ind_args = O.u_args
+    return if length(O.u_args) > 0
+        build_assembler!(b.entries, O, [b[j] for j in ind_test], [sol[j] for j in ind_args]; kwargs...)
+        O.assembler(b.entries, [sol[j] for j in ind_args])
+    else
+        build_assembler!(b.entries, O, [b[j] for j in ind_test]; kwargs...)
+        O.assembler(b.entries)
+    end
+end
+function assemble!(b::FEVector, O::LinearOperatorFromMatrix{UT, MT}, sol = nothing; assemble_rhs = true, kwargs...) where {UT, MT}
+    if !assemble_rhs
+        return
+    end
+    ind_test = O.u_test
+    ind_args = O.u_args
+    return if MT <: FEMatrix
+        for (j, ij) in enumerate(ind_test), k in ind_args
+            addblock_matmul!(b[j], O.A[ij, k], sol[k]; factor = O.parameters[:factor])
+        end
+    else
+        @assert length(ind_test) == 1 && length(ind_args) == 1
+        addblock_matmul!(b[ind_test[1]], O.A, sol[ind_args[1]]; factor = O.parameters[:factor])
+    end
+end
+function assemble!(b::FEVector, O::LinearOperatorFromVector{UT, bT}, sol = nothing; assemble_rhs = true, kwargs...) where {UT, bT}
+    if !assemble_rhs
+        return
+    end
+    ind_test = O.u_test
+    return if bT <: FEVector
+        for (j, ij) in enumerate(ind_test)
+            addblock!(b[j], O.b[ij]; factor = O.parameters[:factor])
+        end
+    else
+        @assert length(ind_test) == 1
+        addblock!(b[ind_test[1]], O.b; factor = O.parameters[:factor])
     end
 end
