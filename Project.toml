@@ -1,6 +1,6 @@
 name = "ExtendableFEM"
 uuid = "a722555e-65e0-4074-a036-ca7ce79a4aed"
-version = "1.10.5"
+version = "1.11.0"
 authors = ["Christian Merdon <merdon@wias-berlin.de>", "Patrick Jaap <patrick.jaap@wias-berlin.de>"]
 
 [deps]
@@ -73,9 +73,11 @@ OrdinaryDiffEqSDIRK = "2d112036-d095-4a1e-ab9a-08536f3ecdbf"
 SimplexGridFactory = "57bfcd06-606e-45d6-baf4-4ba06da0efd5"
 StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 Symbolics = "0c5d862f-8b57-4792-8d23-62f2024744c7"
+Term = "22787eb5-b846-44ae-b979-8e399b8463ab"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 TetGen = "c5d3f3f7-f850-59f6-8a2e-ffc6dc1317ea"
 Triangulate = "f7e6ffb2-c36d-4f8f-a77e-16e897189344"
+UnicodePlots = "b8865327-cd53-5732-bb35-84acbb429228"
 
 [targets]
-test = ["Aqua", "ExampleJuggler", "ExplicitImports", "IncompleteLU", "Metis", "OrdinaryDiffEqRosenbrock", "OrdinaryDiffEqSDIRK", "SimplexGridFactory", "StaticArrays", "Symbolics", "Test", "TetGen", "Triangulate"]
+test = ["Aqua", "ExampleJuggler", "ExplicitImports", "IncompleteLU", "Metis", "OrdinaryDiffEqRosenbrock", "OrdinaryDiffEqSDIRK", "SimplexGridFactory", "StaticArrays", "Symbolics", "Test", "Term", "TetGen", "Triangulate", "UnicodePlots"]

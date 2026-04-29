@@ -41,6 +41,7 @@ function plot!(
         do_abs = true,
         do_vector_plots = true,
         title_add = "",
+        reveal = true,
         average_broken_plots = false,
         kwargs...
     )
@@ -100,9 +101,12 @@ function plot!(
                 end
             end
             if resultdim > 1 && do_vector_plots && do_abs == true && edim > 1
-                GridVisualize.vectorplot!(p[row, col], sol[op[1]].FES.dofgrid, eval_func_bary(PointEvaluator([op], sol)); rasterpoints = rasterpoints, title = "|" * title * "|" * " + quiver" * title_add, clear = false, kwargs...)
+                GridVisualize.vectorplot!(p[row, col], sol[op[1]].FES.dofgrid, eval_func_bary(PointEvaluator([op], sol)); title = "|" * title * "|" * " + quiver" * title_add, clear = false, kwargs...)
             end
         end
+    end
+    if reveal
+        GridVisualize.reveal(p)
     end
     return p
 end
@@ -256,7 +260,7 @@ function plot_convergencehistory!(
     end
     for p in add_h_powers
         label = "h^$p"
-        scalarplot!(target, simplexgrid(X), X_to_h(X) .^ p; linestyle = :dot, xlabel = xlabel, ylabel = ylabel, color = :gray, clear = false, markershape = :none, xscale = :log, yscale = :log, label = label, legend = legend, title = title, args...)
+        scalarplot!(target, simplexgrid(X), X_to_h(X) .^ p; linestyle = :dot, xlabel = xlabel, ylabel = ylabel, color = :black, clear = false, markershape = :none, xscale = :log, yscale = :log, label = label, legend = legend, title = title, args...)
     end
     return
 end
