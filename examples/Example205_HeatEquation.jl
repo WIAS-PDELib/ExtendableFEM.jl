@@ -23,6 +23,7 @@ module Example205_HeatEquation
 using ExtendableFEM
 using ExtendableGrids
 using OrdinaryDiffEqSDIRK
+using UnicodePlots
 using Test #hide
 
 ## initial state u at time t0
@@ -34,7 +35,7 @@ end
 
 function main(;
         nrefs = 4, T = 2.0, τ = 1.0e-3, order = 2, use_diffeq = true,
-        solver = ImplicitEuler(autodiff = false), Plotter = nothing, kwargs...
+        solver = ImplicitEuler(autodiff = false), Plotter = UnicodePlots, kwargs...
     )
 
     ## problem description

@@ -37,6 +37,7 @@ using ExtendableFEM
 using ExtendableGrids
 using GridVisualize
 using Symbolics
+using UnicodePlots
 using Test #hide
 
 
@@ -108,7 +109,7 @@ function exact_error!(u!, ∇u!, p!)
     end
 end
 
-function main(; α = 0.93, E = 1.0e5, ν = 0.4, K = 1.0e-7, nrefs = 6, T = 0.5, τ = 1.0e-2, c0 = 1, order = 1, reconstruct = true, Plotter = nothing, kwargs...)
+function main(; α = 0.93, E = 1.0e5, ν = 0.4, K = 1.0e-7, nrefs = 6, T = 0.5, τ = 1.0e-2, c0 = 1, order = 1, reconstruct = true, Plotter = UnicodePlots, kwargs...)
 
     ## calculate Lame' parameter
     μ = E / (2 * (1 + ν))
@@ -208,6 +209,7 @@ function main(; α = 0.93, E = 1.0e5, ν = 0.4, K = 1.0e-7, nrefs = 6, T = 0.5, 
     scalarplot!(plt[1, 2], id(u), sol; abs = true, title = "u_h (t = $T)")
     scalarplot!(plt[2, 2], id(p), sol; title = "p_h (t = $T)")
     scalarplot!(plt[3, 2], id(w), sol; abs = true, title = "|w_h| (t = $T)")
+    reveal(plt)
 
     return L2errorU, plt
 end

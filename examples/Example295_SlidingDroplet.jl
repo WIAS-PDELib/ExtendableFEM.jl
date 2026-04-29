@@ -67,6 +67,7 @@ using LinearAlgebra
 using Triangulate
 using SimplexGridFactory
 using GridVisualize
+using UnicodePlots
 using Test #hide
 
 ## gavity
@@ -102,16 +103,17 @@ function initial_grid(nref; radius = 1)
 end
 
 function main(;
-        order = 2,          ## polynomial FEM order
-        β = 1.0,            ## friction at liquid-solid interface
-        δ = 1.0,            ## friction at contact line
-        Bo = 0.5,           ## Bond number
-        θ = π / 2,            ## equilibrium contact angle
-        nsteps = 800,      ## number of ALE steps
-        τ = 0.005,          ## ALE stepsize
-        nrefs = 4,          ## mesh refinement level
+        order = 2,                      # polynomial FEM order
+        β = 1.0,                        # friction at liquid-solid interface
+        δ = 1.0,                        # friction at contact line
+        Bo = 0.5,                       # Bond number
+        θ = π / 2,                      # equilibrium contact angle
+        nsteps = 800,                   # number of ALE steps
+        τ = 0.005,                      # ALE stepsize
+        nrefs = 4,                      # mesh refinement level
         stationarity_target = 1.0e-2,
-        Plotter = nothing, kwargs...
+        Plotter = UnicodePlots,
+        kwargs...
     )
 
     @info "δ = $δ, β = $(β)"
@@ -212,7 +214,7 @@ function main(;
     view(sol[v]) .= view(sol[u])
     sol[v][1:FES[1].coffset] .-= v0
 
-    plt = plot([grid(u), id(u), id(p), streamlines(v)], sol; Plotter = Plotter, levels = 0, colorbarticks = 7, rasterpoints = 21)
+    plt = plot([grid(u), id(u), id(p), streamlines(v)], sol; width = 400, Plotter = Plotter, levels = 0, colorbarticks = 7, rasterpoints = 21)
 
     return sol, plt
 end

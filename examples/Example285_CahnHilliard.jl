@@ -30,6 +30,7 @@ using GridVisualize
 using ForwardDiff
 using Random
 Random.seed!(135791113)
+using UnicodePlots
 
 ## parameters and initial condition
 const f = (c) -> 100 * c^2 * (1 - c)^2
@@ -50,7 +51,7 @@ function main(;
         iterations_until_next_plot = 20,
         τ = 5 / 1000000,                        # time step (for main evolution phase)
         τ_increase = 1.1,                      # increase factor for τ after each plot
-        Plotter = nothing,                      # Plotter (e.g. PyPlot)
+        Plotter = UnicodePlots,                      # Plotter (e.g. PyPlot)
         kwargs...,
     )
 
@@ -131,6 +132,7 @@ function main(;
         end
         scalarplot!(plt[1 + Int(floor((j) / 3)), 1 + (j) % 3], xgrid_upscale, nodevals[1]; xlabel = "", ylabel = "", limits = (-0.1, 1.1), levels = 1, title = "c (t = $(Float32(t)))")
     end
+    reveal(plt)
 
     return sol, plt
 end

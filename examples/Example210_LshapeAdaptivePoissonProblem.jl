@@ -23,6 +23,8 @@ using ExtendableFEM
 using GridVisualize
 using ExtendableGrids
 using LinearAlgebra
+using UnicodePlots
+using GridVisualize
 using Test #hide
 
 ## exact solution u for the Poisson problem
@@ -111,7 +113,7 @@ function main(; maxdofs = 4000, θ = 0.5, μ = 1.0, nrefs = 1, order = 2, Plotte
         ## SOLVE : create a solution vector and solve the problem
         println("------- LEVEL $level")
         if ndofs < 1000
-            println(stdout, unicode_gridplot(xgrid))
+            GridVisualize.gridplot(xgrid; Plotter = UnicodePlots)
         end
         @time begin
             ## solve
@@ -172,9 +174,10 @@ function main(; maxdofs = 4000, θ = 0.5, μ = 1.0, nrefs = 1, order = 2, Plotte
     ## plot
     plt = GridVisualizer(; Plotter = Plotter, layout = (2, 2), clear = true, size = (1000, 1000))
     scalarplot!(plt[1, 1], id(u), sol; levels = 7, title = "u_h")
-    plot_convergencehistory!(plt[1, 2], NDofs, [ResultsL2 ResultsH1 Resultsη]; add_h_powers = [order, order + 1], X_to_h = X -> order * X .^ (-1 / 2), ylabels = ["|| u - u_h ||", "|| ∇(u - u_h) ||", "η"])
+    plot_convergencehistory!(plt[1, 2], NDofs, [ResultsL2 ResultsH1 Resultsη]; add_h_powers = [order, order + 1], X_to_h = X -> order * X .^ (-1 / 2), limits = (1.0e-6, 1.0e0), xlimits = (50, maxdofs), ylabels = ["|| u - u_h ||", "|| ∇(u - u_h) ||", "η"])
     gridplot!(plt[2, 1], xgrid; linewidth = 1)
     gridplot!(plt[2, 2], xgrid; linewidth = 1, xlimits = [-0.0005, 0.0005], ylimits = [-0.0005, 0.0005])
+    reveal(plt)
 
     ## print convergence history
     print_convergencehistory(NDofs, [ResultsL2 ResultsH1 Resultsη]; X_to_h = X -> X .^ (-1 / 2), ylabels = ["|| u - u_h ||", "|| ∇(u - u_h) ||", "η"])

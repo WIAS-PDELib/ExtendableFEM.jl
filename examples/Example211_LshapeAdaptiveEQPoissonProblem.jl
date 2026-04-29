@@ -39,6 +39,7 @@ using ExtendableFEMBase
 using ExtendableGrids
 using ExtendableSparse
 using GridVisualize
+using UnicodePlots
 using Test #hide
 
 ## exact solution u for the Poisson problem
@@ -89,7 +90,7 @@ u = Unknown("u"; name = "u")
 σ = Unknown("σ"; name = "equilibrated fluxes / dual stress")
 
 ## everything is wrapped in a main function
-function main(; maxdofs = 4000, μ = 1, order = 2, nlevels = 16, θ = 0.5, Plotter = nothing, kwargs...)
+function main(; maxdofs = 4000, μ = 1, order = 2, nlevels = 16, θ = 0.5, Plotter = UnicodePlots, kwargs...)
 
     ## initial grid
     xgrid = grid_lshape(Triangle2D)
@@ -162,9 +163,10 @@ function main(; maxdofs = 4000, μ = 1, order = 2, nlevels = 16, θ = 0.5, Plott
     ## plot
     plt = GridVisualizer(; Plotter = Plotter, layout = (2, 2), clear = true, resolution = (1000, 1000))
     scalarplot!(plt[1, 1], id(u), sol; levels = 11, title = "u_h")
-    plot_convergencehistory!(plt[1, 2], NDofs, [ResultsL2 ResultsH1 Resultsη]; add_h_powers = [order, order + 1], X_to_h = X -> order * X .^ (-1 / 2), ylabels = ["|| u - u_h ||", "|| ∇(u - u_h) ||", "η"])
+    plot_convergencehistory!(plt[1, 2], NDofs, [ResultsL2 ResultsH1 Resultsη]; add_h_powers = [order, order + 1], X_to_h = X -> order * X .^ (-1 / 2), limits = (1.0e-6, 1.0e0), xlimits = (50, maxdofs), ylabels = ["|| u - u_h ||", "|| ∇(u - u_h) ||", "η"])
     gridplot!(plt[2, 1], xgrid; linewidth = 1)
     gridplot!(plt[2, 2], xgrid; linewidth = 1, xlimits = [-0.0005, 0.0005], ylimits = [-0.0005, 0.0005])
+    reveal(plt)
 
     ## print/plot convergence history
     print_convergencehistory(NDofs, [ResultsL2 ResultsH1 Resultsη]; X_to_h = X -> X .^ (-1 / 2), ylabels = ["|| u - u_h ||", "|| ∇(u - u_h) ||", "η"])

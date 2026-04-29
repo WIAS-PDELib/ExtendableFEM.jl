@@ -30,6 +30,7 @@ using SimplexGridFactory
 using ExtendableGrids
 using GridVisualize
 using LinearAlgebra
+using UnicodePlots
 using Test #hide
 
 ## inlet data for Karman vortex street example
@@ -86,7 +87,7 @@ end
 
 
 ## everything is wrapped in a main function
-function main(; Plotter = nothing, μ = 1.0e-3, maxvol = 1.0e-3, reconstruct = true, parallel = false, npart = 8, kwargs...)
+function main(; Plotter = UnicodePlots, μ = 1.0e-3, maxvol = 1.0e-3, reconstruct = true, parallel = false, npart = 8, kwargs...)
 
     ## load grid (see function below)
     xgrid = make_grid(W, H; n = Int(ceil(sqrt(1 / maxvol))), maxvol = maxvol)
@@ -128,6 +129,7 @@ function main(; Plotter = nothing, μ = 1.0e-3, maxvol = 1.0e-3, reconstruct = t
     scalarplot!(plt[3, 1], xgrid, nodevalues(sol[u]; abs = true)[1, :])
     vectorplot!(plt[3, 1], xgrid, eval_func_bary(PointEvaluator([id(u)], sol)), rasterpoints = 20, clear = false)
     scalarplot!(plt[4, 1], xgrid, view(nodevalues(sol[p]), 1, :), levels = 11, title = "p_h")
+    reveal(plt)
 
     return [draglift[1], draglift[2], pdiff[1]], plt
 end

@@ -91,6 +91,7 @@ using ExtendableGrids
 using GridVisualize
 using SimplexGridFactory
 using Triangulate
+using UnicodePlots
 using Metis
 using Test #hide
 
@@ -163,7 +164,7 @@ function main(;
         order_p = order_u - 1,  # polynomial order for free flow pressure
         order_v = order_u - 1,  # polynomial order for porous media velocity
         nrefs = 4,              # number of mesh refinements
-        Plotter = nothing,      # backend for Plotting (e.g. GLMakie)
+        Plotter = UnicodePlots, # backend for Plotting (e.g. GLMakie)
         parallel = false,       # do parallel assembly?
         npart = 8,              # number of partitions for grid coloring (if parallel = true)
         kwargs...

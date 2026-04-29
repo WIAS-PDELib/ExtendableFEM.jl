@@ -55,6 +55,7 @@ using ExtendableFEM
 using ExtendableGrids
 using SimplexGridFactory
 using Triangulate
+using UnicodePlots
 using Test #hide
 
 
@@ -95,7 +96,7 @@ function kernel_l2div(result, u_ops, qpinfo)
 end
 
 
-function main(; μ = 0.1, nrefs = 4, nonlinear = false, uniform = false, Plotter = nothing, kwargs...)
+function main(; μ = 0.1, nrefs = 4, nonlinear = false, uniform = false, Plotter = UnicodePlots, kwargs...)
 
     ## problem description
     PD = ProblemDescription()

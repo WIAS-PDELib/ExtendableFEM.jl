@@ -32,6 +32,7 @@ module Example225_ObstacleProblem
 
 using ExtendableFEM
 using ExtendableGrids
+using UnicodePlots
 using Test #hide
 
 ## define obstacle and penalty kernel
@@ -42,7 +43,7 @@ function obstacle_penalty_kernel!(result, input, qpinfo)
     return nothing
 end
 
-function main(; Plotter = nothing, ϵ = 1.0e-4, nrefs = 6, order = 1, parallel = false, npart = 8, kwargs...)
+function main(; Plotter = UnicodePlots, ϵ = 1.0e-4, nrefs = 6, order = 1, parallel = false, npart = 8, kwargs...)
 
     ## choose initial mesh
     xgrid = uniform_refine(grid_unitsquare(Triangle2D), nrefs)
@@ -66,7 +67,7 @@ function main(; Plotter = nothing, ϵ = 1.0e-4, nrefs = 6, order = 1, parallel =
     sol = solve(PD, FES; kwargs...)
 
     ## plot
-    plt = plot([id(u), grad(u)], sol; Plotter = Plotter, ncols = 3)
+    plt = plot([id(u), grad(u)], sol; Plotter = Plotter)
 
     return sol, plt
 end

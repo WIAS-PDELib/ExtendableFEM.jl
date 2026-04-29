@@ -50,6 +50,7 @@ module Example275_OptimalControlStokes
 
 using ExtendableFEM
 using ExtendableGrids
+using UnicodePlots
 using Symbolics
 
 function prepare_data!(; ϵ = 0)
@@ -83,7 +84,7 @@ function kernel_stokes_standard!(result, u_ops, qpinfo)
 end
 
 ## everything is wrapped in a main function
-function main(; nrefs = 4, Plotter = nothing, reconstruct = true, μ = 1, α = 1.0e-6, ϵ = 0, kwargs...)
+function main(; nrefs = 4, Plotter = UnicodePlots, reconstruct = true, μ = 1, α = 1.0e-6, ϵ = 0, kwargs...)
 
     ## prepare target data
     d_eval = prepare_data!(; ϵ = ϵ)
@@ -120,12 +121,12 @@ function main(; nrefs = 4, Plotter = nothing, reconstruct = true, μ = 1, α = 1
     sol = solve(PD, [FES[1], FES[1], FES[2], FES[2]]; kwargs...)
 
     ## plot solution
-    plt = plot([id(u), id(p), id(z), id(λ)], sol; add = 1, Plotter = Plotter)
+    plt = plot([id(u), id(p), id(z), id(λ)], sol; add = 1, reveal = false, Plotter = Plotter)
 
     ## plot target data
     I = FEVector(FES[1]; name = "u^d")
     interpolate!(I[1], data!)
-    plot!(plt, [id(1)], I; keep = 1:4)
+    plot!(plt, [id(1)], I; keep = 1:4, reveal = true)
 
     return sol, plt
 end

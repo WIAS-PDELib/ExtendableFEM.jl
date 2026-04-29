@@ -26,6 +26,7 @@ module Example220_ReactionConvectionDiffusion
 using ExtendableFEM
 using ExtendableGrids
 using LinearAlgebra
+using UnicodePlots
 using Test #hide
 
 const α = 0.01
@@ -87,7 +88,7 @@ end
 
 
 ## everything is wrapped in a main function
-function main(; Plotter = nothing, τ = 1.0e-2, nlevels = 5, order = 2, kwargs...)
+function main(; Plotter = UnicodePlots, τ = 1.0e-2, nlevels = 5, order = 2, kwargs...)
 
     ## create problem description
     PD = ProblemDescription("reaction-convection-diffusion problem")
@@ -133,8 +134,9 @@ function main(; Plotter = nothing, τ = 1.0e-2, nlevels = 5, order = 2, kwargs..
     end
 
     ## plot
-    plt = plot([id(u), grad(u)], sol; add = 1, ncols = 3, Plotter = Plotter)
-    plot_convergencehistory!(plt[1, 3], NDofs, Results; add_h_powers = [order, order + 1], X_to_h = X -> X .^ (-1 / 2), legend = :lb, ylabels = ["|| u - u_h ||", "|| u - Iu ||", "|| ∇(u - u_h) ||", "|| ∇(u - Iu) ||"], limits = (1.0e-8, 1.0e-1))
+    plt = plot([id(u), grad(u)], sol; add = 1, ncols = 3, Plotter = Plotter, reveal = false)
+    plot_convergencehistory!(plt[1, 3], NDofs, Results; add_h_powers = [order, order + 1], X_to_h = X -> X .^ (-1 / 2), legend = :lb, ylabels = ["|| u - u_h ||", "|| u - Iu ||", "|| ∇(u - u_h) ||", "|| ∇(u - Iu) ||"], limits = (1.0e-8, 1.0e-1), xlimits = (10^1, 10^4))
+    reveal(plt)
 
     ## print convergence history
     print_convergencehistory(NDofs, Results; X_to_h = X -> X .^ (-1 / 2), ylabels = ["|| u - u_h ||", "|| u - Iu ||", "|| ∇(u - u_h) ||", "|| ∇(u - Iu) ||"])

@@ -45,6 +45,7 @@ module Example235_StokesIteratedPenalty
 
 using ExtendableFEM
 using ExtendableGrids
+using UnicodePlots
 using Test #hide
 
 ## data for Hagen-Poiseuille flow
@@ -67,7 +68,7 @@ function div_projection!(result, input, qpinfo)
 end
 
 ## everything is wrapped in a main function
-function main(; Plotter = nothing, λ = 1.0e4, μ = 1.0, nrefs = 5, kwargs...)
+function main(; Plotter = UnicodePlots, λ = 1.0e4, μ = 1.0, nrefs = 5, kwargs...)
 
     ## initial grid
     xgrid = uniform_refine(grid_unitsquare(Triangle2D), nrefs)

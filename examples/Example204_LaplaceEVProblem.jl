@@ -26,8 +26,10 @@ using ExtendableSparse
 using LinearAlgebra
 using GridVisualize
 using KrylovKit
+using UnicodePlots
+using Term
 
-function main(; which = 1:12, ncols = 3, nrefs = 4, order = 1, Plotter = nothing, kwargs...)
+function main(; which = 1:12, ncols = 3, nrefs = 4, order = 1, Plotter = UnicodePlots, kwargs...)
 
     ## discretize
     xgrid = uniform_refine(grid_lshape(Triangle2D), nrefs)
@@ -61,6 +63,7 @@ function main(; which = 1:12, ncols = 3, nrefs = 4, order = 1, Plotter = nothing
         u.entries .= Real.(x[j])
         scalarplot!(plt[row, col], id(1), u; Plotter = Plotter, title = "λ[$j] = $(Float16(λ))")
     end
+    reveal(plt)
 
     return u, plt
 end

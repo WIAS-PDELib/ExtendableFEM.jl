@@ -27,6 +27,7 @@ using ExtendableGrids
 using GridVisualize
 using LinearAlgebra
 using OrdinaryDiffEqSDIRK
+using UnicodePlots
 
 function ϕ_init!(result, qpinfo)
     x = qpinfo.x
@@ -55,7 +56,7 @@ end
 
 ## everything is wrapped in a main function
 function main(;
-        Plotter = nothing, ϵ = 0.05, τ = 1.0e-2, T = 1.0, order = 2, nref = 6, use_diffeq = false,
+        Plotter = UnicodePlots, ϵ = 0.05, τ = 1.0e-2, T = 1.0, order = 2, nref = 6, use_diffeq = false,
         solver = ImplicitEuler(autodiff = false), verbosity = -1, kwargs...
     )
 
@@ -110,6 +111,7 @@ function main(;
 
     ## plot final state
     scalarplot!(plt[1, 2], id(ϕ), sol; levels = [0.5], flimits = [-0.05, 1.05], colorbarticks = [0, 0.25, 0.5, 0.75, 1], title = "ϕ (t = $T)")
+    reveal(plt)
 
     return sol, plt
 end

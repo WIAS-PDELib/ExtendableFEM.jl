@@ -24,6 +24,8 @@ using ExtendableFEM
 using ExtendableGrids
 using GridVisualize
 using Metis
+using UnicodePlots
+using Term
 using Test #hide
 
 ## define variables
@@ -43,7 +45,7 @@ function main(;
         use_restriction = true,
         parallel = false,
         npart = parallel ? 8 : 1,
-        Plotter = nothing,
+        Plotter = UnicodePlots,
         kwargs...
     )
     ## problem description

@@ -59,25 +59,26 @@ using SimplexGridFactory
 using GridVisualize
 using Symbolics
 using LinearAlgebra
+using UnicodePlots
 using Test #hide
 
 ## everything is wrapped in a main function
 ## testcase = 1 : well-balanced test (stratified no-flow over mountain)
 ## testcase = 2 : vortex example (ϱu is div-free p7 vortex)
 function main(;
+        nrefs = 4,                  # refinement levels
+        μ = 1,                      # viscosity coefficient
+        M = 1,                      # mass constraint
+        c = 1,                      # inverse of squared Mach number
+        order = 1,                  # polynomial order of Stokes pair (1 = Bernardi-Raugel, 2 = P2-bubble)
+        reconstruct = true,         # use gradient-robust modification ?
+        target_residual = 1.0e-11,  # target residual for fixed-point iteration
+        maxsteps = 5000,            # maximal iterations
         testcase = 1,
-        nrefs = 4,
-        M = 1,
-        c = 1,
         ufac = 100,
         pressure_stab = 0,
-        laplacian_in_rhs = false, # for data in example 2
-        maxsteps = 5000,
-        target_residual = 1.0e-11,
-        Plotter = nothing,
-        reconstruct = true,
-        μ = 1,
-        order = 1,
+        laplacian_in_rhs = false,   # for data in example 2
+        Plotter = UnicodePlots,
         kwargs...
     )
 
@@ -179,6 +180,7 @@ function main(;
     scalarplot!(plt[2, 1], xgrid, view(nodevalues(sol[ϱ]), 1, :), levels = 11, title = "ϱ_h")
     plot_convergencehistory!(plt[1, 2], NDofs, Results[:, 1:4]; add_h_powers = [order, order + 1], X_to_h = X -> 0.2 * X .^ (-1 / 2), legend = :best, ylabels = ["|| u - u_h ||", "|| ∇(u - u_h) ||", "|| ϱ - ϱ_h ||", "|| ϱu - ϱu_h ||", "#its"])
     gridplot!(plt[2, 2], xgrid)
+    reveal(plt)
 
     return Results, plt
 end

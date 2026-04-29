@@ -25,6 +25,7 @@ module Example282_IncompressibleMHD
 using ExtendableFEM
 using ExtendableGrids
 using LinearAlgebra
+using UnicodePlots
 
 function f!(result, qpinfo)
     return result .= 0
@@ -73,7 +74,7 @@ end
 
 
 ## everything is wrapped in a main function
-function main(; Plotter = nothing, μ = 1.0e-3, η = 1.0e-1, nrefs = 5, kwargs...)
+function main(; Plotter = UnicodePlots, μ = 1.0e-3, η = 1.0e-1, nrefs = 5, kwargs...)
 
     ## load grid (see function below)
     xgrid = uniform_refine(grid_unitsquare(Triangle2D), nrefs)

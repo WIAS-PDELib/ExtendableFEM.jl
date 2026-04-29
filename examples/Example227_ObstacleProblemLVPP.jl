@@ -51,6 +51,7 @@ using ExtendableFEMBase
 using ExtendableGrids
 using LinearAlgebra
 using Metis
+using UnicodePlots
 using Test #hide
 
 ## define obstacle
@@ -78,7 +79,7 @@ function main(;
         parallel = false,
         npart = 8,
         tol = 1.0e-12,
-        Plotter = nothing,
+        Plotter = UnicodePlots,
         kwargs...
     )
 

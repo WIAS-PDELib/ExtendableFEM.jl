@@ -32,6 +32,7 @@ module Example206_CoupledSubGridProblems
 
 using ExtendableFEM
 using ExtendableGrids
+using UnicodePlots
 using Test #
 
 
@@ -52,7 +53,7 @@ function interface_condition_LM!(result, u, qpinfo)
 end
 
 
-function main(; μ = [1.0, 1.0], f = [10, -10], τ = 1, use_LM = true, nref = 4, order = 2, Plotter = nothing, kwargs...)
+function main(; μ = [1.0, 1.0], f = [10, -10], τ = 1, use_LM = true, nref = 4, order = 2, Plotter = UnicodePlots, kwargs...)
 
     ## Finite element type
     FEType = H1Pk{1, 2, order}
@@ -106,7 +107,7 @@ function main(; μ = [1.0, 1.0], f = [10, -10], τ = 1, use_LM = true, nref = 4,
 
     sol = solve(PD, use_LM ? [FES1, FES2, FES3] : [FES1, FES2])
 
-    plt = plot([id(u1), id(u2), dofgrid(u1), dofgrid(u2), grid(u1)], sol; Plotter = Plotter)
+    plt = plot([id(u1), id(u2), dofgrid(u1), dofgrid(u2)], sol; Plotter = Plotter)
 
     return sol, plt
 end
