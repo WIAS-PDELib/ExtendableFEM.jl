@@ -18,7 +18,7 @@ Given intermediate solutions ``\mathbf{u}_h`` and ``p_h`` the next approximation
 
 ```math
 \begin{aligned}
-(\nabla \mathbf{u}_h^{next}, \nabla \mathbf{v}_h) + \lambda (\mathrm{div}_h(\mathbf{u}^{next}_h) ,\mathrm{div}_h(\mathbf{v}_h)) & = (\mathbf{f},\mathbf{v}_h) + (p_h,\mathrm{div}(\mathbf{v}_h))
+\mu (\nabla \mathbf{u}_h^{next}, \nabla \mathbf{v}_h) + \lambda (\mathrm{div}_h(\mathbf{u}^{next}_h) ,\mathrm{div}_h(\mathbf{v}_h)) & = (\mathbf{f},\mathbf{v}_h) + (p_h,\mathrm{div}(\mathbf{v}_h))
 && \text{for all } \mathbf{v}_h \in \mathbf{V}_h\\
 (p^{next}_h,q_h) & = (p_h,q_h) - \lambda (\mathrm{div}(\mathbf{u}_h^{next}),q_h) && \text{for all } q_h \in Q_h
 \end{aligned}
@@ -86,7 +86,7 @@ function main(; Plotter = UnicodePlots, λ = 1.0e4, μ = 1.0, nrefs = 5, kwargs.
     assign_operator!(PDu, BilinearOperator([grad(u)]; factor = μ, store = true, kwargs...))
     assign_operator!(PDu, BilinearOperator([apply(u, PenaltyDivergence)]; store = true, factor = λ, kwargs...))
     assign_operator!(PDu, LinearOperator([div(u)], [id(p)]; factor = 1, kwargs...))
-    assign_operator!(PDu, InterpolateBoundaryData(u, u!; regions = 1:4, params = [μ], bonus_quadorder = 4, kwargs...))
+    assign_operator!(PDu, InterpolateBoundaryData(u, u!; regions = 1:4, bonus_quadorder = 4, kwargs...))
 
     PDp = ProblemDescription("Stokes IPM - pressure update")
     assign_unknown!(PDp, p)

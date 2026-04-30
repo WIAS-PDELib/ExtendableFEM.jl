@@ -36,7 +36,7 @@ using ExtendableFEMBase: ExtendableFEMBase, AbstractFiniteElement,
     initialize!, integrate, integrate!,
     integrate_segment!, lazy_interpolate!, nodevalues,
     nodevalues!, nodevalues_subset!, nodevalues_view,
-    norms, broken_scalarplot!, streamplot!,
+    norms, broken_scalarplot!,
     update_basis!, SymmetricGradient
 using ExtendableGrids: ExtendableGrids, AT_NODES, AbstractElementGeometry,
     Adjacency, AssemblyType, BEdgeNodes, BFaceFaces, BFaceNormals,

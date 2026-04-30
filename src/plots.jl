@@ -58,7 +58,7 @@ function plot!(
         else
             uname = op[2] == Identity ? "$(sol[op[1]].name)" : "$(op[2])($(sol[op[1]].name))"
         end
-        plot!(p, (row, col), op, sol; reveal = false, kwargs...)
+        plot!(p[row, col], op, sol; reveal = false, kwargs...)
     end
     if reveal
         GridVisualize.reveal(p)
@@ -68,8 +68,7 @@ end
 
 
 function plot!(
-        p::GridVisualizer,
-        index,
+        psub,
         op,
         sol;
         rasterpoints = 10,
@@ -87,24 +86,24 @@ function plot!(
         uname = op[2] == Identity ? "$(sol[op[1]].name)" : "$(op[2])($(sol[op[1]].name))"
     end
     if op[2] == "grid"
-        gridplot!(p[index], sol[op[1]].FES.xgrid; linewidth = linewidth, title = uname * title_add, kwargs...)
+        gridplot!(psub, sol[op[1]].FES.xgrid; linewidth = linewidth, title = uname * title_add, kwargs...)
     elseif op[2] == "dofgrid"
-        gridplot!(p[index], sol[op[1]].FES.dofgrid; linewidth = linewidth, title = uname * title_add, kwargs...)
+        gridplot!(psub, sol[op[1]].FES.dofgrid; linewidth = linewidth, title = uname * title_add, kwargs...)
     elseif op[2] == "streamlines"
         PE = PointEvaluator([apply(op[1], Identity)], sol)
-        streamplot!(p[index], sol[op[1]].FES.dofgrid, eval_func_bary(PE); rasterpoints = rasterpoints, title = uname * title_add, kwargs...)
+        streamplot!(psub, sol[op[1]].FES.dofgrid, eval_func_bary(PE); rasterpoints = rasterpoints, title = uname * title_add, kwargs...)
     else
         ncomponents = get_ncomponents(sol[op[1]])
         edim = size(sol[op[1]].FES.xgrid[Coordinates], 1)
         resultdim = Length4Operator(op[2], edim, ncomponents)
         if resultdim == 1
             if !average_broken_plots && ExtendableFEMBase.broken(sol[op[1]].FES)
-                ExtendableFEMBase.broken_scalarplot!(p[index], sol[op[1]], op[2]; title = uname * title_add, kwargs...)
+                ExtendableFEMBase.broken_scalarplot!(psub, sol[op[1]], op[2]; title = uname * title_add, kwargs...)
             else
-                GridVisualize.scalarplot!(p[index], sol[op[1]].FES.dofgrid, view(nodevalues(sol[op[1]], op[2]; abs = false), 1, :), title = uname * title_add; kwargs...)
+                GridVisualize.scalarplot!(psub, sol[op[1]].FES.dofgrid, view(nodevalues(sol[op[1]], op[2]; abs = false), 1, :), title = uname * title_add; kwargs...)
             end
         elseif do_abs == true
-            GridVisualize.scalarplot!(p[index], sol[op[1]].FES.dofgrid, view(nodevalues(sol[op[1]], op[2]; abs = true), 1, :), title = "|" * uname * "|" * title_add; kwargs...)
+            GridVisualize.scalarplot!(psub, sol[op[1]].FES.dofgrid, view(nodevalues(sol[op[1]], op[2]; abs = true), 1, :), title = "|" * uname * "|" * title_add; kwargs...)
         else
             nv = nodevalues(sol[op[1]], op[2]; abs = false)
             for k in 1:resultdim
@@ -114,17 +113,17 @@ function plot!(
                         col, row = 1, row + 1
                     end
                 end
-                GridVisualize.scalarplot!(p[index], sol[op[1]].FES.dofgrid, view(nv, k, :), title = uname * " (component $k)" * title_add, kwargs...)
+                GridVisualize.scalarplot!(psub, sol[op[1]].FES.dofgrid, view(nv, k, :), title = uname * " (component $k)" * title_add, kwargs...)
             end
         end
         if resultdim > 1 && do_vector_plots && do_abs == true && edim > 1
-            GridVisualize.vectorplot!(p[index], sol[op[1]].FES.dofgrid, eval_func_bary(PointEvaluator([op], sol)); title = "|" * uname * "|" * " + quiver" * title_add, clear = false, kwargs...)
+            GridVisualize.vectorplot!(psub, sol[op[1]].FES.dofgrid, eval_func_bary(PointEvaluator([op], sol)); title = "|" * uname * "|" * " + quiver" * title_add, clear = false, kwargs...)
         end
     end
     if reveal
-        GridVisualize.reveal(p)
+        GridVisualize.reveal(psub)
     end
-    return p
+    return psub
 end
 
 """
