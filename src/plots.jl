@@ -266,3 +266,36 @@ function default_generateplots(example_module, filename; kwargs...)
         return GridVisualize.save(joinpath(dir, filename), scene; Plotter = Plotter)
     end
 end
+
+
+### deprecated
+"""
+````
+function plot_unicode(sol; kwargs...)
+````
+
+Plots all blocks of sol into stdout
+(via plot_scalarplot from the UnicodePlots extension of ExtendableFEMBase)
+
+"""
+function plot_unicode(sol; kwargs...)
+    Base.depwarn(
+        "plot_unicode(sol) will be deprecated in a future release. Use plot(sol; Plotter = UnicodePlots) instead.",
+        :plot_unicode; force = true
+    )
+    plot(sol; Plotter = UnicodePlots, kwargs...)
+    return
+end
+
+"""
+````
+function plot(sol::FEVector; kwargs...)
+````
+
+Plots all blocks of sol.
+
+"""
+function plot(sol::FEVector; kwargs...)
+    plot([id(j) for j in 1:length(sol)], sol; kwargs...)
+    return nothing
+end
