@@ -46,10 +46,10 @@ function main(;
         h = 0.005,
         T = 2,
         order = 2,
-        τ = 0.01,
+        τ = 0.001,
         Plotter = UnicodePlots,
         use_diffeq = true,
-        solver = Rosenbrock23(autodiff = false),
+        solver = Rosenbrock23(),
         kwargs...
     )
 
@@ -82,10 +82,10 @@ function main(;
 
         ## solve ODE problem
         de_sol = solve(prob, solver, abstol = 1.0e-6, reltol = 1.0e-3, dt = τ, dtmin = 1.0e-6, adaptive = true)
-        @info "#tsteps = $(length(de_sol))"
+        @info "#tsteps = $(length(de_sol.u))"
 
         ## extract final solution
-        sol.entries .= de_sol[end]
+        sol.entries .= de_sol.u[end]
     else
         ## add backward Euler time derivative
         assign_operator!(PD, BilinearOperator(M, [u]; factor = 1 / τ, kwargs...))
@@ -111,8 +111,10 @@ end
 
 generateplots = ExtendableFEM.default_generateplots(Example103_BurgersEquation, "example103.png") #hide
 function runtests() #hide
-    sol, plt = main(; h = 0.01, τ = 0.1, T = 1, use_diffeq = false) #hide
-    @test maximum(sol.entries) ≈ 0.9380540612507218 #hide
+    sol, plt = main(; h = 0.01, τ = 0.01, T = 1, use_diffeq = false) #hide
+    @test maximum(sol.entries) ≈ 0.991626266834898 #hide
+    sol, plt = main(; h = 0.01, τ = 0.01, T = 1, use_diffeq = true) #hide
+    @test maximum(sol.entries) ≈ 0.9974553634892214 #hide
     return nothing #hide
 end #hide
 end

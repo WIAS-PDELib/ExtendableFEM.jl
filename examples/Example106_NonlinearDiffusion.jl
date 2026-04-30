@@ -63,7 +63,7 @@ function main(;
         Plotter = UnicodePlots,
         use_diffeq = true,
         use_masslumping = true,
-        solver = ImplicitEuler(autodiff = false),
+        solver = ImplicitEuler(),
         kwargs...
     )
 
@@ -98,10 +98,10 @@ function main(;
 
         ## solve ODE problem
         de_sol = solve(prob, solver, abstol = 1.0e-6, reltol = 1.0e-3, dt = τ, dtmin = 1.0e-8, adaptive = true)
-        @info "#tsteps = $(length(de_sol))"
+        @info "#tsteps = $(length(de_sol.u))"
 
         ## get final solution
-        sol.entries .= de_sol[end]
+        sol.entries .= de_sol.u[end]
     else
         ## add backward Euler time derivative
         assign_operator!(PD, BilinearOperator(M, [u]; factor = 1 / τ, kwargs...))
