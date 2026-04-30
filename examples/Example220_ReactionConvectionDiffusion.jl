@@ -26,7 +26,7 @@ module Example220_ReactionConvectionDiffusion
 using ExtendableFEM
 using ExtendableGrids
 using LinearAlgebra
-using UnicodePlots
+using UnicodePlots, Term
 using Test #hide
 
 const α = 0.01

@@ -25,7 +25,7 @@ using ExtendableGrids
 using LinearAlgebra
 using Metis
 using Symbolics
-using UnicodePlots
+using UnicodePlots, Term
 using Test #hide
 
 ## exact data for problem by Symbolics

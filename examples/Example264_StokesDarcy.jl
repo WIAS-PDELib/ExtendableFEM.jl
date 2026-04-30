@@ -89,10 +89,10 @@ using ExtendableFEM
 using ExtendableFEMBase
 using ExtendableGrids
 using GridVisualize
+using Metis
 using SimplexGridFactory
 using Triangulate
-using UnicodePlots
-using Metis
+using UnicodePlots, Term
 using Test #hide
 
 ## exact solution and data functions

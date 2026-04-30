@@ -32,7 +32,7 @@ module Example225_ObstacleProblem
 
 using ExtendableFEM
 using ExtendableGrids
-using UnicodePlots
+using UnicodePlots, Term
 using Test #hide
 
 ## define obstacle and penalty kernel

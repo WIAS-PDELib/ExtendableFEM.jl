@@ -24,8 +24,7 @@ using ExtendableFEM
 using ExtendableGrids
 using GridVisualize
 using Metis
-using UnicodePlots
-using Term
+using UnicodePlots, Term
 using Test #hide
 
 ## define variables

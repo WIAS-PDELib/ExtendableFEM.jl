@@ -26,7 +26,7 @@ using ExtendableFEM
 using ExtendableFEMBase
 using ExtendableGrids
 using GridVisualize
-using UnicodePlots
+using UnicodePlots, Term
 using Test #hide
 
 ## parameter-dependent nonlinear operator uses a callable struct to reduce allocations

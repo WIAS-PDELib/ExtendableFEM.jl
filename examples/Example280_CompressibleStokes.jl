@@ -59,7 +59,7 @@ using SimplexGridFactory
 using GridVisualize
 using Symbolics
 using LinearAlgebra
-using UnicodePlots
+using UnicodePlots, Term
 using Test #hide
 
 ## everything is wrapped in a main function

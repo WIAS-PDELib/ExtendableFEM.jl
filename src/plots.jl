@@ -34,15 +34,9 @@ function plot!(
         p::GridVisualizer,
         ops,
         sol;
-        rasterpoints = 10,
-        linewidth = 1,
         keep = [],
         ncols = size(p.subplots, 2),
-        do_abs = true,
-        do_vector_plots = true,
-        title_add = "",
         reveal = true,
-        average_broken_plots = false,
         kwargs...
     )
     col, row, id = 0, 1, 0
@@ -59,51 +53,12 @@ function plot!(
                 col, row = 1, row + 1
             end
         end
-        if op[2] == "grid"
-            gridplot!(p[row, col], sol[op[1]].FES.xgrid; linewidth = linewidth, kwargs...)
-        elseif op[2] == "dofgrid"
-            gridplot!(p[row, col], sol[op[1]].FES.dofgrid; linewidth = linewidth, kwargs...)
-        elseif op[2] == "streamlines"
-            if typeof(op[1]) <: Unknown
-                title = String(op[1].identifier)
-            else
-                title = "$(sol[op[1]].name)"
-            end
-            PE = PointEvaluator([apply(op[1], Identity)], sol)
-            streamplot!(p[row, col], sol[op[1]].FES.dofgrid, eval_func_bary(PE); rasterpoints = rasterpoints, title = title * " (streamlines)" * title_add, kwargs...)
+        if typeof(op[1]) <: Unknown
+            uname = op[2] == Identity ? String(op[1].identifier) : "$(op[2])(" * String(op[1].identifier) * ")"
         else
-            ncomponents = get_ncomponents(sol[op[1]])
-            edim = size(sol[op[1]].FES.xgrid[Coordinates], 1)
-            resultdim = Length4Operator(op[2], edim, ncomponents)
-            if typeof(op[1]) <: Unknown
-                title = op[2] == Identity ? String(op[1].identifier) : "$(op[2])(" * String(op[1].identifier) * ")"
-            else
-                title = op[2] == Identity ? "$(sol[op[1]].name)" : "$(op[2])($(sol[op[1]].name))"
-            end
-            if resultdim == 1
-                if !average_broken_plots && ExtendableFEMBase.broken(sol[op[1]].FES)
-                    broken_scalarplot!(p[row, col], sol[op[1]], op[2]; title = title * title_add, kwargs...)
-                else
-                    GridVisualize.scalarplot!(p[row, col], sol[op[1]].FES.dofgrid, view(nodevalues(sol[op[1]], op[2]; abs = false), 1, :), title = title * title_add; kwargs...)
-                end
-            elseif do_abs == true
-                GridVisualize.scalarplot!(p[row, col], sol[op[1]].FES.dofgrid, view(nodevalues(sol[op[1]], op[2]; abs = true), 1, :), title = "|" * title * "|" * title_add; kwargs...)
-            else
-                nv = nodevalues(sol[op[1]], op[2]; abs = false)
-                for k in 1:resultdim
-                    if k > 1
-                        col += 1
-                        if col == ncols + 1
-                            col, row = 1, row + 1
-                        end
-                    end
-                    GridVisualize.scalarplot!(p[row, col], sol[op[1]].FES.dofgrid, view(nv, k, :), title = title * " (component $k)" * title_add, kwargs...)
-                end
-            end
-            if resultdim > 1 && do_vector_plots && do_abs == true && edim > 1
-                GridVisualize.vectorplot!(p[row, col], sol[op[1]].FES.dofgrid, eval_func_bary(PointEvaluator([op], sol)); title = "|" * title * "|" * " + quiver" * title_add, clear = false, kwargs...)
-            end
+            uname = op[2] == Identity ? "$(sol[op[1]].name)" : "$(op[2])($(sol[op[1]].name))"
         end
+        plot!(p, (row, col), op, sol; reveal = false, kwargs...)
     end
     if reveal
         GridVisualize.reveal(p)
@@ -112,30 +67,65 @@ function plot!(
 end
 
 
-"""
-    broken_scalarplot!(vis, feVectorBlock::FEVectorBlock, operator = Identity; kwargs...)
-
-A "broken" scalarplot of a broken finite element vector.
-Instead of averaging the discontinuous values on the grid nodes, each grid cell is plotted
-independently. Thus, a discontinuous plot is generated.
-
-All kwargs of the calling method are transferred to the scalarplot in this method.
-"""
-function broken_scalarplot!(vis, feVectorBlock::FEVectorBlock, operator = Identity; kwargs...)
-
-    dofgrid = feVectorBlock.FES.dofgrid
-    cell_nodes = dofgrid[CellNodes]
-    coords = dofgrid[Coordinates]
-
-    all_values = nodevalues(feVectorBlock, operator; cellwise = true) # cellwise evaluation of the FE
-    all_coords = @views coords[:, cell_nodes[:]]
-    all_cells = reshape(1:length(all_values), size(all_values))
-
-    GridVisualize.scalarplot!(vis, simplexgrid(all_coords, all_cells, dofgrid[CellRegions]), view(all_values, :); kwargs...)
-
-    return nothing
+function plot!(
+        p::GridVisualizer,
+        index,
+        op,
+        sol;
+        rasterpoints = 10,
+        linewidth = 1,
+        do_abs = true,
+        do_vector_plots = true,
+        title_add = "",
+        reveal = true,
+        average_broken_plots = false,
+        kwargs...
+    )
+    if typeof(op[1]) <: Unknown
+        uname = op[2] == Identity ? String(op[1].identifier) : "$(op[2])(" * String(op[1].identifier) * ")"
+    else
+        uname = op[2] == Identity ? "$(sol[op[1]].name)" : "$(op[2])($(sol[op[1]].name))"
+    end
+    if op[2] == "grid"
+        gridplot!(p[index], sol[op[1]].FES.xgrid; linewidth = linewidth, title = uname * title_add, kwargs...)
+    elseif op[2] == "dofgrid"
+        gridplot!(p[index], sol[op[1]].FES.dofgrid; linewidth = linewidth, title = uname * title_add, kwargs...)
+    elseif op[2] == "streamlines"
+        PE = PointEvaluator([apply(op[1], Identity)], sol)
+        streamplot!(p[index], sol[op[1]].FES.dofgrid, eval_func_bary(PE); rasterpoints = rasterpoints, title = uname * title_add, kwargs...)
+    else
+        ncomponents = get_ncomponents(sol[op[1]])
+        edim = size(sol[op[1]].FES.xgrid[Coordinates], 1)
+        resultdim = Length4Operator(op[2], edim, ncomponents)
+        if resultdim == 1
+            if !average_broken_plots && ExtendableFEMBase.broken(sol[op[1]].FES)
+                ExtendableFEMBase.broken_scalarplot!(p[index], sol[op[1]], op[2]; title = uname * title_add, kwargs...)
+            else
+                GridVisualize.scalarplot!(p[index], sol[op[1]].FES.dofgrid, view(nodevalues(sol[op[1]], op[2]; abs = false), 1, :), title = uname * title_add; kwargs...)
+            end
+        elseif do_abs == true
+            GridVisualize.scalarplot!(p[index], sol[op[1]].FES.dofgrid, view(nodevalues(sol[op[1]], op[2]; abs = true), 1, :), title = "|" * uname * "|" * title_add; kwargs...)
+        else
+            nv = nodevalues(sol[op[1]], op[2]; abs = false)
+            for k in 1:resultdim
+                if k > 1
+                    col += 1
+                    if col == ncols + 1
+                        col, row = 1, row + 1
+                    end
+                end
+                GridVisualize.scalarplot!(p[index], sol[op[1]].FES.dofgrid, view(nv, k, :), title = uname * " (component $k)" * title_add, kwargs...)
+            end
+        end
+        if resultdim > 1 && do_vector_plots && do_abs == true && edim > 1
+            GridVisualize.vectorplot!(p[index], sol[op[1]].FES.dofgrid, eval_func_bary(PointEvaluator([op], sol)); title = "|" * uname * "|" * " + quiver" * title_add, clear = false, kwargs...)
+        end
+    end
+    if reveal
+        GridVisualize.reveal(p)
+    end
+    return p
 end
-
 
 """
 ````
@@ -165,24 +155,9 @@ function plot(ops, sol; add = 0, Plotter = nothing, ncols = min(2, length(ops) +
     return plot!(p, ops, sol; do_abs = do_abs, kwargs...)
 end
 
-"""
-````
-function plot_unicode(sol; kwargs...)
-````
-
-Plots all blocks of sol into stdout
-(via plot_scalarplot from the UnicodePlots extension of ExtendableFEMBase)
-
-"""
-function plot_unicode(sol; kwargs...)
-    for u in 1:length(sol)
-        println(stdout, unicode_scalarplot(sol[u]; title = sol[u].name, kwargs...))
-    end
-    return
-end
 
 function GridVisualize.vectorplot!(p, xgrid, op::Tuple{Union{Unknown, Int}, DataType}, sol; title = sol[op[1]].name, kwargs...)
-    return GridVisualize.vectorplot!(p, xgrid, eval_func(PointEvaluator([op], sol)); title = title, kwargs...)
+    return GridVisualize.vectorplot!(p, xgrid, eval_func_bary(PointEvaluator([op], sol)); title = title, kwargs...)
 end
 
 

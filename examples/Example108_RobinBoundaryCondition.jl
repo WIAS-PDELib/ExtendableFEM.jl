@@ -24,7 +24,6 @@ using ExtendableFEM
 using ExtendableGrids
 using GridVisualize
 using UnicodePlots
-using Term
 using Test #hide
 
 ## data and exact solution

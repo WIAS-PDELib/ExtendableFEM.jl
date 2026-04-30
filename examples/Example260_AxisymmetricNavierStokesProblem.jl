@@ -55,7 +55,7 @@ using ExtendableFEM
 using ExtendableGrids
 using SimplexGridFactory
 using Triangulate
-using UnicodePlots
+using UnicodePlots, Term
 using Test #hide
 
 

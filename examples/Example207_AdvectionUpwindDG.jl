@@ -44,7 +44,7 @@ using Symbolics
 using LinearAlgebra
 using SimplexGridFactory
 using Triangulate
-using UnicodePlots
+using UnicodePlots, Term
 using Test #hide
 
 ## wind = advection field β

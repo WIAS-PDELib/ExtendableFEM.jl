@@ -26,8 +26,7 @@ using ExtendableSparse
 using LinearAlgebra
 using GridVisualize
 using KrylovKit
-using UnicodePlots
-using Term
+using UnicodePlots, Term
 
 function main(; which = 1:12, ncols = 3, nrefs = 4, order = 1, Plotter = UnicodePlots, kwargs...)
 
@@ -52,16 +51,12 @@ function main(; which = 1:12, ncols = 3, nrefs = 4, order = 1, Plotter = Unicode
     nEVs = length(which)
     nrows = Int(ceil(nEVs / ncols))
     plt = GridVisualizer(; Plotter = Plotter, layout = (nrows, ncols), clear = true, resolution = (900, 900 / ncols * nrows))
-    col, row = 0, 1
+    p = permutedims(reshape(1:(ncols * nrows), (nrows, ncols)))[:]
     for j in which
-        col += 1
-        if col == ncols + 1
-            col, row = 1, row + 1
-        end
         λ = λs[j]
         @info "λ[$j] = $λ, residual = $(sum(info.residual[j]))"
         u.entries .= Real.(x[j])
-        scalarplot!(plt[row, col], id(1), u; Plotter = Plotter, title = "λ[$j] = $(Float16(λ))")
+        scalarplot!(plt[p[j]], id(1), u; Plotter = Plotter, title = "λ[$j] = $(Float16(λ))")
     end
     reveal(plt)
 

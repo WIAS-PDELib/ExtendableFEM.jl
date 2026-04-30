@@ -35,7 +35,7 @@ module Example252_NSEPlanarLatticeFlow
 using ExtendableFEM
 using ExtendableGrids
 using LinearAlgebra
-using UnicodePlots
+using UnicodePlots, Term
 using Test #hide
 
 ## exact velocity (and Dirichlet data)

@@ -51,7 +51,7 @@ using ExtendableFEMBase
 using ExtendableGrids
 using LinearAlgebra
 using Metis
-using UnicodePlots
+using UnicodePlots, Term
 using Test #hide
 
 ## define obstacle
