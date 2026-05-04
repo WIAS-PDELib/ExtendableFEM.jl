@@ -787,9 +787,7 @@ function CommonSolve.solve(PD::ProblemDescription, FES::Union{<:FESpace, Vector{
     end
 
     if SC.parameters[:plot]
-        for u in unknowns
-            println(stdout, unicode_scalarplot(sol[u]; title = u.name, kwargs...))
-        end
+        plot([id(u) for u in unknowns], sol; Plotter = UnicodePlots, ncols = length(unknowns))
     end
 
     # Print the timings in the default way

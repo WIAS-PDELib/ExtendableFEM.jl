@@ -54,8 +54,8 @@ FES = FESpace{FEType}(xgrid)
 sol = solve(PD, [FES]; plot = true, timeroutputs = :hide)
 
 # Plot the solution
-import PythonPlot
-plot([id(u), grid(u)], sol; Plotter = PythonPlot)
+import UnicodePlots, Term
+plot([id(u), grid(u)], sol; Plotter = UnicodePlots)
 ```
 
 ## Running examples from documentation
@@ -64,7 +64,7 @@ In the [documentation](https://wias-pdelib.github.io/ExtendableFEM.jl/stable/ind
 Each of these examples is implemented as a module that needs to be included first. Afterwards the main file of the module
 can be run.
 Usually the main function has a Plotter argument that can be used to toggle a plot of the solution with an
-(already installed) backend of your choice (e.g. `Plotter=PythonPlot`, `GLMakie`, `Plots` or others supported by [GridVisualize.jl](https://github.com/WIAS-PDELib/GridVisualize.jl)).
+(already installed) backend of your choice (e.g. `Plotter=UnicodePlots`, `PythonPlot`, `GLMakie`, `Plots` or others supported by [GridVisualize.jl](https://github.com/WIAS-PDELib/GridVisualize.jl)).
 Some examples need several further dependencies. To ensure an environment were every dependency is installed, one can use the test
 environment via the package [TestEnv](https://github.com/JuliaTesting/TestEnv.jl). The following script runs Example201:
 ```julia
