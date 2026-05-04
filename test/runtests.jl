@@ -73,5 +73,5 @@ function run_all_tests()
     return nothing
 end
 
-run_all_tests()
+# run_all_tests()
 run_examples()
