@@ -27,7 +27,7 @@ using ExtendableGrids
 using GridVisualize
 using LinearAlgebra
 using OrdinaryDiffEqSDIRK
-using UnicodePlots, Term
+using UnicodePlots; import Term
 
 function ϕ_init!(result, qpinfo)
     x = qpinfo.x

@@ -15,7 +15,7 @@ using ExtendableFEM
 using ExtendableGrids
 using SparseArrays
 using LinearAlgebra
-using UnicodePlots, Term
+using UnicodePlots; import Term
 using Test #hide
 
 function w(r)

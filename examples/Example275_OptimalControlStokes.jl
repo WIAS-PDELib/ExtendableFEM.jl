@@ -50,7 +50,7 @@ module Example275_OptimalControlStokes
 
 using ExtendableFEM
 using ExtendableGrids
-using UnicodePlots, Term
+using UnicodePlots; import Term
 using Symbolics
 
 function prepare_data!(; ϵ = 0)

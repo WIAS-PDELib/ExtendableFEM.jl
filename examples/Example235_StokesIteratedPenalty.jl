@@ -45,7 +45,7 @@ module Example235_StokesIteratedPenalty
 
 using ExtendableFEM
 using ExtendableGrids
-using UnicodePlots, Term
+using UnicodePlots; import Term
 using Test #hide
 
 ## data for Hagen-Poiseuille flow

@@ -26,7 +26,7 @@ using ExtendableSparse
 using LinearAlgebra
 using GridVisualize
 using KrylovKit
-using UnicodePlots, Term
+using UnicodePlots; import Term
 
 function main(; which = 1:12, ncols = 3, nrefs = 4, order = 1, Plotter = UnicodePlots, kwargs...)
 

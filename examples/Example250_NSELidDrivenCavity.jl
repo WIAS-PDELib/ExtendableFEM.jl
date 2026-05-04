@@ -26,7 +26,7 @@ using ExtendableGrids
 using SimplexGridFactory
 using LinearAlgebra
 using GridVisualize
-using UnicodePlots, Term
+using UnicodePlots; import Term
 using Test #hide
 
 

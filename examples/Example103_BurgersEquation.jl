@@ -24,7 +24,7 @@ module Example103_BurgersEquation
 using ExtendableFEM
 using ExtendableGrids
 using OrdinaryDiffEqRosenbrock
-using UnicodePlots, Term
+using UnicodePlots; import Term
 using Test #hide
 
 ## nonlinear kernel, i.e. f(u)

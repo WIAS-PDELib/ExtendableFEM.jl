@@ -30,7 +30,7 @@ using GridVisualize
 using ForwardDiff
 using Random
 Random.seed!(135791113)
-using UnicodePlots, Term
+using UnicodePlots; import Term
 
 ## parameters and initial condition
 const f = (c) -> 100 * c^2 * (1 - c)^2

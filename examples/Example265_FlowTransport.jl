@@ -43,7 +43,7 @@ using ExtendableFEMBase
 using ExtendableGrids
 using SimplexGridFactory
 using Triangulate
-using UnicodePlots, Term
+using UnicodePlots; import Term
 using Test #hide
 
 ## boundary data

@@ -23,7 +23,7 @@ using ExtendableFEM
 using GridVisualize
 using ExtendableGrids
 using LinearAlgebra
-using UnicodePlots, Term
+using UnicodePlots; import Term
 using GridVisualize
 using Test #hide
 

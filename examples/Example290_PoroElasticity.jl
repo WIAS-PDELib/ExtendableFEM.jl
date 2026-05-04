@@ -37,7 +37,7 @@ using ExtendableFEM
 using ExtendableGrids
 using GridVisualize
 using Symbolics
-using UnicodePlots, Term
+using UnicodePlots; import Term
 using Test #hide
 
 

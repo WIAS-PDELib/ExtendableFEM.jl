@@ -32,7 +32,7 @@ module Example206_CoupledSubGridProblems
 
 using ExtendableFEM
 using ExtendableGrids
-using UnicodePlots, Term
+using UnicodePlots; import Term
 using Test #
 
 

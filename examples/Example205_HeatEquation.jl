@@ -23,7 +23,7 @@ module Example205_HeatEquation
 using ExtendableFEM
 using ExtendableGrids
 using OrdinaryDiffEqSDIRK
-using UnicodePlots, Term
+using UnicodePlots; import Term
 using Test #hide
 
 ## initial state u at time t0

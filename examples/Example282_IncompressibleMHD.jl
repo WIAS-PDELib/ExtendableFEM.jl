@@ -25,7 +25,7 @@ module Example282_IncompressibleMHD
 using ExtendableFEM
 using ExtendableGrids
 using LinearAlgebra
-using UnicodePlots, Term
+using UnicodePlots; import Term
 
 function f!(result, qpinfo)
     return result .= 0

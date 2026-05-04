@@ -54,7 +54,7 @@ using ExtendableFEM
 using ExtendableGrids
 using GridVisualize
 using LinearAlgebra
-using UnicodePlots, Term
+using UnicodePlots; import Term
 using Test #hide
 
 function kernel_nonlinear!(result, u_ops, qpinfo)

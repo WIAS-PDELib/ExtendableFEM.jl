@@ -30,7 +30,7 @@ using SimplexGridFactory
 using ExtendableGrids
 using GridVisualize
 using LinearAlgebra
-using UnicodePlots, Term
+using UnicodePlots; import Term
 using Test #hide
 
 ## inlet data for Karman vortex street example

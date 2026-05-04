@@ -39,7 +39,7 @@ using ExtendableFEMBase
 using ExtendableGrids
 using ExtendableSparse
 using GridVisualize
-using UnicodePlots, Term
+using UnicodePlots; import Term
 using Test #hide
 
 ## exact solution u for the Poisson problem

@@ -92,7 +92,7 @@ using GridVisualize
 using Metis
 using SimplexGridFactory
 using Triangulate
-using UnicodePlots, Term
+using UnicodePlots; import Term
 using Test #hide
 
 ## exact solution and data functions

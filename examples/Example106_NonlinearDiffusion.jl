@@ -24,7 +24,7 @@ using ExtendableFEM
 using ExtendableGrids
 using OrdinaryDiffEqSDIRK
 using GridVisualize
-using UnicodePlots, Term
+using UnicodePlots; import Term
 using Test #hide
 
 ## Barenblatt solution

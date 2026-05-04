@@ -67,7 +67,7 @@ using LinearAlgebra
 using Triangulate
 using SimplexGridFactory
 using GridVisualize
-using UnicodePlots, Term
+using UnicodePlots; import Term
 using Test #hide
 
 ## gavity
