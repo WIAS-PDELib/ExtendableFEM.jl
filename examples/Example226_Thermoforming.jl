@@ -15,6 +15,7 @@ using ExtendableFEM
 using ExtendableGrids
 using SparseArrays
 using LinearAlgebra
+using UnicodePlots; import Term
 using Test #hide
 
 function w(r)
@@ -100,7 +101,7 @@ function main(;
         f = 100,
         N = 32,
         order = 1,
-        Plotter = nothing,
+        Plotter = UnicodePlots,
         kwargs...
     )
 
@@ -134,7 +135,7 @@ function main(;
     sol = solve(PD, FESs; init = sol, maxiterations = 420, target_residual = 1.0e-8, kwargs...)
 
     ## plot
-    plt = plot([id(u), id(T), id(y)], sol; Plotter = Plotter)
+    plt = plot([id(u), id(T), id(y)], sol; Plotter = Plotter, ncols = 3)
 
     return sol, plt
 end

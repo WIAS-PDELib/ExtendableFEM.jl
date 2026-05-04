@@ -43,6 +43,7 @@ using ExtendableFEMBase
 using ExtendableGrids
 using SimplexGridFactory
 using Triangulate
+using UnicodePlots; import Term
 using Test #hide
 
 ## boundary data
@@ -81,7 +82,7 @@ end
 
 
 ## everything is wrapped in a main function
-function main(; nrefs = 4, Plotter = nothing, reconstruct = true, FVtransport = true, parallel = false, npart = 8, μ = 1, kwargs...)
+function main(; nrefs = 4, Plotter = UnicodePlots, reconstruct = true, FVtransport = true, parallel = false, npart = 8, μ = 1, kwargs...)
 
     ## load mesh and refine
     xgrid = uniform_refine(

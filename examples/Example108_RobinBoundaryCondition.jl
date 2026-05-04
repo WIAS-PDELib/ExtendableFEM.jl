@@ -23,6 +23,7 @@ module Example108_RobinBoundaryCondition
 using ExtendableFEM
 using ExtendableGrids
 using GridVisualize
+using UnicodePlots
 using Test #hide
 
 ## data and exact solution
@@ -50,7 +51,7 @@ function robin_kernel!(result, input, qpinfo)
 end
 
 ## everything is wrapped in a main function
-function main(; Plotter = nothing, h = 1.0e-1, h_fine = 1.0e-3, order = 2, kwargs...)
+function main(; Plotter = UnicodePlots, h = 1.0e-1, h_fine = 1.0e-3, order = 2, kwargs...)
 
     ## problem description
     PD = ProblemDescription()
@@ -76,6 +77,7 @@ function main(; Plotter = nothing, h = 1.0e-1, h_fine = 1.0e-3, order = 2, kwarg
     scalarplot!(plt[1, 1], id(u), sol; color = :black, label = "u_h", markershape = :circle, markersize = 10, markevery = 1)
     xgrid_fine = simplexgrid(0:h_fine:1)
     scalarplot!(plt[1, 1], xgrid_fine, view(nodevalues(xgrid_fine, u!), 1, :), clear = false, color = :red, label = "u", legend = :rb, markershape = :none)
+    reveal(plt)
 
     return sol, plt
 end

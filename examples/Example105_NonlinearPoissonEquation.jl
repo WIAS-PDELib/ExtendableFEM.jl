@@ -28,6 +28,7 @@ module Example105_NonlinearPoissonEquation
 
 using ExtendableFEM
 using ExtendableGrids
+using UnicodePlots
 using Test #hide
 
 ## rigt-hand side data
@@ -50,7 +51,7 @@ function nonlinear_kernel!(result, input, qpinfo)
 end
 
 ## everything is wrapped in a main function
-function main(; Plotter = nothing, h = 1.0e-2, ϵ = 1.0e-3, order = 2, kwargs...)
+function main(; Plotter = UnicodePlots, h = 1.0e-2, ϵ = 1.0e-3, order = 2, kwargs...)
 
     ## problem description
     PD = ProblemDescription("Nonlinear Poisson Equation")

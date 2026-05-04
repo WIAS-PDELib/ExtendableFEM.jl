@@ -1,5 +1,14 @@
 # CHANGES
 
+## v.1.11.0
+
+### Changed
+  - `UnicodePlots` is now the default Plotter in most 1d and 2d examples
+  - functions for plotting of FEVectorBlocks moved to ExtendableFEMBase#v1.6 
+
+### Added
+  - manual assembly! calls for LinearOperatorFromVector and LinearOperatorFromMatrix
+
 
 ## v.1.10.5
 

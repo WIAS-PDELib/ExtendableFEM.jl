@@ -24,6 +24,7 @@ using ExtendableFEM
 using ExtendableGrids
 using OrdinaryDiffEqSDIRK
 using GridVisualize
+using UnicodePlots; import Term
 using Test #hide
 
 ## Barenblatt solution
@@ -58,7 +59,7 @@ function main(;
         T = 0.01,
         order = 1,
         τ = 0.0001,
-        Plotter = nothing,
+        Plotter = UnicodePlots,
         use_diffeq = true,
         use_masslumping = true,
         solver = ImplicitEuler(),
@@ -120,6 +121,7 @@ function main(;
     scalarplot!(plt[1, 2], id(u), sol; label = "u_h", markershape = :circle, markevery = 1)
     interpolate!(sol[1], u_exact!; time = T, params = [m])
     scalarplot!(plt[1, 2], id(u), sol; clear = false, color = :green, label = "u", title = "t = $T", legend = :best)
+    reveal(plt)
 
     return sol, plt
 end

@@ -26,7 +26,7 @@ using ExtendableFEM
 using ExtendableFEMBase
 using ExtendableGrids
 using GridVisualize
-using UnicodePlots
+using UnicodePlots; import Term
 using Test #hide
 
 ## parameter-dependent nonlinear operator uses a callable struct to reduce allocations
@@ -95,7 +95,6 @@ function main(;
 
     ## generate bimetal mesh
     xgrid = bimetal_strip2D(; scale = scale, n = 2 * (nrefs + 1))
-    println(stdout, unicode_gridplot(xgrid))
 
     ## create finite element space and solution vector
     FES = FESpace{H1Pk{2, 2, order}}(xgrid)
@@ -148,7 +147,7 @@ function main(;
     vectorplot!(plt[2, 1], xgrid, eval_func_bary(PointEvaluator([id(u)], sol)), rasterpoints = 20, clear = false)
     displace_mesh!(xgrid, sol[u])
     gridplot!(plt[3, 1], xgrid, linewidth = 1, title = "displaced mesh")
-    println(stdout, unicode_gridplot(xgrid))
+    reveal(plt)
 
     return strain_nodevals, plt
 end
