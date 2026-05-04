@@ -124,8 +124,8 @@ function main(; Plotter = UnicodePlots, μ = 1.0e-3, maxvol = 1.0e-3, reconstruc
 
     ## plots via GridVisualize
     plt = GridVisualizer(; Plotter = Plotter, layout = (4, 1), clear = true, size = (800, 1200))
-    gridplot!(plt[1, 1], xgrid)
-    # gridplot!(plt[1, 1], xgrid, cellcoloring = :partitions, linewidth = 1, title = "grid")
+    # gridplot!(plt[1, 1], xgrid)
+    gridplot!(plt[1, 1], xgrid, title = "grid")
     # gridplot!(plt[2, 1], xgrid, cellcoloring = :partitions, linewidth = 1, xlimits = [0, 0.3], ylimits = [0.1, 0.3], title = "grid around obstacle")
     # scalarplot!(plt[3, 1], xgrid, nodevalues(sol[u]; abs = true)[1, :])
     # vectorplot!(plt[3, 1], xgrid, eval_func_bary(PointEvaluator([id(u)], sol)), rasterpoints = 20, clear = false, title = "|u_h| + quiver")
