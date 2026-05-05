@@ -54,6 +54,7 @@ using ExtendableFEM
 using ExtendableGrids
 using GridVisualize
 using LinearAlgebra
+using UnicodePlots; import Term
 using Test #hide
 
 function kernel_nonlinear!(result, u_ops, qpinfo)
@@ -84,7 +85,7 @@ function main(;
         ϵ = 1.0,
         Ra_final = 1.0e6,
         reconstruct = true,
-        Plotter = nothing,
+        Plotter = UnicodePlots,
         kwargs...
     )
 
@@ -130,6 +131,7 @@ function main(;
         vectorplot!(plt[1, 1], id(u), sol; clear = false, title = "|u| + quiver (Ra = $(params[1]))")
         scalarplot!(plt[1, 2], id(T), sol; title = "T (Ra = $(params[1]))")
         scalarplot!(plt[1, 3], id(p), sol; title = "p (Ra = $(params[1]))")
+        reveal(plt)
 
         ## stop if Ra_final is reached
         if params[1] >= Ra_final

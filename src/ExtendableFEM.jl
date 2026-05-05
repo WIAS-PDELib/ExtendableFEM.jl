@@ -36,7 +36,7 @@ using ExtendableFEMBase: ExtendableFEMBase, AbstractFiniteElement,
     initialize!, integrate, integrate!,
     integrate_segment!, lazy_interpolate!, nodevalues,
     nodevalues!, nodevalues_subset!, nodevalues_view,
-    norms, unicode_gridplot, unicode_scalarplot,
+    norms, broken_scalarplot!,
     update_basis!, SymmetricGradient
 using ExtendableGrids: ExtendableGrids, AT_NODES, AbstractElementGeometry,
     Adjacency, AssemblyType, BEdgeNodes, BFaceFaces, BFaceNormals,
@@ -95,14 +95,12 @@ export interpolate!, lazy_interpolate!
 export PointEvaluator, evaluate, evaluate!, evaluate_bary!, eval_func, eval_func_bary
 export SegmentIntegrator, integrate_segment!, initialize!
 export integrate!, integrate, QuadratureRule
-export unicode_gridplot, unicode_scalarplot
 export CellDofs, BFaceDofs, FaceDofs, EdgeDofs, BEdgeDofs
 # export get_polynomialorder
 export displace_mesh, displace_mesh!
 export Reconstruct, Identity, Divergence, Gradient
 # export _addnz
 export addblock!, addblock_matmul!
-export unicode_gridplot, unicode_scalarplot
 
 ## reexport stuff from GridVisualize
 export reveal, save

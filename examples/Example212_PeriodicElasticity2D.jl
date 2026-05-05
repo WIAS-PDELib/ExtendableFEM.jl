@@ -179,6 +179,7 @@ function main(;
     displaced_grid = deepcopy(xgrid)
     displace_mesh!(displaced_grid, sol[1], magnify = magnification)
     gridplot!(plt, displaced_grid, linewidth = 1, title = "displaced mesh, $(magnification)x magnified", scene3d = :LScene)
+    reveal(plt)
 
     return sol, plt
 end

@@ -25,6 +25,7 @@ using ExtendableGrids
 using LinearAlgebra
 using Metis
 using Symbolics
+using UnicodePlots; import Term
 using Test #hide
 
 ## exact data for problem by Symbolics
@@ -47,7 +48,18 @@ function prepare_data(; μ = 1)
     return f_eval, u_eval, ∇u_eval[2]
 end
 
-function main(; dg = true, μ = 1.0, τ = 10.0, nrefs = 4, order = 2, bonus_quadorder = 2, parallel = false, npart = parallel ? 8 : 1, Plotter = nothing, kwargs...)
+function main(;
+        dg = true,                  # use dg space (= broken FESpace)
+        μ = 1.0,                    # diffusion coefficient
+        τ = 10.0,                   # jump stabilization parameter
+        nrefs = 4,                  # number of uniform refinements
+        order = 2,                  # polynomial order of FEM
+        bonus_quadorder = 2,        # bonus quadrature for data
+        parallel = false,
+        npart = parallel ? 8 : 1,
+        Plotter = UnicodePlots,
+        kwargs...
+    )
 
     ## prepare problem data
     f_eval, u_eval, ∇u_eval = prepare_data(; μ = μ)
