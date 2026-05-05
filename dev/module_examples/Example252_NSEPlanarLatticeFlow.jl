@@ -35,6 +35,7 @@ module Example252_NSEPlanarLatticeFlow
 using ExtendableFEM
 using ExtendableGrids
 using LinearAlgebra
+using UnicodePlots; import Term
 using Test #hide
 
 ## exact velocity (and Dirichlet data)
@@ -84,11 +85,11 @@ function exact_error!(result, u, qpinfo)
 end
 
 function main(;
-        μ = 0.001,
-        nrefs = 5,
-        reconstruct = true,
-        Plotter = nothing,
-        use_LM_restrictions = true,
+        μ = 0.001,                      # viscosity coefficient
+        nrefs = 5,                      # refinement level
+        reconstruct = true,             # use pressure-robust method ?
+        use_LM_restrictions = true,     # enforce pressure mean by restriction ?
+        Plotter = UnicodePlots,         # Plotting backend
         kwargs...
     )
 

@@ -26,6 +26,7 @@ using ExtendableGrids
 using SimplexGridFactory
 using LinearAlgebra
 using GridVisualize
+using UnicodePlots; import Term
 using Test #hide
 
 
@@ -86,7 +87,7 @@ function main(;
         order = 2,               # FE order of the flow field (pressure order is order-1)
         h = 1.0e-3,              # grid cell volume
         nrefs = 1,               # additional grid refinements
-        Plotter = nothing,
+        Plotter = UnicodePlots,
         kwargs...
     )
 

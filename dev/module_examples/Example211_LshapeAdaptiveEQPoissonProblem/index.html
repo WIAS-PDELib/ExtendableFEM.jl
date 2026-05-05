@@ -8,6 +8,7 @@ using ExtendableFEMBase
 using ExtendableGrids
 using ExtendableSparse
 using GridVisualize
+using UnicodePlots; import Term
 
 # exact solution u for the Poisson problem
 function u!(result, qpinfo)
@@ -57,7 +58,7 @@ u = Unknown(&quot;u&quot;; name = &quot;u&quot;)
 σ = Unknown(&quot;σ&quot;; name = &quot;equilibrated fluxes / dual stress&quot;)
 
 # everything is wrapped in a main function
-function main(; maxdofs = 4000, μ = 1, order = 2, nlevels = 16, θ = 0.5, Plotter = nothing, kwargs...)
+function main(; maxdofs = 4000, μ = 1, order = 2, nlevels = 16, θ = 0.5, Plotter = UnicodePlots, kwargs...)
 
     # initial grid
     xgrid = grid_lshape(Triangle2D)
@@ -130,9 +131,10 @@ function main(; maxdofs = 4000, μ = 1, order = 2, nlevels = 16, θ = 0.5, Plott
     # plot
     plt = GridVisualizer(; Plotter = Plotter, layout = (2, 2), clear = true, resolution = (1000, 1000))
     scalarplot!(plt[1, 1], id(u), sol; levels = 11, title = &quot;u_h&quot;)
-    plot_convergencehistory!(plt[1, 2], NDofs, [ResultsL2 ResultsH1 Resultsη]; add_h_powers = [order, order + 1], X_to_h = X -&gt; order * X .^ (-1 / 2), ylabels = [&quot;|| u - u_h ||&quot;, &quot;|| ∇(u - u_h) ||&quot;, &quot;η&quot;])
+    plot_convergencehistory!(plt[1, 2], NDofs, [ResultsL2 ResultsH1 Resultsη]; add_h_powers = [order, order + 1], X_to_h = X -&gt; order * X .^ (-1 / 2), limits = (1.0e-6, 1.0e0), xlimits = (50, maxdofs), ylabels = [&quot;|| u - u_h ||&quot;, &quot;|| ∇(u - u_h) ||&quot;, &quot;η&quot;])
     gridplot!(plt[2, 1], xgrid; linewidth = 1)
     gridplot!(plt[2, 2], xgrid; linewidth = 1, xlimits = [-0.0005, 0.0005], ylimits = [-0.0005, 0.0005])
+    reveal(plt)
 
     # print/plot convergence history
     print_convergencehistory(NDofs, [ResultsL2 ResultsH1 Resultsη]; X_to_h = X -&gt; X .^ (-1 / 2), ylabels = [&quot;|| u - u_h ||&quot;, &quot;|| ∇(u - u_h) ||&quot;, &quot;η&quot;])
@@ -331,4 +333,4 @@ function local_equilibration_estimator!(sol, FETypeDual)
 end
 
     @test results[2] ≈ [0.0005948849237161765 0.02155094069716629 0.0012248396092485094 0.01840063545660059 0.02155094068517524 0.0005948849232996949]
-end</code></pre><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../Example210_LshapeAdaptivePoissonProblem/">« Example210_LshapeAdaptivePoissonProblem</a><a class="docs-footer-nextpage" href="../Example212_PeriodicElasticity2D/">Example212_PeriodicElasticity2D »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.17.0 on <span class="colophon-date" title="Thursday 30 April 2026 11:57">Thursday 30 April 2026</span>. Using Julia version 1.12.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+end</code></pre><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../Example210_LshapeAdaptivePoissonProblem/">« Example210_LshapeAdaptivePoissonProblem</a><a class="docs-footer-nextpage" href="../Example212_PeriodicElasticity2D/">Example212_PeriodicElasticity2D »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.17.0 on <span class="colophon-date" title="Tuesday 5 May 2026 13:36">Tuesday 5 May 2026</span>. Using Julia version 1.12.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>

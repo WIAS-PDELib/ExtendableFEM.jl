@@ -11,6 +11,7 @@
 
 using ExtendableFEM
 using ExtendableGrids
+using UnicodePlots; import Term
 using Symbolics
 
 function prepare_data!(; ϵ = 0)
@@ -44,7 +45,7 @@ function kernel_stokes_standard!(result, u_ops, qpinfo)
 end
 
 # everything is wrapped in a main function
-function main(; nrefs = 4, Plotter = nothing, reconstruct = true, μ = 1, α = 1.0e-6, ϵ = 0, kwargs...)
+function main(; nrefs = 4, Plotter = UnicodePlots, reconstruct = true, μ = 1, α = 1.0e-6, ϵ = 0, kwargs...)
 
     # prepare target data
     d_eval = prepare_data!(; ϵ = ϵ)
@@ -81,14 +82,14 @@ function main(; nrefs = 4, Plotter = nothing, reconstruct = true, μ = 1, α = 1
     sol = solve(PD, [FES[1], FES[1], FES[2], FES[2]]; kwargs...)
 
     # plot solution
-    plt = plot([id(u), id(p), id(z), id(λ)], sol; add = 1, Plotter = Plotter)
+    plt = plot([id(u), id(p), id(z), id(λ)], sol; add = 1, reveal = false, Plotter = Plotter)
 
     # plot target data
     I = FEVector(FES[1]; name = &quot;u^d&quot;)
     interpolate!(I[1], data!)
-    plot!(plt, [id(1)], I; keep = 1:4)
+    plot!(plt, [id(1)], I; keep = 1:4, reveal = true)
 
     return sol, plt
 end
 
-end</code></pre><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../Example270_NaturalConvectionProblem/">« Example270_NaturalConvectionProblem</a><a class="docs-footer-nextpage" href="../Example280_CompressibleStokes/">Example280_CompressibleStokes »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.17.0 on <span class="colophon-date" title="Thursday 30 April 2026 11:57">Thursday 30 April 2026</span>. Using Julia version 1.12.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+end</code></pre><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../Example270_NaturalConvectionProblem/">« Example270_NaturalConvectionProblem</a><a class="docs-footer-nextpage" href="../Example280_CompressibleStokes/">Example280_CompressibleStokes »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.17.0 on <span class="colophon-date" title="Tuesday 5 May 2026 13:36">Tuesday 5 May 2026</span>. Using Julia version 1.12.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>

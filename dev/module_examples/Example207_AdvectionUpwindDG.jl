@@ -44,6 +44,7 @@ using Symbolics
 using LinearAlgebra
 using SimplexGridFactory
 using Triangulate
+using UnicodePlots; import Term
 using Test #hide
 
 ## wind = advection field β
@@ -100,7 +101,7 @@ function exact_error!(result, u, qpinfo)
     return nothing
 end
 
-function main(; nref = 4, order = 0, r = 0.5, dg = true, Plotter = nothing, kwargs...)
+function main(; nref = 4, order = 0, r = 0.5, dg = true, Plotter = UnicodePlots, kwargs...)
 
     ## grid
     xgrid = make_grid(nref, r)

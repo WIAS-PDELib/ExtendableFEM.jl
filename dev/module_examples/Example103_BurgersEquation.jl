@@ -24,6 +24,7 @@ module Example103_BurgersEquation
 using ExtendableFEM
 using ExtendableGrids
 using OrdinaryDiffEqRosenbrock
+using UnicodePlots; import Term
 using Test #hide
 
 ## nonlinear kernel, i.e. f(u)
@@ -45,7 +46,7 @@ function main(;
         T = 2,
         order = 2,
         τ = 0.001,
-        Plotter = nothing,
+        Plotter = UnicodePlots,
         use_diffeq = true,
         solver = Rosenbrock23(),
         kwargs...

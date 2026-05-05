@@ -23,6 +23,7 @@ module Example202_MixedPoissonProblem
 
 using ExtendableFEM
 using ExtendableGrids
+using UnicodePlots; import Term
 using Test #hide
 
 ## define unknowns
@@ -50,7 +51,7 @@ function boundarydata!(result, qpinfo)
     return nothing
 end
 
-function main(; nrefs = 5, μ = 0.25, order = 0, Plotter = nothing, kwargs...)
+function main(; nrefs = 5, μ = 0.25, order = 0, Plotter = UnicodePlots, kwargs...)
 
     ## problem description
     PD = ProblemDescription()

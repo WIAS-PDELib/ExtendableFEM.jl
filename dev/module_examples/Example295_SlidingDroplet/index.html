@@ -25,6 +25,7 @@ using LinearAlgebra
 using Triangulate
 using SimplexGridFactory
 using GridVisualize
+using UnicodePlots; import Term
 
 # gavity
 function g!(result, qpinfo)
@@ -59,16 +60,17 @@ function initial_grid(nref; radius = 1)
 end
 
 function main(;
-        order = 2,          ## polynomial FEM order
-        β = 1.0,            ## friction at liquid-solid interface
-        δ = 1.0,            ## friction at contact line
-        Bo = 0.5,           ## Bond number
-        θ = π / 2,            ## equilibrium contact angle
-        nsteps = 800,      ## number of ALE steps
-        τ = 0.005,          ## ALE stepsize
-        nrefs = 4,          ## mesh refinement level
+        order = 2,                      # polynomial FEM order
+        β = 1.0,                        # friction at liquid-solid interface
+        δ = 1.0,                        # friction at contact line
+        Bo = 0.5,                       # Bond number
+        θ = π / 2,                      # equilibrium contact angle
+        nsteps = 800,                   # number of ALE steps
+        τ = 0.005,                      # ALE stepsize
+        nrefs = 4,                      # mesh refinement level
         stationarity_target = 1.0e-2,
-        Plotter = nothing, kwargs...
+        Plotter = UnicodePlots,
+        kwargs...
     )
 
     @info &quot;δ = $δ, β = $(β)&quot;
@@ -169,7 +171,7 @@ function main(;
     view(sol[v]) .= view(sol[u])
     sol[v][1:FES[1].coffset] .-= v0
 
-    plt = plot([grid(u), id(u), id(p), streamlines(v)], sol; Plotter = Plotter, levels = 0, colorbarticks = 7, rasterpoints = 21)
+    plt = plot([grid(u), id(u), id(p), streamlines(v)], sol; width = 400, Plotter = Plotter, levels = 0, colorbarticks = 7, rasterpoints = 21)
 
     return sol, plt
 end
@@ -192,4 +194,4 @@ function triple_junction_kernel!(triple_nodes, μ_dyn)
     end
 end
 
-end # module</code></pre><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../Example290_PoroElasticity/">« Example290_PoroElasticity</a><a class="docs-footer-nextpage" href="../Example301_PoissonProblem/">Example301_PoissonProblem »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.17.0 on <span class="colophon-date" title="Thursday 30 April 2026 11:57">Thursday 30 April 2026</span>. Using Julia version 1.12.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+end # module</code></pre><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../Example290_PoroElasticity/">« Example290_PoroElasticity</a><a class="docs-footer-nextpage" href="../Example301_PoissonProblem/">Example301_PoissonProblem »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.17.0 on <span class="colophon-date" title="Tuesday 5 May 2026 13:36">Tuesday 5 May 2026</span>. Using Julia version 1.12.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
