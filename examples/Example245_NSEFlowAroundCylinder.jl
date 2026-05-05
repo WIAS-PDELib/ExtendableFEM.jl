@@ -87,7 +87,8 @@ end
 
 
 ## everything is wrapped in a main function
-function main(; Plotter = UnicodePlots, μ = 1.0e-3, maxvol = 1.0e-3, reconstruct = true, parallel = false, npart = 8, kwargs...)
+function main(; Plotter = nothing, μ = 1.0e-3, maxvol = 1.0e-3, reconstruct = true, parallel = false, npart = 8, kwargs...)
+    # TODO Set Plotter = UnicodePlots, once https://github.com/JuliaPlots/UnicodePlots.jl/issues/438 is fixed
 
     ## load grid (see function below)
     xgrid = make_grid(W, H; n = Int(ceil(sqrt(1 / maxvol))), maxvol = maxvol)
