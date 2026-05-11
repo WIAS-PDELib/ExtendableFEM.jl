@@ -82,8 +82,7 @@ end
 
 
 ## everything is wrapped in a main function
-function main(; nrefs = 4, Plotter = nothing, reconstruct = true, FVtransport = true, parallel = false, npart = 8, μ = 1, kwargs...)
-    # TODO Set Plotter = UnicodePlots, once https://github.com/JuliaPlots/UnicodePlots.jl/issues/438 is fixed
+function main(; nrefs = 4, Plotter = UnicodePlots, reconstruct = true, FVtransport = true, parallel = false, npart = 8, μ = 1, kwargs...)
 
     ## load mesh and refine
     xgrid = uniform_refine(
