@@ -1,6 +1,11 @@
 # CHANGES
 
-## v.1.11.0
+## v1.12.0
+
+### Changed
+  - updated compats
+
+## v1.11.0
 
 ### Changed
   - `UnicodePlots` is now the default Plotter in most 1d and 2d examples
@@ -10,19 +15,19 @@
   - manual assembly! calls for LinearOperatorFromVector and LinearOperatorFromMatrix
 
 
-## v.1.10.5
+## v1.10.5
 
 ### Fixed
   - linear and nonlinear residuals in solve_until_stationarity are saved in SolverConfiguration.statistics
 
 
-## v.1.10.4
+## v1.10.4
 
 ### Fixed
   - assembly of CombineDofs operator now much faster
 
 
-## v.1.10.3
+## v1.10.3
 
 ### Fixed
   - Restriction now also work for problems with more than one unknown
@@ -32,13 +37,13 @@
   - CompressedRestriction has (empty) assemble! function to prevent crash in some cases
   - improved show of Unknowns
   
-## v.1.10.0
+## v1.10.0
 
 ### Changed
   - `SolverConfiguration` has no `LP` property any more: everything is available via the `linsolver`.
   - `initialize_linear_solver` is slightly changed and called much later in `solve`.
 
-## v.1.9.1
+## v1.9.1
 
 ### Fixed
   - The linear residual takes also Lagrange multipliers and Lagrange restrictions into account.
