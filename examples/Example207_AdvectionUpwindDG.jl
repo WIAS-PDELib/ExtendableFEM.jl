@@ -40,7 +40,7 @@ module Example207_AdvectionUpwindDG
 
 using ExtendableFEM
 using ExtendableGrids
-using Symbolics
+using Symbolics: Symbolics, @variables, build_function
 using LinearAlgebra
 using SimplexGridFactory
 using Triangulate
