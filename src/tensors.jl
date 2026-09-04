@@ -6,11 +6,11 @@ Mathematically, this describes the shape of an element
 in ``\\underbrace{\\mathbb{R}^D\\times\\cdots\\times\\mathbb{R}^D}_{R} \\text{ times}``.
 
 See also: 
-[TDScalar{D}](@ref),
-[TDVector{D}](@ref),
-[TDMatrix{D}](@ref),
-[TDRank3{D}](@ref),
-[TDRank4{D}](@ref)
+[`TDScalar{D}`](@ref),
+[`TDVector{D}`](@ref),
+[`TDMatrix{D}`](@ref),
+[`TDRank3{D}`](@ref),
+[`TDRank4{D}`](@ref)
 """
 struct TensorDescription{R, D}
 end

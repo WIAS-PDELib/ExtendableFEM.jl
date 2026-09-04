@@ -51,7 +51,7 @@ module Example275_OptimalControlStokes
 using ExtendableFEM
 using ExtendableGrids
 using UnicodePlots; import Term
-using Symbolics
+using Symbolics: Symbolics, @variables, build_function
 
 function prepare_data!(; ϵ = 0)
     @variables x y

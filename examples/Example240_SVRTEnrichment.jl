@@ -45,7 +45,7 @@ using ExtendableGrids
 using ExtendableSparse
 using Triangulate
 using SimplexGridFactory
-using Symbolics
+using Symbolics: Symbolics, @variables, build_function
 using UnicodePlots; import Term
 using Test #hide
 
