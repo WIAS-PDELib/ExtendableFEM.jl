@@ -36,7 +36,7 @@ module Example290_PoroElasticity
 using ExtendableFEM
 using ExtendableGrids
 using GridVisualize
-using Symbolics
+using Symbolics: Symbolics, @variables, build_function
 using UnicodePlots; import Term
 using Test #hide
 

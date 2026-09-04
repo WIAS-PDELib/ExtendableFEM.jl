@@ -24,7 +24,7 @@ using ExtendableFEM
 using ExtendableGrids
 using LinearAlgebra
 using Metis
-using Symbolics
+using Symbolics: Symbolics, @variables, build_function
 using UnicodePlots; import Term
 using Test #hide
 
