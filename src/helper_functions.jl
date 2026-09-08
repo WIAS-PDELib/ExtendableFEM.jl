@@ -162,7 +162,8 @@ end
 function interpolate_on_boundaryfaces(
         source::FEVector{Tv, TvG, TiG},
         xgrid::ExtendableGrid{TvG, TiG},
-        give_opposite,
+        give_opposite!,
+        post_mutation!,
         start_cell::Int = 1, # TODO we interpolate on the "b_from" side: a proper start cell should be given
         eps = 1.0e-13,
         kwargs...,
@@ -170,7 +171,7 @@ function interpolate_on_boundaryfaces(
 
     # wrap point evaluation into function that is put into normal interpolate!
     xdim::Int = size(xgrid[Coordinates], 1)
-    PE = PointEvaluator([(1, Identity)], source)
+    PE = PointEvaluator(post_mutation!, [(1, Identity)], source)
     xref = zeros(TvG, xdim)
     x_source = zeros(TvG, xdim)
     CF::ExtendableGrids.CellFinder{TvG, TiG} = ExtendableGrids.CellFinder(xgrid)
@@ -182,7 +183,7 @@ function interpolate_on_boundaryfaces(
     end
 
     function __eval_point(result, qpinfo)
-        give_opposite(x_source, qpinfo.x)
+        give_opposite!(x_source, qpinfo.x)
 
         cell = ExtendableGrids.gFindLocal!(xref, CF, x_source; icellstart = last_cell[1], eps)
         if cell == 0
@@ -206,7 +207,7 @@ function get_periodic_coupling_matrix(
         kwargs...
     ) where {Tv, TvG, TiG}
     @warn "get_periodic_coupling_matrix with grid argument is deprecated"
-    return _get_periodic_coupling_matrix(FES, xgrid, b_from, b_to, give_opposite!; kwargs...)
+    return _get_periodic_coupling_matrix(FES, xgrid, b_from, b_to, give_opposite!, ExtendableFEMBase.standard_kernel; kwargs...)
 end
 
 # merge matrix B into A, overriding the entries of A if an entry is both present in A and B
@@ -223,7 +224,8 @@ function _get_periodic_coupling_matrix(
         xgrid::ExtendableGrid{TvG, TiG},
         b_from,
         b_to,
-        give_opposite!::Function;
+        give_opposite!::Function,
+        post_mutation!::Function;
         mask = :auto,
         sparsity_tol = 1.0e-12,
         parallel = false,
@@ -395,7 +397,7 @@ function _get_periodic_coupling_matrix(
         local n = length(fe_vector.entries)
         local result = ExtendableSparseMatrix(n, n)
 
-        local eval_point, _ = interpolate_on_boundaryfaces(fe_vector, xgrid, give_opposite!)
+        local eval_point, _ = interpolate_on_boundaryfaces(fe_vector, xgrid, give_opposite!, post_mutation!)
 
         for i_boundary_face in chunk
 
@@ -509,9 +511,10 @@ function get_periodic_coupling_matrix(
         b_from,
         b_to,
         give_opposite!;
+        post_mutation! = ExtendableFEMBase.standard_kernel,
         kwargs...
     )
-    return _get_periodic_coupling_matrix(FES, FES.dofgrid, b_from, b_to, give_opposite!; kwargs...)
+    return _get_periodic_coupling_matrix(FES, FES.dofgrid, b_from, b_to, give_opposite!, post_mutation!; kwargs...)
 end
 
 

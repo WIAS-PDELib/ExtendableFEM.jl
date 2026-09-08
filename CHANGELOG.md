@@ -1,9 +1,16 @@
 # CHANGES
 
+## v1.13.0
+
+### Added
+  - `CoupledDofsRestriction` now accepts `give_opposite!` and `post_mutation!` callbacks for arbitrary mutation operators (e.g. for periodic Stokes/Navier--Stokes with flipped velocity components)
+  - new example `Example266_PeriodicStokes` (periodic incompressible Navier--Stokes )
+
 ## v1.12.0
 
 ### Changed
   - updated compats
+
 
 ## v1.11.0
 
