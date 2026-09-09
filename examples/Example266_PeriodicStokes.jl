@@ -4,7 +4,7 @@
 ([source code](@__SOURCE_URL__))
 
 This example solves the incompressible Navier--Stokes equations with periodic boundary
-conditions in the horizontal direction and no-slip boundary conditions on the top and bottom
+conditions between inlet and outlet, and no-slip boundary conditions on the other
 walls. The equations seek a velocity ``\mathbf{u}`` and a pressure ``p`` such that
 ```math
 \begin{aligned}
@@ -12,15 +12,6 @@ walls. The equations seek a velocity ``\mathbf{u}`` and a pressure ``p`` such th
 \mathrm{div}(\mathbf{u}) & = 0
 \end{aligned}
 ```
-
-Periodic boundary conditions are applied on the left (region 1) and right (region 2) boundaries,
-while no-slip (homogeneous Dirichlet) conditions are imposed on the top and bottom walls
-(regions 3 and 4). The pressure is fixed at a reference point to remove the constant mode.
-
-To handle the nonlinearity, a Newton iteration is used with automatic differentiation of the
-residual. The convection term uses a divergence-free reconstruction of the velocity to obtain
-a pressure-robust method, following the reference
-
 !!! reference
 
     ''On the divergence constraint in mixed finite element methods for incompressible flows'',\
@@ -28,10 +19,8 @@ a pressure-robust method, following the reference
     SIAM Review 59(3) (2017),\
     [>Link<](https://doi.org/10.1137/15M1047696)
 
-The nonlinear problem is solved via parameter continuation on the forcing parameter ``\alpha``,
-starting from the Stokes solution at ``\alpha = 0`` to obtain the solution at ``\alpha = 1``.
-
-The computed solution for the default parameters looks like this:
+The solution is computed via Taylor--Hood elements.
+For the default parameters the result looks like this:
 
 ![](example266.png)
 
