@@ -23,14 +23,14 @@ Suppose you want to enforce periodicity between the left and right boundaries of
 
 ```julia
 # Define a function to map points on the left to the right boundary
-function give_opposite!(y, x)
+function source_target_transform!(y, x)
     y .= x
     y[1] = width - x[1]
     return nothing
 end
 
 # Compute the coupling matrix
-coupling_matrix = get_periodic_coupling_matrix(FES, reg_left, reg_right, give_opposite!)
+coupling_matrix = get_periodic_coupling_matrix(FES, reg_left, reg_right, source_target_transform!)
 
 # Assign the CombineDofs operator to the problem description
 assign_operator!(PD, CombineDofs(u, u, coupling_matrix))

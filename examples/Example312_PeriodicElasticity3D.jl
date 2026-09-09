@@ -172,12 +172,13 @@ function main(;
 
     elseif periodic_coupling != :none
 
-        function give_opposite!(y, x)
+        ## source -> target: reflect x coordinate (left boundary at x=0 maps to right boundary at x=width)
+        function source_target_transform!(y, x)
             y .= x
             y[1] = width - x[1]
             return nothing
         end
-        @showtime coupling_matrix = get_periodic_coupling_matrix(FES, reg_left, reg_right, give_opposite!; parallel = threads > 1, threads)
+        @showtime coupling_matrix = get_periodic_coupling_matrix(FES, reg_left, reg_right, source_target_transform!; parallel = threads > 1, threads)
         if periodic_coupling == :restriction
             assign_restriction!(PD, CoupledDofsRestriction(coupling_matrix))
         else # :operator

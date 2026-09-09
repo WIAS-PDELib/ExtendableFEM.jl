@@ -106,13 +106,13 @@ function main(;
     assign_operator!(PD, NonlinearOperator(op, [grad(u)]; kwargs...))
     if periodic
         ## periodic boundary conditions
-        ## 1) couple dofs left (bregion 1) and right (bregion 3) in y-direction
-        function give_opposite!(y, x)
+        ## 1) couple dofs left (bregion 1) and right (bregion 3): source -> target reflects x → -x
+        function source_target_transform!(y, x)
             y .= x
             y[1] = -x[1]
             return nothing
         end
-        coupling_matrix = get_periodic_coupling_matrix(FES, xgrid, 1, 3, give_opposite!; mask = [0, 1])
+        coupling_matrix = get_periodic_coupling_matrix(FES, xgrid, 1, 3, source_target_transform!; mask = [0, 1])
         assign_operator!(PD, CombineDofs(u, u, coupling_matrix; kwargs...))
 
         ## 2) find and fix point at [0, scale[1]]

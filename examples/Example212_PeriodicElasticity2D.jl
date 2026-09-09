@@ -152,13 +152,13 @@ function main(;
     assign_operator!(PD, HomogeneousBoundaryData(u; regions = [reg_dirichlet]))
 
     if periodic
-        function give_opposite!(y, x)
+        function source_target_transform!(y, x)
             y .= x
             y[1] = width - x[1]
             return nothing
         end
 
-        @showtime coupling_matrix = get_periodic_coupling_matrix(FES, reg_left, reg_right, give_opposite!; parallel = threads > 1, threads)
+        @showtime coupling_matrix = get_periodic_coupling_matrix(FES, reg_left, reg_right, source_target_transform!; parallel = threads > 1, threads)
         if use_LM_restrictions
             assign_restriction!(PD, CoupledDofsRestriction(coupling_matrix))
         else

@@ -61,7 +61,14 @@ end
 
     The concrete coupling matrix will be computed in the solver, when the grid geometry and the FES is known.
 """
-function CoupledDofsRestriction(unknown::Unknown, source_region::Ti, target_region::Ti; kwargs...) where {Ti}
+function CoupledDofsRestriction(
+        unknown::Unknown,
+        source_region::Ti,
+        target_region::Ti;
+        source_target_transform! = nothing,
+        post_mutation! = nothing,
+        kwargs...
+    ) where {Ti}
     return CoupledDofsRestriction(
         [nothing],
         Dict{Symbol, Any}(
@@ -70,6 +77,8 @@ function CoupledDofsRestriction(unknown::Unknown, source_region::Ti, target_regi
             :unknown => unknown,
             :source_region => source_region,
             :target_region => target_region,
+            :source_target_transform! => source_target_transform!,
+            :post_mutation! => post_mutation!,
             :kwargs => kwargs
         )
     )
@@ -88,30 +97,47 @@ function assemble!(R::CoupledDofsRestriction, sol, SC; kwargs...)
         target_region = R.parameters[:target_region]
         R_kwargs = R.parameters[:kwargs]
 
-        grid = FES.dofgrid
+        if !isnothing(R.parameters[:source_target_transform!])
+            source_target_transform! = R.parameters[:source_target_transform!]
+        else
+            grid = FES.dofgrid
 
-        # at first, we select one face on source/target region
-        source_bface = findfirst(==(source_region), grid[BFaceRegions])
-        target_bface = findfirst(==(target_region), grid[BFaceRegions])
+            # at first, we select one face on source/target region
+            source_bface = findfirst(==(source_region), grid[BFaceRegions])
+            target_bface = findfirst(==(target_region), grid[BFaceRegions])
 
-        # the normal (it should really be opposite to the normal on the other side)
-        normal = grid[BFaceNormals][:, source_bface]
-        @assert normal ≈ -grid[BFaceNormals][:, target_bface]
+            # the normal (it should really be opposite to the normal on the other side)
+            normal = grid[BFaceNormals][:, source_bface]
+            @assert normal ≈ -grid[BFaceNormals][:, target_bface]
 
-        # pick a coordinate on each boundary region
-        source_coord = grid[Coordinates][:, grid[BFaceNodes][1, source_bface]]
-        target_coord = grid[Coordinates][:, grid[BFaceNodes][1, target_bface]]
+            # pick a coordinate on each boundary region
+            source_coord = grid[Coordinates][:, grid[BFaceNodes][1, source_bface]]
+            target_coord = grid[Coordinates][:, grid[BFaceNodes][1, target_bface]]
 
-        # compute the sum of scalar product with the normals (reflection point)
-        γ = source_coord'normal + target_coord'normal
+            # compute the sum of scalar product with the normals (reflection point)
+            γ = source_coord'normal + target_coord'normal
 
-        function give_opposite!(y, x)
-            σ = 2.0 * normal'x
-            @. y = x + (γ - σ) * normal # then x ⇔ y are opposite along the normal vector
-            return nothing
+            source_target_transform! = (y, x) -> begin
+                σ = 2.0 * normal'x
+                @. y = x + (γ - σ) * normal # then x ⇔ y are opposite along the normal vector
+                return nothing
+            end
         end
 
-        coupling_matrix = get_periodic_coupling_matrix(FES, source_region, target_region, give_opposite!; R_kwargs...)
+        if !isnothing(R.parameters[:post_mutation!])
+            post_mutation! = R.parameters[:post_mutation!]
+        else
+            post_mutation! = ExtendableFEMBase.standard_kernel
+        end
+
+        coupling_matrix = get_periodic_coupling_matrix(
+            FES,
+            source_region,
+            target_region,
+            source_target_transform!;
+            post_mutation!,
+            R_kwargs...
+        )
 
         # replace R (in this scope)
         R = CoupledDofsRestriction(coupling_matrix, unknown = R.parameters[:unknown])

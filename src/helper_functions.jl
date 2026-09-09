@@ -162,7 +162,8 @@ end
 function interpolate_on_boundaryfaces(
         source::FEVector{Tv, TvG, TiG},
         xgrid::ExtendableGrid{TvG, TiG},
-        give_opposite,
+        source_target_transform!,
+        post_mutation!,
         start_cell::Int = 1, # TODO we interpolate on the "b_from" side: a proper start cell should be given
         eps = 1.0e-13,
         kwargs...,
@@ -170,7 +171,7 @@ function interpolate_on_boundaryfaces(
 
     # wrap point evaluation into function that is put into normal interpolate!
     xdim::Int = size(xgrid[Coordinates], 1)
-    PE = PointEvaluator([(1, Identity)], source)
+    PE = PointEvaluator(post_mutation!, [(1, Identity)], source)
     xref = zeros(TvG, xdim)
     x_source = zeros(TvG, xdim)
     CF::ExtendableGrids.CellFinder{TvG, TiG} = ExtendableGrids.CellFinder(xgrid)
@@ -182,7 +183,7 @@ function interpolate_on_boundaryfaces(
     end
 
     function __eval_point(result, qpinfo)
-        give_opposite(x_source, qpinfo.x)
+        source_target_transform!(x_source, qpinfo.x)
 
         cell = ExtendableGrids.gFindLocal!(xref, CF, x_source; icellstart = last_cell[1], eps)
         if cell == 0
@@ -202,11 +203,12 @@ function get_periodic_coupling_matrix(
         xgrid::ExtendableGrid{TvG, TiG},
         b_from,
         b_to,
-        give_opposite!::Function;
+        source_target_transform!::Function;
+        post_mutation! = ExtendableFEMBase.standard_kernel,
         kwargs...
     ) where {Tv, TvG, TiG}
     @warn "get_periodic_coupling_matrix with grid argument is deprecated"
-    return _get_periodic_coupling_matrix(FES, xgrid, b_from, b_to, give_opposite!; kwargs...)
+    return _get_periodic_coupling_matrix(FES, xgrid, b_from, b_to, source_target_transform!, post_mutation!; kwargs...)
 end
 
 # merge matrix B into A, overriding the entries of A if an entry is both present in A and B
@@ -223,7 +225,8 @@ function _get_periodic_coupling_matrix(
         xgrid::ExtendableGrid{TvG, TiG},
         b_from,
         b_to,
-        give_opposite!::Function;
+        source_target_transform!::Function,
+        post_mutation!::Function;
         mask = :auto,
         sparsity_tol = 1.0e-12,
         parallel = false,
@@ -251,17 +254,14 @@ function _get_periodic_coupling_matrix(
     # FE basis dofs on each boundary face
     dofs_on_boundary = FES[BFaceDofs]
 
-    # face numbers of the boundary faces
-    face_numbers_of_bfaces = xgrid[BFaceFaces]
-
     # find all faces in b_to
-    faces_in_b_to = TiG[]
-    faces_in_b_from = TiG[]
+    bfaces_in_b_to = TiG[]
+    bfaces_in_b_from = TiG[]
     for (i, region) in enumerate(boundary_regions)
         if region in b_to
-            push!(faces_in_b_to, face_numbers_of_bfaces[i])
+            push!(bfaces_in_b_to, i)
         elseif region in b_from
-            push!(faces_in_b_from, face_numbers_of_bfaces[i])
+            push!(bfaces_in_b_from, i)
         end
     end
 
@@ -295,12 +295,12 @@ function _get_periodic_coupling_matrix(
 
     dummy = zeros(TvG, size(xgrid[Coordinates], 1))
 
-    # flip a face to the other side using the give_opposite! function
+    # transform a face to the target side using the source_target_transform! function
     # Warning: this overwrites the face
     function transfer_face!(face::AbstractMatrix)
         for i in axes(face, 2)
             @views coord = face[:, i]
-            give_opposite!(dummy, coord)
+            source_target_transform!(dummy, coord)
             @views face[:, i] .= dummy
         end
         return
@@ -309,75 +309,77 @@ function _get_periodic_coupling_matrix(
     # precompute approximate search region for each boundary face in b_from
     searchareas = ExtendableGrids.VariableTargetAdjacency(TiG)
     coords = xgrid[Coordinates]
-    facenodes = xgrid[FaceNodes]
-    coords_from = coords[:, facenodes[:, 1]]
-    nodes_per_faces = size(coords_from, 2)
-    dim = size(coords_from, 1)
-    box_from = @MArray [Float64[0, 0], Float64[0, 0], Float64[0, 0]]
-    for face_from in faces_in_b_from
+    bfacenodes = xgrid[BFaceNodes]
+    coords_to = coords[:, bfacenodes[:, 1]]
+    nodes_per_faces = size(coords_to, 2)
+    dim = size(coords_to, 1)
+    box_to = @MArray [Float64[0, 0], Float64[0, 0], Float64[0, 0]]
+    for bface_to in bfaces_in_b_to
         for j in 1:nodes_per_faces, k in 1:dim
-            coords_from[k, j] = coords[k, facenodes[j, face_from]]
+            coords_to[k, j] = coords[k, bfacenodes[j, bface_to]]
         end
 
-        # transfer the coords_from to the other side
-        transfer_face!(coords_from)
+        # transfer the coords_to to the other side
+        transfer_face!(coords_to)
 
         # get the extrama in each component ( = bounding box of the face)
         for k in 1:dim
-            box_from[k][1] = minimum(view(coords_from, k, :))
-            box_from[k][2] = maximum(view(coords_from, k, :))
+            box_to[k][1] = minimum(view(coords_to, k, :))
+            box_to[k][2] = maximum(view(coords_to, k, :))
         end
 
-        function inner_loop(faces_chunk)
+        function inner_loop(bfaces_chunk)
             # some data
-            local coords_to = coords[:, facenodes[:, 1]]
-            local box_to = @MArray [Float64[0, 0], Float64[0, 0], Float64[0, 0]]
-            local faces_to = Int[]
+            local coords_from = coords[:, bfacenodes[:, 1]]
+            local box_from = @MArray [Float64[0, 0], Float64[0, 0], Float64[0, 0]]
+            local bfaces_from = Int[]
 
-            for face_to in faces_chunk
+            for bface_from in bfaces_chunk
                 for j in 1:nodes_per_faces, k in 1:dim
-                    coords_to[k, j] = coords[k, facenodes[j, face_to]]
+                    coords_from[k, j] = coords[k, bfacenodes[j, bface_from]]
                 end
                 for k in 1:dim
-                    box_to[k][1] = minimum(view(coords_to, k, :))
-                    box_to[k][2] = maximum(view(coords_to, k, :))
+                    box_from[k][1] = minimum(view(coords_from, k, :))
+                    box_from[k][2] = maximum(view(coords_from, k, :))
                 end
 
-                if do_boxes_overlap(box_from, box_to)
-                    push!(faces_to, face_to)
+                if do_boxes_overlap(box_to, box_from)
+                    push!(bfaces_from, bface_from)
                 end
             end
 
-            return faces_to
+            return bfaces_from
         end
 
         if parallel && nthr > 1
             # create chunks to split this range for the threads
-            faces_chunks = chunks(faces_in_b_to, n = nthr)
+            bfaces_chunks = chunks(bfaces_in_b_from, n = nthr)
 
-            tasks = map(faces_chunks) do faces_chunk
-                Threads.@spawn inner_loop(faces_chunk)
+            tasks = map(bfaces_chunks) do bfaces_chunk
+                Threads.@spawn inner_loop(bfaces_chunk)
             end
 
             # put all results together
-            faces_to = vcat(fetch.(tasks)...)
+            bfaces_from = vcat(fetch.(tasks)...)
         else
-            faces_to = inner_loop(faces_in_b_to)
+            bfaces_from = inner_loop(bfaces_in_b_from)
         end
 
-        append!(searchareas, faces_to)
+        append!(searchareas, bfaces_from)
     end
 
-    # throw error if no search area had been found for a bface
-    for source in 1:num_sources(searchareas)
-        if num_targets(searchareas, source) == 0
-            throw("bface $source has no valid search area on the opposite side of the grid. Double check the provided from/to regions and your give_opposite! function")
-        end
-    end
+    # flip the adjacency: in the following we need search areas for each "from" face
+    searchareas = ExtendableGrids.atranspose(searchareas)
 
     # we are only interest in global bface numbers on the "from" boundary
-    bfaces_of_interest = filter(face -> boundary_regions[face] in b_from, 1:n_boundary_faces)
-    n_bface_of_interest = length(bfaces_of_interest)
+    bfaces_of_interest = filter(bface -> boundary_regions[bface] in b_from, 1:n_boundary_faces)
+
+    # throw error if no search area had been found for a bface
+    for source in bfaces_of_interest
+        if num_targets(searchareas, source) == 0
+            throw("bface $source has no valid search area on the target side of the grid. Double check the provided from/to regions and your source_target_transform! function")
+        end
+    end
 
     # loop over boundary face indices in a chunk: we need this index for dofs_on_boundary
     function compute_chunk_result(chunk)
@@ -395,11 +397,11 @@ function _get_periodic_coupling_matrix(
         local n = length(fe_vector.entries)
         local result = ExtendableSparseMatrix(n, n)
 
-        local eval_point, _ = interpolate_on_boundaryfaces(fe_vector, xgrid, give_opposite!)
+        local eval_point, _ = interpolate_on_boundaryfaces(fe_vector, xgrid, source_target_transform!, post_mutation!)
 
-        for i_boundary_face in chunk
+        for boundary_face in chunk
 
-            local local_dofs = @views dofs_on_boundary[:, i_boundary_face]
+            local local_dofs = @views dofs_on_boundary[:, boundary_face]
             for local_dof in local_dofs
                 # compute number of component
                 if mask[1 + ((local_dof - 1) ÷ coffset)] == 0.0
@@ -413,17 +415,10 @@ function _get_periodic_coupling_matrix(
                 # activate one entry
                 fe_vector.entries[local_dof] = 1.0
 
-                # interpolate on the opposite boundary using x_trafo = give_opposite
-
-                local j = findfirst(==(face_numbers_of_bfaces[i_boundary_face]), faces_in_b_from)
-                if j <= 0
-                    throw("face $(face_numbers_of_bfaces[i_boundary_face]) is not on source boundary. Are the from/to regions and the give_opposite function correct?")
-                end
-
                 interpolate!(
                     fe_vector_target[1],
-                    ON_FACES, eval_point,
-                    items = view(searchareas, :, j)
+                    ON_BFACES, eval_point,
+                    items = @views bfaces_in_b_to[searchareas[:, boundary_face]]
                 )
 
                 # deactivate entry
@@ -468,7 +463,7 @@ function _get_periodic_coupling_matrix(
 
     # strange if nothing is coupled
     if nnz(sp_result) == 0
-        @warn "no coupling found. Are the grid boundary regions and the give_opposite! method correct?"
+        @warn "no coupling found. Are the grid boundary regions and the source_target_transform! method correct?"
     end
 
     return sp_result
@@ -479,7 +474,8 @@ end
         FES::FESpace,
         b_from,
         b_to,
-        give_opposite!::Function;
+        source_target_transform!::Function;
+        post_mutation! = ExtendableFEMBase.standard_kernel,
         mask = :auto,
         sparsity_tol = 1.0e-12
     )
@@ -490,13 +486,14 @@ Input:
  - FES: FE space to be coupled (on its dofgrid)
  - b_from: boundary region(s) of the grid which dofs should be replaced in terms of dofs on b_to
  - b_to: boundary region(s) of the grid with dofs to replace the dofs in b_from
- - give_opposite! Function in (y,x)
+  - source_target_transform! Function `source_target_transform!(y, x)` that maps a point `x ∈ b_from` to the corresponding point `y` on the target boundary
+ - post_mutation!: optional post-transformation applied after interpolation (e.g. to flip velocity components for Stokes problems)
  - mask: (optional) vector of masking components
  - sparsity_tol: threshold for treating an interpolated value as zero
 
-give_opposite!(y,x) has to be defined in a way that for each x ∈ b_from the resulting y is in the opposite boundary.
+source_target_transform!(x, y) has to be defined in a way that for each x ∈ b_from the resulting y is on the target boundary.
 For each x in the grid, the resulting y has to be in the grid, too: incorporate some mirroring of the coordinates.
-Example: If b_from is at x[1] = 0 and the opposite boundary is at y[1] = 1, then give_opposite!(y,x) = y .= [ 1-x[1], x[2] ]
+Example: If b_from is at x[1] = 0 and the target boundary is at y[1] = 1, then source_target_transform!(x, y) = y .= [ 1-x[1], x[2] ]
 
 The return value is a (𝑛 × 𝑛) sparse matrix 𝐴 (𝑛 is the total number of dofs) containing the periodic coupling information.
 The relation ship between the degrees of freedom is  dofᵢ = ∑ⱼ Aⱼᵢ ⋅ dofⱼ.
@@ -508,10 +505,11 @@ function get_periodic_coupling_matrix(
         FES,
         b_from,
         b_to,
-        give_opposite!;
+        source_target_transform!;
+        post_mutation! = ExtendableFEMBase.standard_kernel,
         kwargs...
     )
-    return _get_periodic_coupling_matrix(FES, FES.dofgrid, b_from, b_to, give_opposite!; kwargs...)
+    return _get_periodic_coupling_matrix(FES, FES.dofgrid, b_from, b_to, source_target_transform!, post_mutation!; kwargs...)
 end
 
 
