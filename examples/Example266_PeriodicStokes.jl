@@ -102,7 +102,7 @@ function main(;
     ## body force in the x-direction
     assign_operator!(PD, LinearOperator(f_body!, [id(u)]; regions = [2], kwargs...))
 
-    function give_opposite!(y, x)
+    function target2source!(y, x)
         y[1] = 7.0
         y[2] = x[1]
         return nothing
@@ -118,7 +118,7 @@ function main(;
     periodic && assign_restriction!(
         PD, CoupledDofsRestriction(
             u, 2, 4;
-            give_opposite!,
+            target2source!,
             post_mutation!
         )
     )

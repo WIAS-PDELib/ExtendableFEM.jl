@@ -55,9 +55,14 @@ end
     - source_region: source boundary region
     - target_region: target boundary region
 
-    This constructor assumes that
+    This constructor without given kwargs assumes that
     - the source and target boundary regions form two parallel hyperplanes
     - the coupling is performed orthogonally between the given hyperplanes
+
+    For more advanced cases, a user defined
+    - target2source! = (y,x) -> ... which maps x ∈ target to y ∈ source
+    - (optional) post_mutation! = (result, input, qpinfo) -> ... for post interpolation modifications of the FE field
+    must be given.
 
     The concrete coupling matrix will be computed in the solver, when the grid geometry and the FES is known.
 """
@@ -65,7 +70,7 @@ function CoupledDofsRestriction(
         unknown::Unknown,
         source_region::Ti,
         target_region::Ti;
-        give_opposite! = nothing,
+        target2source! = nothing,
         post_mutation! = nothing,
         kwargs...
     ) where {Ti}
@@ -77,7 +82,7 @@ function CoupledDofsRestriction(
             :unknown => unknown,
             :source_region => source_region,
             :target_region => target_region,
-            :give_opposite! => give_opposite!,
+            :target2source! => target2source!,
             :post_mutation! => post_mutation!,
             :kwargs => kwargs
         )
@@ -97,8 +102,8 @@ function assemble!(R::CoupledDofsRestriction, sol, SC; kwargs...)
         target_region = R.parameters[:target_region]
         R_kwargs = R.parameters[:kwargs]
 
-        if !isnothing(R.parameters[:give_opposite!])
-            give_opposite! = R.parameters[:give_opposite!]
+        if !isnothing(R.parameters[:target2source!])
+            target2source! = R.parameters[:target2source!]
         else
             grid = FES.dofgrid
 
@@ -117,7 +122,7 @@ function assemble!(R::CoupledDofsRestriction, sol, SC; kwargs...)
             # compute the sum of scalar product with the normals (reflection point)
             γ = source_coord'normal + target_coord'normal
 
-            give_opposite! = (y, x) -> begin
+            target2source! = (y, x) -> begin
                 σ = 2.0 * normal'x
                 @. y = x + (γ - σ) * normal # then x ⇔ y are opposite along the normal vector
                 return nothing
@@ -134,7 +139,7 @@ function assemble!(R::CoupledDofsRestriction, sol, SC; kwargs...)
             FES,
             source_region,
             target_region,
-            give_opposite!;
+            target2source!;
             post_mutation!,
             R_kwargs...
         )
