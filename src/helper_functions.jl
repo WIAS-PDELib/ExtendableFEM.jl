@@ -253,17 +253,14 @@ function _get_periodic_coupling_matrix(
     # FE basis dofs on each boundary face
     dofs_on_boundary = FES[BFaceDofs]
 
-    # face numbers of the boundary faces
-    face_numbers_of_bfaces = xgrid[BFaceFaces]
-
     # find all faces in b_to
-    faces_in_b_to = TiG[]
-    faces_in_b_from = TiG[]
+    bfaces_in_b_to = TiG[]
+    bfaces_in_b_from = TiG[]
     for (i, region) in enumerate(boundary_regions)
         if region in b_to
-            push!(faces_in_b_to, face_numbers_of_bfaces[i])
+            push!(bfaces_in_b_to, i)
         elseif region in b_from
-            push!(faces_in_b_from, face_numbers_of_bfaces[i])
+            push!(bfaces_in_b_from, i)
         end
     end
 
@@ -311,75 +308,77 @@ function _get_periodic_coupling_matrix(
     # precompute approximate search region for each boundary face in b_from
     searchareas = ExtendableGrids.VariableTargetAdjacency(TiG)
     coords = xgrid[Coordinates]
-    facenodes = xgrid[FaceNodes]
-    coords_from = coords[:, facenodes[:, 1]]
-    nodes_per_faces = size(coords_from, 2)
-    dim = size(coords_from, 1)
-    box_from = @MArray [Float64[0, 0], Float64[0, 0], Float64[0, 0]]
-    for face_from in faces_in_b_from
+    bfacenodes = xgrid[BFaceNodes]
+    coords_to = coords[:, bfacenodes[:, 1]]
+    nodes_per_faces = size(coords_to, 2)
+    dim = size(coords_to, 1)
+    box_to = @MArray [Float64[0, 0], Float64[0, 0], Float64[0, 0]]
+    for bface_to in bfaces_in_b_to
         for j in 1:nodes_per_faces, k in 1:dim
-            coords_from[k, j] = coords[k, facenodes[j, face_from]]
+            coords_to[k, j] = coords[k, bfacenodes[j, bface_to]]
         end
 
-        # transfer the coords_from to the other side
-        transfer_face!(coords_from)
+        # transfer the coords_to to the other side
+        transfer_face!(coords_to)
 
         # get the extrama in each component ( = bounding box of the face)
         for k in 1:dim
-            box_from[k][1] = minimum(view(coords_from, k, :))
-            box_from[k][2] = maximum(view(coords_from, k, :))
+            box_to[k][1] = minimum(view(coords_to, k, :))
+            box_to[k][2] = maximum(view(coords_to, k, :))
         end
 
-        function inner_loop(faces_chunk)
+        function inner_loop(bfaces_chunk)
             # some data
-            local coords_to = coords[:, facenodes[:, 1]]
-            local box_to = @MArray [Float64[0, 0], Float64[0, 0], Float64[0, 0]]
-            local faces_to = Int[]
+            local coords_from = coords[:, bfacenodes[:, 1]]
+            local box_from = @MArray [Float64[0, 0], Float64[0, 0], Float64[0, 0]]
+            local bfaces_from = Int[]
 
-            for face_to in faces_chunk
+            for bface_from in bfaces_chunk
                 for j in 1:nodes_per_faces, k in 1:dim
-                    coords_to[k, j] = coords[k, facenodes[j, face_to]]
+                    coords_from[k, j] = coords[k, bfacenodes[j, bface_from]]
                 end
                 for k in 1:dim
-                    box_to[k][1] = minimum(view(coords_to, k, :))
-                    box_to[k][2] = maximum(view(coords_to, k, :))
+                    box_from[k][1] = minimum(view(coords_from, k, :))
+                    box_from[k][2] = maximum(view(coords_from, k, :))
                 end
 
-                if do_boxes_overlap(box_from, box_to)
-                    push!(faces_to, face_to)
+                if do_boxes_overlap(box_to, box_from)
+                    push!(bfaces_from, bface_from)
                 end
             end
 
-            return faces_to
+            return bfaces_from
         end
 
         if parallel && nthr > 1
             # create chunks to split this range for the threads
-            faces_chunks = chunks(faces_in_b_to, n = nthr)
+            bfaces_chunks = chunks(bfaces_in_b_from, n = nthr)
 
-            tasks = map(faces_chunks) do faces_chunk
-                Threads.@spawn inner_loop(faces_chunk)
+            tasks = map(bfaces_chunks) do bfaces_chunk
+                Threads.@spawn inner_loop(bfaces_chunk)
             end
 
             # put all results together
-            faces_to = vcat(fetch.(tasks)...)
+            bfaces_from = vcat(fetch.(tasks)...)
         else
-            faces_to = inner_loop(faces_in_b_to)
+            bfaces_from = inner_loop(bfaces_in_b_from)
         end
 
-        append!(searchareas, faces_to)
+        append!(searchareas, bfaces_from)
     end
 
+    # flip the adjacency: in the following we need search areas for each "from" face
+    searchareas = ExtendableGrids.atranspose(searchareas)
+
+    # we are only interest in global bface numbers on the "from" boundary
+    bfaces_of_interest = filter(bface -> boundary_regions[bface] in b_from, 1:n_boundary_faces)
+
     # throw error if no search area had been found for a bface
-    for source in 1:num_sources(searchareas)
+    for source in bfaces_of_interest
         if num_targets(searchareas, source) == 0
             throw("bface $source has no valid search area on the opposite side of the grid. Double check the provided from/to regions and your give_opposite! function")
         end
     end
-
-    # we are only interest in global bface numbers on the "from" boundary
-    bfaces_of_interest = filter(face -> boundary_regions[face] in b_from, 1:n_boundary_faces)
-    n_bface_of_interest = length(bfaces_of_interest)
 
     # loop over boundary face indices in a chunk: we need this index for dofs_on_boundary
     function compute_chunk_result(chunk)
@@ -399,9 +398,9 @@ function _get_periodic_coupling_matrix(
 
         local eval_point, _ = interpolate_on_boundaryfaces(fe_vector, xgrid, give_opposite!, post_mutation!)
 
-        for i_boundary_face in chunk
+        for boundary_face in chunk
 
-            local local_dofs = @views dofs_on_boundary[:, i_boundary_face]
+            local local_dofs = @views dofs_on_boundary[:, boundary_face]
             for local_dof in local_dofs
                 # compute number of component
                 if mask[1 + ((local_dof - 1) ÷ coffset)] == 0.0
@@ -415,17 +414,10 @@ function _get_periodic_coupling_matrix(
                 # activate one entry
                 fe_vector.entries[local_dof] = 1.0
 
-                # interpolate on the opposite boundary using x_trafo = give_opposite
-
-                local j = findfirst(==(face_numbers_of_bfaces[i_boundary_face]), faces_in_b_from)
-                if j <= 0
-                    throw("face $(face_numbers_of_bfaces[i_boundary_face]) is not on source boundary. Are the from/to regions and the give_opposite function correct?")
-                end
-
                 interpolate!(
                     fe_vector_target[1],
-                    ON_FACES, eval_point,
-                    items = view(searchareas, :, j)
+                    ON_BFACES, eval_point,
+                    items = @views bfaces_in_b_to[searchareas[:, boundary_face]]
                 )
 
                 # deactivate entry
