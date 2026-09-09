@@ -65,7 +65,7 @@ function CoupledDofsRestriction(
         unknown::Unknown,
         source_region::Ti,
         target_region::Ti;
-        give_opposite! = nothing,
+        source_target_transform! = nothing,
         post_mutation! = nothing,
         kwargs...
     ) where {Ti}
@@ -77,7 +77,7 @@ function CoupledDofsRestriction(
             :unknown => unknown,
             :source_region => source_region,
             :target_region => target_region,
-            :give_opposite! => give_opposite!,
+            :source_target_transform! => source_target_transform!,
             :post_mutation! => post_mutation!,
             :kwargs => kwargs
         )
@@ -97,8 +97,8 @@ function assemble!(R::CoupledDofsRestriction, sol, SC; kwargs...)
         target_region = R.parameters[:target_region]
         R_kwargs = R.parameters[:kwargs]
 
-        if !isnothing(R.parameters[:give_opposite!])
-            give_opposite! = R.parameters[:give_opposite!]
+        if !isnothing(R.parameters[:source_target_transform!])
+            source_target_transform! = R.parameters[:source_target_transform!]
         else
             grid = FES.dofgrid
 
@@ -117,7 +117,7 @@ function assemble!(R::CoupledDofsRestriction, sol, SC; kwargs...)
             # compute the sum of scalar product with the normals (reflection point)
             γ = source_coord'normal + target_coord'normal
 
-            give_opposite! = (y, x) -> begin
+            source_target_transform! = (y, x) -> begin
                 σ = 2.0 * normal'x
                 @. y = x + (γ - σ) * normal # then x ⇔ y are opposite along the normal vector
                 return nothing
@@ -134,7 +134,7 @@ function assemble!(R::CoupledDofsRestriction, sol, SC; kwargs...)
             FES,
             source_region,
             target_region,
-            give_opposite!;
+            source_target_transform!;
             post_mutation!,
             R_kwargs...
         )

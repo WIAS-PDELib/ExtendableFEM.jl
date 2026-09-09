@@ -162,7 +162,7 @@ end
 function interpolate_on_boundaryfaces(
         source::FEVector{Tv, TvG, TiG},
         xgrid::ExtendableGrid{TvG, TiG},
-        give_opposite!,
+        source_target_transform!,
         post_mutation!,
         start_cell::Int = 1, # TODO we interpolate on the "b_from" side: a proper start cell should be given
         eps = 1.0e-13,
@@ -183,7 +183,7 @@ function interpolate_on_boundaryfaces(
     end
 
     function __eval_point(result, qpinfo)
-        give_opposite!(x_source, qpinfo.x)
+        source_target_transform!(x_source, qpinfo.x)
 
         cell = ExtendableGrids.gFindLocal!(xref, CF, x_source; icellstart = last_cell[1], eps)
         if cell == 0
@@ -203,11 +203,12 @@ function get_periodic_coupling_matrix(
         xgrid::ExtendableGrid{TvG, TiG},
         b_from,
         b_to,
-        give_opposite!::Function;
+        source_target_transform!::Function;
+        post_mutation! = ExtendableFEMBase.standard_kernel,
         kwargs...
     ) where {Tv, TvG, TiG}
     @warn "get_periodic_coupling_matrix with grid argument is deprecated"
-    return _get_periodic_coupling_matrix(FES, xgrid, b_from, b_to, give_opposite!, ExtendableFEMBase.standard_kernel; kwargs...)
+    return _get_periodic_coupling_matrix(FES, xgrid, b_from, b_to, source_target_transform!, post_mutation!; kwargs...)
 end
 
 # merge matrix B into A, overriding the entries of A if an entry is both present in A and B
@@ -224,7 +225,7 @@ function _get_periodic_coupling_matrix(
         xgrid::ExtendableGrid{TvG, TiG},
         b_from,
         b_to,
-        give_opposite!::Function,
+        source_target_transform!::Function,
         post_mutation!::Function;
         mask = :auto,
         sparsity_tol = 1.0e-12,
@@ -294,12 +295,12 @@ function _get_periodic_coupling_matrix(
 
     dummy = zeros(TvG, size(xgrid[Coordinates], 1))
 
-    # flip a face to the other side using the give_opposite! function
+    # transform a face to the target side using the source_target_transform! function
     # Warning: this overwrites the face
     function transfer_face!(face::AbstractMatrix)
         for i in axes(face, 2)
             @views coord = face[:, i]
-            give_opposite!(dummy, coord)
+            source_target_transform!(dummy, coord)
             @views face[:, i] .= dummy
         end
         return
@@ -376,7 +377,7 @@ function _get_periodic_coupling_matrix(
     # throw error if no search area had been found for a bface
     for source in bfaces_of_interest
         if num_targets(searchareas, source) == 0
-            throw("bface $source has no valid search area on the opposite side of the grid. Double check the provided from/to regions and your give_opposite! function")
+            throw("bface $source has no valid search area on the target side of the grid. Double check the provided from/to regions and your source_target_transform! function")
         end
     end
 
@@ -396,7 +397,7 @@ function _get_periodic_coupling_matrix(
         local n = length(fe_vector.entries)
         local result = ExtendableSparseMatrix(n, n)
 
-        local eval_point, _ = interpolate_on_boundaryfaces(fe_vector, xgrid, give_opposite!, post_mutation!)
+        local eval_point, _ = interpolate_on_boundaryfaces(fe_vector, xgrid, source_target_transform!, post_mutation!)
 
         for boundary_face in chunk
 
@@ -462,7 +463,7 @@ function _get_periodic_coupling_matrix(
 
     # strange if nothing is coupled
     if nnz(sp_result) == 0
-        @warn "no coupling found. Are the grid boundary regions and the give_opposite! method correct?"
+        @warn "no coupling found. Are the grid boundary regions and the source_target_transform! method correct?"
     end
 
     return sp_result
@@ -473,7 +474,8 @@ end
         FES::FESpace,
         b_from,
         b_to,
-        give_opposite!::Function;
+        source_target_transform!::Function;
+        post_mutation! = ExtendableFEMBase.standard_kernel,
         mask = :auto,
         sparsity_tol = 1.0e-12
     )
@@ -484,13 +486,14 @@ Input:
  - FES: FE space to be coupled (on its dofgrid)
  - b_from: boundary region(s) of the grid which dofs should be replaced in terms of dofs on b_to
  - b_to: boundary region(s) of the grid with dofs to replace the dofs in b_from
- - give_opposite! Function in (y,x)
+  - source_target_transform! Function `source_target_transform!(y, x)` that maps a point `x ∈ b_from` to the corresponding point `y` on the target boundary
+ - post_mutation!: optional post-transformation applied after interpolation (e.g. to flip velocity components for Stokes problems)
  - mask: (optional) vector of masking components
  - sparsity_tol: threshold for treating an interpolated value as zero
 
-give_opposite!(y,x) has to be defined in a way that for each x ∈ b_from the resulting y is in the opposite boundary.
+source_target_transform!(x, y) has to be defined in a way that for each x ∈ b_from the resulting y is on the target boundary.
 For each x in the grid, the resulting y has to be in the grid, too: incorporate some mirroring of the coordinates.
-Example: If b_from is at x[1] = 0 and the opposite boundary is at y[1] = 1, then give_opposite!(y,x) = y .= [ 1-x[1], x[2] ]
+Example: If b_from is at x[1] = 0 and the target boundary is at y[1] = 1, then source_target_transform!(x, y) = y .= [ 1-x[1], x[2] ]
 
 The return value is a (𝑛 × 𝑛) sparse matrix 𝐴 (𝑛 is the total number of dofs) containing the periodic coupling information.
 The relation ship between the degrees of freedom is  dofᵢ = ∑ⱼ Aⱼᵢ ⋅ dofⱼ.
@@ -502,11 +505,11 @@ function get_periodic_coupling_matrix(
         FES,
         b_from,
         b_to,
-        give_opposite!;
+        source_target_transform!;
         post_mutation! = ExtendableFEMBase.standard_kernel,
         kwargs...
     )
-    return _get_periodic_coupling_matrix(FES, FES.dofgrid, b_from, b_to, give_opposite!, post_mutation!; kwargs...)
+    return _get_periodic_coupling_matrix(FES, FES.dofgrid, b_from, b_to, source_target_transform!, post_mutation!; kwargs...)
 end
 
 
