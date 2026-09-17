@@ -20,4 +20,4 @@ Pages = ["common_operators/item_integrator_dg.jl"]
 Order   = [:type, :function]
 ```
 
-See, e.g., Example207, Example210 or Example245 for some practical use cases.
+See, e.g., [Example207](module_examples/Example207_AdvectionUpwindDG.md), [Example210](module_examples/Example210_LshapeAdaptivePoissonProblem.md) or [Example245](module_examples/Example245_NSEFlowAroundCylinder.md) for some practical use cases.

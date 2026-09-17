@@ -17,7 +17,7 @@ get_periodic_coupling_info
 get_periodic_coupling_matrix
 ```
 
-## Example: Periodic Boundary Coupling (extract from Example212)
+## Example: Periodic Boundary Coupling (extract from [Example212](module_examples/Example212_PeriodicElasticity2D.md))
 
 Suppose you want to enforce periodicity between the left and right boundaries of a 2D domain. You can use `get_periodic_coupling_matrix` to find the corresponding DOFs, and then use `CombineDofs` to couple them in the system. The following code is adapted from [Example212_PeriodicElasticity2D.jl](https://github.com/WIAS-PDELib/ExtendableFEM.jl/blob/main/examples/Example212_PeriodicElasticity2D.jl):
 
@@ -36,4 +36,4 @@ coupling_matrix = get_periodic_coupling_matrix(FES, reg_left, reg_right, give_op
 assign_operator!(PD, CombineDofs(u, u, coupling_matrix))
 ```
 
-See also [Example212](https://wias-pdelib.github.io/ExtendableFEM.jl/stable/examples/) and [Example312](https://wias-pdelib.github.io/ExtendableFEM.jl/stable/examples/) for more advanced use cases and details on periodic boundary conditions.
+See also [Example212](module_examples/Example212_PeriodicElasticity2D.md) and [Example312](module_examples/Example312_PeriodicElasticity3D.md) for more advanced use cases and details on periodic boundary conditions.
