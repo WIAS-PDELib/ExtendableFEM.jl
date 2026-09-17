@@ -195,7 +195,7 @@ function build_assembler!(O::ItemIntegratorDG{Tv}, FE_args::Array{<:FEVectorBloc
 
         ## Assembly loop for fixed geometry
         function assembly_loop(
-                b::AbstractMatrix{T},
+                b,
                 sol::Array{<:FEVectorBlock, 1},
                 items,
                 EG::ElementGeometries,
@@ -203,9 +203,9 @@ function build_assembler!(O::ItemIntegratorDG{Tv}, FE_args::Array{<:FEVectorBloc
                 BE_args::Vector{Matrix{<:FEEvaluator}},
                 L2G::L2GTransformer,
                 QPinfos::QPInfos,
-            ) where {T}
+            )
 
-            input_args = zeros(T, op_offsets_args[end])
+            input_args = zeros(eltype(b), op_offsets_args[end])
             result_kernel = zeros(Tv, resultdim)
             itemorientations = xgrid[CellFaceOrientations]
             itemcells = xgrid[FaceCells]
