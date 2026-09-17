@@ -34,4 +34,4 @@ op = CallbackOperator(my_callback!; u_args=[1], name="CustomOp")
 - Advanced boundary or interface conditions
 - Prototyping new assembly strategies
 
-See also: [Example265](https://wias-pdelib.github.io/ExtendableFEM.jl/stable/examples/) for a practical use case.
+See also: [Example265](module_examples/Example265_FlowTransport.md) for a practical use case.
