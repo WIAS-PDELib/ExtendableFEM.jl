@@ -1,5 +1,12 @@
 # CHANGES
 
+
+## v1.12.1
+
+### Fixed
+  - piecewise = false argument for ItemIntegratorDG does not crash in evaluation anymore
+
+
 ## v1.12.0
 
 ### Changed
