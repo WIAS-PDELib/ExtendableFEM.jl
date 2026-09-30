@@ -271,7 +271,7 @@ function _get_periodic_coupling_matrix(
 
     # fill component mask if not done before
     if mask == :auto
-        mask = ones(ncomponents)
+        mask = ones(ncomponents + 1) # +1 such that non-component-related dofs are also coupled (e.g. for H1BR)
     else
         @assert length(mask) == ncomponents "component mask has to match number of components"
     end
