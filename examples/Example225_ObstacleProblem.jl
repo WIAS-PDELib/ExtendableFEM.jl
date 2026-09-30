@@ -73,9 +73,25 @@ function main(; Plotter = UnicodePlots, ϵ = 1.0e-4, nrefs = 6, order = 1, paral
 end
 
 generateplots = ExtendableFEM.default_generateplots(Example225_ObstacleProblem, "example225.png") #hide
-function runtests() #hide
-    sol, plt = main(; μ = 1.0, nrefs = 2, order = 2) #hide
+function runtests(; ϵ = 1.0e-4) #hide
+    sol, plt = main(; ϵ = ϵ, nrefs = 2, order = 2) #hide
     @test maximum(sol.entries) ≈ 0.0033496680638875204 #hide
+
+    ## check if iterate_until_stationarity arrives at the same solution #hide
+    ## NB: PD and FES here must mirror the settings of main above #hide
+    PD = ProblemDescription() #hide
+    u = Unknown("u"; name = "potential") #hide
+    assign_unknown!(PD, u) #hide
+    assign_operator!(PD, NonlinearOperator(obstacle_penalty_kernel!, [id(u)]; factor = 1 / ϵ)) #hide
+    assign_operator!(PD, BilinearOperator([grad(u)]; store = true)) #hide
+    assign_operator!(PD, LinearOperator([id(u)]; store = true, factor = -1)) #hide
+    assign_operator!(PD, HomogeneousBoundaryData(u; regions = 1:4)) #hide
+
+    sol2 = FEVector(sol[1].FES; tags = [u]) #hide
+    SC = SolverConfiguration(PD; init = sol2, maxiterations = 3) #hide
+    sol2, its = iterate_until_stationarity([SC]; init = sol2) #hide
+    @test all(abs.(sol.entries .- sol2.entries) .< 1.0e-14) #hide
+
     return nothing #hide
 end #hide
 end # module

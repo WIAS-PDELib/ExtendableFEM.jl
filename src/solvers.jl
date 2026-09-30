@@ -856,12 +856,6 @@ function iterate_until_stationarity(
     bs = [SC.b for SC in SCs]
     residuals = [SC.res for SC in SCs]
 
-    # Check linearity of each subproblem
-    is_linear = check_problem_linearity!(PDs, SCs, unknowns)
-    maxits = [is_linear[j] ? 1 : maxits[j] for j in 1:nPDs]
-
-    alloc_factor = 1024^2
-
     time_final = 0
     allocs_final = 0
     nlres = 1.1e30
@@ -890,7 +884,7 @@ function iterate_until_stationarity(
             maxits = SC.parameters[:maxiterations]
             nltol = SC.parameters[:target_residual]
             damping = SC.parameters[:damping]
-            for j in 1:1
+            for j in 1:maxits
                 time_total += @elapsed begin
                     # Assemble system and update timing/allocation info
                     assembly_time, assembly_allocs = assemble_system!(A, b, sol, PD, SC, TimerOutput(); kwargs...)
@@ -933,8 +927,12 @@ function iterate_until_stationarity(
                 time_final += time_assembly + time_solve_init
                 allocs_final += allocs_assembly + allocs_solve_init
 
-                if nlres < nltol
+                if (j == 1 || nPDs == 1) && (nlres < nltol)
                     converged[p] = true
+                    if verbosity > -1
+                        @printf "  converged "
+                    end
+                    break
                 else
                     converged[p] = false
                 end
@@ -951,6 +949,9 @@ function iterate_until_stationarity(
                 allocs_solve += allocs_solve_init
                 if verbosity > -1
                     @printf " (%.3e)" linres
+                    if (nPDs == 1)
+                        @printf "\n\t"
+                    end
                 end
                 push!(stats[:linear_residuals], linres)
             end # nonlinear iterations subproblem

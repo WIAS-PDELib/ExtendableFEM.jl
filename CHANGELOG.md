@@ -5,11 +5,14 @@
 ### Added
   - `CoupledDofsRestriction` now accepts `target2source!` and `post_mutation!` callbacks for arbitrary mutation operators (e.g. for periodic Stokes/Navier--Stokes with flipped velocity components)
   - new example `Example266_PeriodicStokes` (periodic incompressible Navier--Stokes )
+  - new regression test in `Example225_ObstacleProblem` that `iterate_until_stationarity` arrives at the same solution as `solve` for a single subproblem
 
-## v1.12.1
+### Changed
+  - `iterate_until_stationarity` iterates each subproblem up to its own `maxiterations` within one outer iteration (before, each subproblem was solved exactly once per outer iteration); for a single subproblem the inner iterations already stop when its `target_residual` is reached
 
 ### Fixed
   - piecewise = false argument for ItemIntegratorDG does not crash in evaluation anymore
+
 
 ## v1.12.0
 
