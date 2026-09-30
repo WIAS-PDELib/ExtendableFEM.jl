@@ -119,12 +119,11 @@ function assemble!(R::CoupledDofsRestriction, sol, SC; kwargs...)
             source_coord = grid[Coordinates][:, grid[BFaceNodes][1, source_bface]]
             target_coord = grid[Coordinates][:, grid[BFaceNodes][1, target_bface]]
 
-            # compute the sum of scalar product with the normals (reflection point)
-            γ = source_coord'normal + target_coord'normal
+            # compute the distance of the hyperplanes
+            γ = (source_coord - target_coord)'normal
 
             target2source! = (y, x) -> begin
-                σ = 2.0 * normal'x
-                @. y = x + (γ - σ) * normal # then x ⇔ y are opposite along the normal vector
+                @. y = x + γ * normal # then x ⇔ y are opposite along the normal vector
                 return nothing
             end
         end
