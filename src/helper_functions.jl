@@ -163,7 +163,7 @@ function interpolate_on_boundaryfaces(
         source::FEVector{Tv, TvG, TiG},
         xgrid::ExtendableGrid{TvG, TiG},
         target2source!,
-        post_mutation!,
+        post_mutation!;
         start_cell::Int = 1, # TODO we interpolate on the "b_from" side: a proper start cell should be given
         eps = 1.0e-13,
         kwargs...,
@@ -381,6 +381,12 @@ function _get_periodic_coupling_matrix(
         end
     end
 
+    # compute distance of the target2source transform, to determining the relative tolerance
+    coord_to = coords[:, bfacenodes[1, bfaces_in_b_to[1]]]
+    coord_from = zero(coord_to)
+    target2source!(coord_from, coord_to)
+    dist_planes = norm(coord_to - coord_from)
+
     # loop over boundary face indices in a chunk: we need this index for dofs_on_boundary
     function compute_chunk_result(chunk)
 
@@ -397,7 +403,7 @@ function _get_periodic_coupling_matrix(
         local n = length(fe_vector.entries)
         local result = ExtendableSparseMatrix(n, n)
 
-        local eval_point, _ = interpolate_on_boundaryfaces(fe_vector, xgrid, target2source!, post_mutation!)
+        local eval_point, _ = interpolate_on_boundaryfaces(fe_vector, xgrid, target2source!, post_mutation!, eps = dist_planes * 1.0e-12)
 
         for boundary_face in chunk
 

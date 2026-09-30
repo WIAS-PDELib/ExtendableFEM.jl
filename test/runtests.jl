@@ -16,6 +16,7 @@ include("test_itemintegrator.jl")
 include("test_timedependence.jl")
 include("test_nonlinear_operator.jl")
 include("test_helper_functions.jl")
+include("test_coupled_dof_restriction.jl")
 
 function run_examples()
     ExampleJuggler.verbose!(true)
@@ -68,6 +69,7 @@ function run_all_tests()
     run_itemintegrator_tests()
     run_dt_tests()
     run_test_helper_functions()
+    run_coupled_dofs_restriction_tests()
 
     return nothing
 end
