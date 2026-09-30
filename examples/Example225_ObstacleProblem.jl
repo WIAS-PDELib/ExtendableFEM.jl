@@ -90,7 +90,7 @@ function runtests(; ϵ = 1.0e-4) #hide
     sol2 = FEVector(sol[1].FES; tags = [u]) #hide
     SC = SolverConfiguration(PD; init = sol2, maxiterations = 3) #hide
     sol2, its = iterate_until_stationarity([SC]; init = sol2) #hide
-    @test all(abs.(sol.entries .- sol2.entries) .< 1e-14) #hide
+    @test all(abs.(sol.entries .- sol2.entries) .< 1.0e-14) #hide
 
     return nothing #hide
 end #hide
