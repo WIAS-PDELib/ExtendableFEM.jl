@@ -10,7 +10,7 @@ This section describes how to solve time-dependent (non-stationary) PDEs using t
 - **Automatic approach:**
     - Reframe the `ProblemDescription` as an ODE problem and solve it using [DifferentialEquations.jl](https://diffeq.sciml.ai/stable/) via the `ExtendableFEMDiffEQExt.jl` extension.
 
-Several time-dependent examples are available, including both approaches. See, for example, [Example103 (Burgers' equation)](https://wias-pdelib.github.io/ExtendableFEM.jl/stable/examples/) and [Example205 (Heat equation)](https://wias-pdelib.github.io/ExtendableFEM.jl/stable/examples/).
+Several time-dependent examples are available, including both approaches. See, for example, [Example103 (Burgers' equation)](module_examples/Example103_BurgersEquation.md) and [Example205 (Heat equation)](module_examples/Example205_HeatEquation.md).
 
 ## Using SciMLBase.ODEProblem and DifferentialEquations.jl
 
@@ -37,7 +37,7 @@ Order   = [:type, :function]
 !!! note
     When using DifferentialEquations.jl, set `autodiff=false` in the solver options, as automatic differentiation of the generated ODEProblem with respect to time is not currently supported.
 
-## Example: 2D Heat Equation (extracted from Example205)
+## Example: 2D Heat Equation (extracted from [Example205](module_examples/Example205_HeatEquation.md))
 
 The following `ProblemDescription` yields the space discretization of the heat equation (including homogeneous boundary conditions; equivalent to the Poisson equation):
 

@@ -24,6 +24,7 @@ function make_all(; with_examples::Bool = true, modules = :all, run_examples::Bo
         module_examples = @docmodules(example_dir, modules, Plotter = CairoMakie)
         #html_examples = @docplutonotebooks(example_dir, notebooks, iframe=false)
         #pluto_examples = @docplutonotebooks(example_dir, notebooks, iframe=true)
+        pushfirst!(module_examples, "Introduction" => "examples_intro.md")
     end
 
     makedocs(

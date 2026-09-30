@@ -10,7 +10,7 @@ Pages = ["common_operators/discface_interpolator.jl"]
 Order   = [:type, :function]
 ```
 
-## Example Usage (extracted from Example210)
+## Example Usage (extracted from [Example210](module_examples/Example210_LshapeAdaptivePoissonProblem.md))
 
 Suppose you want to compute the jumps of the gradient of a scalar-valued
 Lagrange finite element function on the interior edges, e.g. to compute an a posteriori error estimator.
@@ -23,4 +23,4 @@ NormalJumpProjector = FaceInterpolator(gradnormalflux!, [jump(grad(u))]; resultd
 Jumps4Faces = evaluate!(NormalJumpProjector, sol)
 ```
 
-See the [Example212](https://wias-pdelib.github.io/ExtendableFEM.jl/stable/examples/) for the complete example.
+See the [Example212](module_examples/Example212_PeriodicElasticity2D.md) for the complete example.
