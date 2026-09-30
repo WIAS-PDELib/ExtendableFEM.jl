@@ -187,7 +187,7 @@ function interpolate_on_boundaryfaces(
 
         cell = ExtendableGrids.gFindLocal!(xref, CF, x_source; icellstart = last_cell[1], eps)
         if cell == 0
-            @error "boundary coordinate $(qpinfo.x) opposite to $x_source could not be found in the grid"
+            error("boundary coordinate $(qpinfo.x) opposite to $x_source could not be found in the grid")
         else
             evaluate_bary!(result, PE, xref, cell)
             last_cell[1] = cell
