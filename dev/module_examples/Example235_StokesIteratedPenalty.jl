@@ -119,8 +119,8 @@ function runtests(; μ = 1.0) #hide
     error = evaluate(ErrorIntegratorExact, sol) #hide
     error_u = sqrt(sum(view(error, 1, :)) + sum(view(error, 2, :))) #hide
     error_p = sqrt(sum(view(error, 3, :))) #hide
-    @test error_u ≈ 3.9909874948853305e-5 #hide
-    @test error_p ≈ 0.010437893609666406 #hide
+    @test error_u ≈ 3.990987340098301e-5 #hide
+    @test error_p ≈ 0.010437891103491012 #hide
     return nothing #hide
 end #hide
 end

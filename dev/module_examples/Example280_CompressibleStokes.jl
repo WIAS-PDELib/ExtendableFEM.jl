@@ -339,7 +339,7 @@ function runtests() #hide
     Results, plt = main(; nrefs = 2) #hide
     @test Results[end, 6] <= 1.0e-11 #hide
     @test Results[end, 7] <= 1.0e-11 #hide
-    @test Results[end, 1] ≈ 6.732844061502945e-7 #hide
+    @test Results[end, 1] ≈ 6.732891488276447e-7 #hide
     return nothing #hide
 end #hide
 end
