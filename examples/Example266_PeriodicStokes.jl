@@ -12,12 +12,6 @@ walls. The equations seek a velocity ``\mathbf{u}`` and a pressure ``p`` such th
 \mathrm{div}(\mathbf{u}) & = 0
 \end{aligned}
 ```
-!!! reference
-
-    ''On the divergence constraint in mixed finite element methods for incompressible flows'',\
-    V. John, A. Linke, C. Merdon, M. Neilan and L. Rebholz,\
-    SIAM Review 59(3) (2017),\
-    [>Link<](https://doi.org/10.1137/15M1047696)
 
 The solution is computed via Taylor--Hood elements.
 For the default parameters the result looks like this:
