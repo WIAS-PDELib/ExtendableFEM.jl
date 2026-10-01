@@ -1,6 +1,15 @@
 # CHANGES
 
-## v1.13.0
+
+## v1.13.2
+
+### Fixed
+  - removed added break before solve in subproblems of iterate_until_stationarity from 1.13.1 as this might lead to
+    pre-mature break in coupled subproblems (when small changes in one problem cause large changes in others), no
+    the break only occurs when there is only one subproblem
+
+
+## v1.13.1
 
 ### Added
   - `CoupledDofsRestriction` now accepts `target2source!` and `post_mutation!` callbacks for arbitrary mutation operators (e.g. for periodic Stokes/Navier--Stokes with flipped velocity components)

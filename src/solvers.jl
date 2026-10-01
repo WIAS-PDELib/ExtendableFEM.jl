@@ -929,10 +929,13 @@ function iterate_until_stationarity(
 
                 if (j == 1 || nPDs == 1) && (nlres < nltol)
                     converged[p] = true
-                    if verbosity > -1
-                        @printf "  converged "
+                    if nPDs == 1
+                        if verbosity > -1
+                            @printf "  converged "
+                        end
+                        break
                     end
-                    break
+                    # otherwise don't break, since small changes here, might lead to larger changes in other subproblems !
                 else
                     converged[p] = false
                 end
