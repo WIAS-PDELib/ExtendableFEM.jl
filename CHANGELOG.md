@@ -1,6 +1,12 @@
 # CHANGES
 
 
+## v1.13.3
+
+### Added
+  - new kwarg `interpolation_eps` for `get_periodic_coupling_matrix` to control the tolerance of the interpolation evaluation points on the target boundary
+
+
 ## v1.13.2
 
 ### Fixed

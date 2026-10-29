@@ -229,6 +229,7 @@ function _get_periodic_coupling_matrix(
         post_mutation!::Function;
         mask = :auto,
         sparsity_tol = 1.0e-12,
+        interpolation_rtol = 1.0e-12,
         parallel = false,
         threads = Threads.nthreads()
     ) where {Tv, TvG, TiG}
@@ -403,7 +404,7 @@ function _get_periodic_coupling_matrix(
         local n = length(fe_vector.entries)
         local result = ExtendableSparseMatrix(n, n)
 
-        local eval_point, _ = interpolate_on_boundaryfaces(fe_vector, xgrid, target2source!, post_mutation!, eps = dist_planes * 1.0e-12)
+        local eval_point, _ = interpolate_on_boundaryfaces(fe_vector, xgrid, target2source!, post_mutation!, eps = dist_planes * interpolation_rtol)
 
         for boundary_face in chunk
 
@@ -483,7 +484,8 @@ end
         target2source!::Function;
         post_mutation! = ExtendableFEMBase.standard_kernel,
         mask = :auto,
-        sparsity_tol = 1.0e-12
+        sparsity_tol = 1.0e-12,
+        interpolation_eps = 1.0e-12
     )
 
 Compute a coupling information for each dof on one boundary as a linear combination of dofs on another boundary
@@ -496,6 +498,7 @@ Input:
  - post_mutation!: optional post-transformation applied after interpolation (e.g. to flip velocity components for Stokes problems)
  - mask: (optional) vector of masking components
  - sparsity_tol: threshold for treating an interpolated value as zero
+ - interpolation_eps: relative tolerance (w.r.t. the distance between the boundaries) for the evaluation points on the target boundary
 
 target2source!(x, y) has to be defined in a way that for each x ∈ b_from the resulting y is on the target boundary.
 For each x in the grid, the resulting y has to be in the grid, too: incorporate some mirroring of the coordinates.
