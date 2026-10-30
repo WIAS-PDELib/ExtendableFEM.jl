@@ -27,6 +27,7 @@ function run_examples()
         "Example204_LaplaceEVProblem.jl",
         "Example206_CoupledSubGridProblems.jl",
         "Example227_ObstacleProblemLVPP.jl",
+        "Example260_AxisymmetricNavierStokesProblem.jl",
         "Example264_StokesDarcy.jl",
         "Example282_IncompressibleMHD.jl",
         "Example284_LevelSetMethod.jl",
