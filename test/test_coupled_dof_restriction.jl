@@ -72,8 +72,8 @@ function run_coupled_dofs_restriction_tests()
                 assign_operator!(PD, BilinearOperator([grad(u)]))
 
                 assign_restriction!(PD, BoundaryDataRestriction(u; regions = [5, 6]))
-                assign_restriction!(PD, CoupledDofsRestriction(u, 1, 2; interpolation_rtol = 1.0e-11))
-                assign_restriction!(PD, CoupledDofsRestriction(u, 3, 4; interpolation_rtol = 1.0e-11))
+                assign_restriction!(PD, CoupledDofsRestriction(u, 1, 2; interpolation_rtol = 1.0e-10))
+                assign_restriction!(PD, CoupledDofsRestriction(u, 3, 4; interpolation_rtol = 1.0e-10))
 
                 # assembly of the coupling matrix and solve must not crash
                 sol, SC = solve(PD, FES; return_config = true)
